@@ -1,0 +1,99 @@
+/* Visor de documentos y bloques de ubicación
+   Usa las variables de color y tipografía definidas en index.html. */
+
+/* ---------- Bloque «Dónde está exactamente» ---------- */
+
+.ubic-zona{margin-top:6px}
+.ubics{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+
+.ubic{width:100%;display:flex;gap:11px;align-items:flex-start;text-align:left;
+  background:#F7F9FA;border:1px solid var(--linea);border-left:2px solid var(--azul);
+  padding:9px 12px;cursor:pointer;font:inherit;color:var(--tinta);
+  transition:background .12s,border-color .12s}
+.ubic:hover{background:var(--azul-cl);border-left-color:var(--tinta)}
+.ubic:focus-visible{outline:2px solid var(--granate);outline-offset:2px}
+
+.ubic-doc{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--azul);
+  background:var(--lienzo);border:1px solid #AEC4D3;padding:2px 6px;flex:0 0 auto}
+.ubic-cuerpo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ubic-ruta{font-family:var(--disp);font-size:12.5px;font-weight:600;color:var(--tinta-70);
+  line-height:1.35}
+.ubic-ancla{font-family:var(--mono);font-size:11.5px;color:var(--acero);
+  overflow-wrap:anywhere;line-height:1.4}
+.ubic-ver{font-family:var(--disp);font-size:11px;font-weight:600;color:var(--granate);
+  flex:0 0 auto;padding-top:2px}
+.ubic-nota{margin:5px 0 0 12px;font-size:12.5px;line-height:1.5;color:var(--acero);
+  border-left:2px solid var(--niebla-2);padding-left:10px}
+
+/* ---------- Lupa en la matriz de contradicciones ---------- */
+
+.mtz-ver{margin-left:6px;background:none;border:1px solid var(--linea);border-radius:2px;
+  color:var(--acero);font-size:11px;line-height:1;padding:2px 5px;cursor:pointer;
+  vertical-align:middle}
+.mtz-ver:hover{border-color:var(--granate);color:var(--granate)}
+.mtz-ver:focus-visible{outline:2px solid var(--granate);outline-offset:1px}
+
+/* ---------- Panel del visor ---------- */
+
+.visor{position:fixed;top:0;right:0;bottom:0;width:46vw;min-width:420px;max-width:760px;
+  background:var(--lienzo);border-left:1px solid var(--linea);
+  box-shadow:-14px 0 34px rgba(20,32,46,.13);
+  display:flex;flex-direction:column;z-index:60}
+.visor[hidden]{display:none}
+
+.visor-cab{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;
+  background:var(--tinta);color:#fff}
+.visor-ident{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.visor-doc{font-family:var(--disp);font-weight:700;font-size:14px}
+.visor-ruta{font-family:var(--mono);font-size:11.5px;color:#B7C4D0;line-height:1.4}
+.visor-x{background:none;border:1px solid #3B4A5C;color:#fff;font-size:13px;
+  padding:3px 9px;cursor:pointer;border-radius:2px;flex:0 0 auto}
+.visor-x:hover{background:#3B4A5C}
+.visor-x:focus-visible{outline:2px solid #fff;outline-offset:1px}
+
+.visor-ancla{padding:12px 16px;background:#F4F6F7;border-bottom:1px solid var(--linea)}
+.visor-ancla-cab{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.visor-et{font-family:var(--disp);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--acero)}
+.visor-copiar{font-family:var(--disp);font-size:11.5px;font-weight:600;
+  background:var(--lienzo);border:1px solid var(--linea);border-radius:2px;
+  padding:3px 10px;cursor:pointer;color:var(--tinta)}
+.visor-copiar:hover{border-color:var(--acero)}
+.visor-copiar:focus-visible{outline:2px solid var(--granate);outline-offset:1px}
+.visor-ancla code{display:block;margin-top:7px;font-family:var(--mono);font-size:12.5px;
+  background:var(--lienzo);border:1px solid var(--niebla-2);padding:8px 10px;
+  color:var(--tinta);overflow-wrap:anywhere;line-height:1.5}
+.visor-nota{margin:9px 0 0;font-size:13px;line-height:1.5;color:var(--tinta-70)}
+.visor-tip{margin:6px 0 0;font-size:12px;font-style:italic;color:var(--acero)}
+
+.visor-marco{flex:1;position:relative;background:#EDF0F2;min-height:0}
+.visor-marco iframe{position:relative;z-index:1;width:100%;height:100%;border:0;
+  background:var(--lienzo)}
+.visor-fallo{position:absolute;inset:0;z-index:0;display:flex;align-items:center;
+  justify-content:center;text-align:center;margin:0;padding:30px;
+  font-size:13px;line-height:1.6;color:var(--acero)}
+.visor-fallo a{color:var(--granate)}
+
+.visor-pie{display:flex;gap:10px;align-items:center;padding:10px 16px;
+  border-top:1px solid var(--linea);background:var(--lienzo)}
+.visor-bt{font-family:var(--disp);font-size:12.5px;font-weight:600;color:var(--tinta);
+  border:1px solid var(--linea);border-radius:2px;padding:5px 12px;text-decoration:none}
+.visor-bt:hover{border-color:var(--granate);color:var(--granate)}
+.visor-paso{flex:1;font-family:var(--mono);font-size:11px;color:var(--acero)}
+.visor-nav{background:var(--lienzo);border:1px solid var(--linea);border-radius:2px;
+  font-size:15px;line-height:1;padding:3px 11px;cursor:pointer;color:var(--tinta)}
+.visor-nav:hover{border-color:var(--acero)}
+.visor-nav[hidden]{display:none}
+
+/* Con el visor abierto la página entera se estrecha en lugar de quedar tapada.
+   Se desplaza el body, no .wrap, porque ese selector se reutiliza en varios
+   contextos de la página y cada uno tiene su propia caja. */
+@media (min-width:1100px){
+  body.con-visor{padding-right:46vw}
+}
+
+@media (max-width:1099px){
+  .visor{width:100vw;min-width:0;max-width:none;left:0}
+  .ubic{flex-wrap:wrap}
+  .ubic-ver{width:100%;text-align:right}
+}

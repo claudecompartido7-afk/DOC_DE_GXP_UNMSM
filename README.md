@@ -36,7 +36,10 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 ├── assets/
 │   ├── doc.css
 │   ├── decisiones.css                interfaz de aceptación de recomendaciones
-│   └── decisiones.js
+│   ├── decisiones.js
+│   ├── localizaciones.js             dónde está cada hallazgo en su documento
+│   ├── visor.css                     visor lateral de documentos
+│   └── visor.js
 ├── apps-script/                      backend del registro de decisiones
 │   ├── Codigo.gs                     Web App: escribe en los 4 documentos
 │   ├── appsscript.json
@@ -57,6 +60,21 @@ el endpoint en `index.html`.
 
 Sin endpoint configurado la interfaz funciona igual, pero las decisiones sólo se
 guardan en el navegador.
+
+## Visor de documentos
+
+Cada hallazgo del diagnóstico y cada celda de la matriz de contradicciones
+declaran **dónde está el problema**: la ruta dentro del documento, el texto
+literal con el que encontrarlo y, en las hojas de cálculo, la celda.
+
+Al pulsar «Ver» se abre a la derecha el documento de origen. En las hojas el
+visor salta directamente a la celda; en los documentos de texto Google no
+permite anclar a un texto arbitrario desde la URL, así que el visor entrega el
+texto ancla con un botón de copiar para pegarlo en Ctrl+F.
+
+Las 52 anclas están en [assets/localizaciones.js](assets/localizaciones.js). El
+visor incrusta la vista previa de Drive: quien lo consulte necesita acceso de
+lectura a los cuatro archivos.
 
 ## Reglas que rigen esta documentación
 

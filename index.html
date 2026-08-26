@@ -244,6 +244,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
+<link rel="stylesheet" href="assets/visor.css">
 <link rel="stylesheet" href="assets/decisiones.css">
 </head>
 <body>
@@ -712,6 +713,8 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
      documentos de Drive. Si se deja vacío, la interfaz sigue funcionando pero
      las decisiones sólo se guardan en el navegador. Ver apps-script/README.md. -->
 <script>window.GXP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznrWyFZcXbfKKcVuTOy3UkC52iCBupahu381eccspDwpP48x5qtH-2QNxL9ukVzil7/exec';</script>
+<script src="assets/localizaciones.js"></script>
+<script src="assets/visor.js"></script>
 <script src="assets/decisiones.js"></script>
 
 <script>
@@ -906,6 +909,7 @@ function pintarHall(){
       <dt>Evidencia</dt><dd class="ev">${x.ev}</dd>
       <dt>Por qué importa</dt><dd>${x.im}</dd>
       <dt>Corrección</dt><dd>${x.co}</dd>
+      ${window.GXP_VISOR ? window.GXP_VISOR.bloqueLoc(x.c) : ''}
       ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
     </dl>
   </details>`).join('');
@@ -947,7 +951,7 @@ const MTZ=[
 ];
 document.getElementById('mtzBody').innerHTML=MTZ.map(r=>`
 <tr><td class="asunto">${r.a}<small>${r.k}</small></td>
-${r.v.map(v=>`<td class="d">${v.t==='—'?'<span class="vacio">no lo declara</span>':`<span class="val ${v.c}">${v.t}</span>`}</td>`).join('')}</tr>`).join('');
+${r.v.map((v,ci)=>`<td class="d">${v.t==='—'?'<span class="vacio">no lo declara</span>':`<span class="val ${v.c}">${v.t}</span>`}${window.GXP_VISOR?window.GXP_VISOR.botonMtz(r.a,ci):''}</td>`).join('')}</tr>`).join('');
 
 /* ============ CRONOGRAMA ============ */
 const CR=[
