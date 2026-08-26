@@ -57,18 +57,26 @@
   /* ==================== MODELO ==================== */
 
   /**
-   * Un hallazgo puede traer varias recomendaciones en `recs`; los que sólo
-   * tienen el campo `co` heredado se normalizan a una sola. Así la interfaz
-   * admite N recomendaciones sin tocar los datos que ya existen.
+   * Recomendaciones de un hallazgo, por orden de preferencia:
+   *   1. las redactadas en assets/recomendaciones.js
+   *   2. un arreglo `recs` en el propio hallazgo
+   *   3. el campo `co` heredado, como recomendación única
+   * Así la interfaz admite N recomendaciones sin depender de una sola fuente.
    */
   function recomendacionesDe(h) {
-    const lista = Array.isArray(h.recs) && h.recs.length
-      ? h.recs
-      : [{ t: h.co }];
+    const catalogo = window.GXP_RECS && window.GXP_RECS[h.c];
+    const lista = (catalogo && catalogo.length) ? catalogo
+      : (Array.isArray(h.recs) && h.recs.length ? h.recs : [{ t: h.co }]);
+
     return lista.map(function (r, i) {
+      const obj = typeof r === 'string' ? { t: r } : r;
       return {
         id: h.c + '-R' + (i + 1),
-        texto: typeof r === 'string' ? r : r.t,
+        texto: obj.t,
+        responsable: obj.q || '',
+        entregable: obj.e || '',
+        orden: i + 1,
+        total: lista.length,
         codigo: h.c,
         severidad: h.s,
         titulo: h.h,
@@ -92,7 +100,12 @@
       const d = estado[r.id];
       return `
       <li class="rec" data-rec="${esc(r.id)}" data-estado="${d ? 'aceptada' : 'abierta'}">
+        <div class="rec-cab">
+          <span class="rec-n">R${r.orden}${r.total > 1 ? ' de ' + r.total : ''}</span>
+          ${r.responsable ? `<span class="rec-quien">${esc(r.responsable)}</span>` : ''}
+        </div>
         <div class="rec-texto" data-rol="texto">${esc(d ? d.texto : r.texto)}</div>
+        ${r.entregable ? `<p class="rec-ent">Entregable → ${esc(r.entregable)}</p>` : ''}
         <div class="rec-edicion" data-rol="edicion" hidden>
           <label class="sr-only" for="ta-${esc(r.id)}">Editar la recomendación ${esc(r.id)}</label>
           <textarea id="ta-${esc(r.id)}" data-rol="area" rows="4"
@@ -189,7 +202,7 @@
       accion: 'decision',
       codigo: id,
       severidad: base.severidad || '',
-      titulo: base.titulo || '',
+      titulo: (base.titulo || '') + (base.total > 1 ? ' · R' + base.orden + '/' + base.total : ''),
       recomendacion: textoFinal,
       editada: !!editada,
       destinos: base.destinos || [],

@@ -37,6 +37,7 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 │   ├── doc.css
 │   ├── decisiones.css                interfaz de aceptación de recomendaciones
 │   ├── decisiones.js
+│   ├── recomendaciones.js            108 recomendaciones, 37 hallazgos
 │   ├── localizaciones.js             dónde está cada hallazgo en su documento
 │   ├── visor.css                     visor lateral de documentos
 │   └── visor.js
@@ -49,9 +50,16 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 
 ## Registro de decisiones
 
-En el panel **Diagnóstico**, cada hallazgo despliega sus recomendaciones con dos
-botones: «Acepto la recomendación» y «Mejorar la recomendación». El segundo abre
-el texto para editarlo y lo confirma con «Acepto recomendación».
+En el panel **Diagnóstico**, cada hallazgo se descompone en **acciones
+independientes** —108 recomendaciones para los 37 hallazgos, entre dos y cuatro
+por hallazgo—, cada una con su responsable propuesto y el entregable que la da
+por cerrada.
+
+La unidad de decisión es la recomendación, no el hallazgo: se acepta, se edita o
+se deja abierta cada una por separado, y cada una viaja al registro con su propio
+código (`D1-01-R2`). Los botones son «Acepto la recomendación» y «Mejorar la
+recomendación»; el segundo abre el texto para editarlo y lo confirma con «Acepto
+recomendación».
 
 Cada aceptación se registra en tiempo real en los documentos de Drive que el
 hallazgo afecta, más el Plan de Alcance como libro maestro. Consulte

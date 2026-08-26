@@ -713,6 +713,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
      documentos de Drive. Si se deja vacío, la interfaz sigue funcionando pero
      las decisiones sólo se guardan en el navegador. Ver apps-script/README.md. -->
 <script>window.GXP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznrWyFZcXbfKKcVuTOy3UkC52iCBupahu381eccspDwpP48x5qtH-2QNxL9ukVzil7/exec';</script>
+<script src="assets/recomendaciones.js"></script>
 <script src="assets/localizaciones.js"></script>
 <script src="assets/visor.js"></script>
 <script src="assets/decisiones.js"></script>
@@ -908,7 +909,7 @@ function pintarHall(){
     <dl class="det">
       <dt>Evidencia</dt><dd class="ev">${x.ev}</dd>
       <dt>Por qué importa</dt><dd>${x.im}</dd>
-      <dt>Corrección</dt><dd>${x.co}</dd>
+      <dt>Corrección en una línea</dt><dd>${x.co}</dd>
       ${window.GXP_VISOR ? window.GXP_VISOR.bloqueLoc(x.c) : ''}
       ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
     </dl>
