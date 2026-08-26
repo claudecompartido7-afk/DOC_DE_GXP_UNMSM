@@ -288,7 +288,8 @@ window.GXP_LOC_MTZ = {
   'Fecha de cierre de la Fase 1': [
     { d:'D1', r:'§3 Definición del Alcance', a:'30 de setiembre de 2026' },
     { d:'D2', r:'Actividad 1.3.2 › cierre', c:'D30', a:'Cierre de Fase 1 (Cierre 30 Oct)' },
-    { d:'D2', r:'Actividad 1.3.5 › validación', c:'D28', a:'Revisión y validación de MAGPROF' },
+    { d:'D3', r:'Bitácora › bloque de validación del MAGPROF', a:'MAGPROF',
+      n:'La bitácora cierra la validación el 18/09/2026, doce días antes que el hito del D1.' },
     null ],
   'Fecha de inicio del proyecto': [
     null,

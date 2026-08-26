@@ -384,6 +384,11 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
     </table>
   </div>
   <p class="nota" style="margin-top:16px">Una fila ya está cerrada: el avance de fase se mide únicamente con la revisión interna (D4), y el porcentaje del cronograma se reclasificó como ejecución de actividades. Quedan <strong>8 filas abiertas</strong>. En 7 de ellas el documento que debería ser la fuente autorizada —el Plan de Alcance— no contiene el dato o contiene uno distinto al que el equipo usa en la práctica: la línea base está desactualizada respecto de la ejecución real.</p>
+
+  <hr class="sep">
+  <h3 class="bloque"><span class="idx">01</span> Cómo se resuelve cada contradicción</h3>
+  <p class="nota">Resolver una fila no es corregir un documento: es elegir qué valor gana y propagarlo a los que discrepan. Cada contradicción se descompone en acciones independientes, con su responsable y su entregable, que se aceptan por separado.</p>
+  <div id="listaMtz"></div>
 </section>
 
 <!-- ============ ALCANCE ============ -->
@@ -717,6 +722,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 <script src="assets/localizaciones.js"></script>
 <script src="assets/visor.js"></script>
 <script src="assets/decisiones.js"></script>
+<script src="assets/contradicciones.js"></script>
 
 <script>
 /* ============ NAVEGACIÓN ============ */
@@ -950,6 +956,8 @@ const MTZ=[
 {a:'Formato de fecha',k:'dato',
  v:[{t:'texto («30 de setiembre de 2026»)',c:''},{t:'dd/mm/aaaa',c:'ok'},{t:'d-m-aa',c:'dif'},{t:'—',c:''}]}
 ];
+window.MTZ=MTZ;
+
 document.getElementById('mtzBody').innerHTML=MTZ.map(r=>`
 <tr><td class="asunto">${r.a}<small>${r.k}</small></td>
 ${r.v.map((v,ci)=>`<td class="d">${v.t==='—'?'<span class="vacio">no lo declara</span>':`<span class="val ${v.c}">${v.t}</span>`}${window.GXP_VISOR?window.GXP_VISOR.botonMtz(r.a,ci):''}</td>`).join('')}</tr>`).join('');

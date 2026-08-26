@@ -38,6 +38,7 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 │   ├── decisiones.css                interfaz de aceptación de recomendaciones
 │   ├── decisiones.js
 │   ├── recomendaciones.js            108 recomendaciones, 37 hallazgos
+│   ├── contradicciones.js            42 recomendaciones, 9 contradicciones
 │   ├── localizaciones.js             dónde está cada hallazgo en su documento
 │   ├── visor.css                     visor lateral de documentos
 │   └── visor.js
@@ -55,9 +56,16 @@ independientes** —108 recomendaciones para los 37 hallazgos, entre dos y cuatr
 por hallazgo—, cada una con su responsable propuesto y el entregable que la da
 por cerrada.
 
+La **matriz de contradicciones** se resuelve del mismo modo, con 42 recomendaciones
+para sus 9 filas. Resolver una contradicción no es corregir un documento: es
+elegir qué valor gana y propagarlo a los que discrepan, así que cada una declara
+la columna que debe ganar y por qué, y sus recomendaciones siguen esa secuencia
+—decidir en acta, propagar a cada documento discrepante, impedir que vuelva a
+divergir.
+
 La unidad de decisión es la recomendación, no el hallazgo: se acepta, se edita o
 se deja abierta cada una por separado, y cada una viaja al registro con su propio
-código (`D1-01-R2`). Los botones son «Acepto la recomendación» y «Mejorar la
+código (`D1-01-R2`, `MTZ-06-R4`). En total, **150 decisiones registrables**. Los botones son «Acepto la recomendación» y «Mejorar la
 recomendación»; el segundo abre el texto para editarlo y lo confirma con «Acepto
 recomendación».
 

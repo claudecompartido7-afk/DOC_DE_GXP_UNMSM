@@ -180,7 +180,9 @@
 
   function datosDe(li) {
     const id = li.dataset.rec;
-    const h = (window.HALL || []).filter(x => x.c === id.replace(/-R\d+$/, ''))[0] || {};
+    const base = id.replace(/-R\d+$/, '');
+    const fuentes = (window.HALL || []).concat(window.GXP_MTZ_ITEMS || []);
+    const h = fuentes.filter(x => x.c === base)[0] || {};
     const r = recomendacionesDe(h).filter(x => x.id === id)[0] || {};
     return { id, hallazgo: h, base: r };
   }
