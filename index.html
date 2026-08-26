@@ -708,10 +708,10 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
   <div><a href="https://drive.google.com/drive/folders/1rblnuHlVZBJNMwhEN5afhDjPi6GyEn0f" target="_blank" rel="noopener">Abrir la carpeta en Drive ↗</a></div>
 </div></footer>
 
-<!-- Endpoint de la Web App de Apps Script. Sustituya por su URL /exec.
-     Mientras esté vacío la interfaz funciona y guarda en el navegador,
-     pero no registra nada en los documentos de Drive. -->
-<script>window.GXP_ENDPOINT = '';</script>
+<!-- Endpoint de la Web App de Apps Script que registra las decisiones en los
+     documentos de Drive. Si se deja vacío, la interfaz sigue funcionando pero
+     las decisiones sólo se guardan en el navegador. Ver apps-script/README.md. -->
+<script>window.GXP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznrWyFZcXbfKKcVuTOy3UkC52iCBupahu381eccspDwpP48x5qtH-2QNxL9ukVzil7/exec';</script>
 <script src="assets/decisiones.js"></script>
 
 <script>
