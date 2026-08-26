@@ -1,0 +1,17 @@
+﻿Codigo,Tipo,Denominacion_oficial,Exigencia,Advertencia
+PE.01,Estratégico,Gestión Estratégica,Obligatorio,
+PE.02,Estratégico,Gestión de la Calidad y Mejora Continua,Obligatorio,
+PE.03,Estratégico,Gestión de Relaciones Interinstitucionales,Opcional,
+PM.01,Misional,Gestión de la Formación Académica,Obligatorio,
+PM.02,Misional,Gestión de la Investigación,Obligatorio,"No usar «Investigación, Desarrollo e Innovación»"
+PM.03,Misional,Gestión de la Responsabilidad y Vinculación Social,Obligatorio,
+PS.01,Soporte,Gestión de Admisión y Matrícula,Obligatorio,No invertir el orden a «Matrícula y Admisión»
+PS.02,Soporte,Gestión Documental,Obligatorio,
+PS.03,Soporte,Gestión de Bienestar Integral,Obligatorio,
+PS.04,Soporte,Gestión de Recursos Económicos,Obligatorio,"ERROR FRECUENTE: se le asigna Recursos Bibliográficos, que es PS.09"
+PS.05,Soporte,Gestión de Recursos Humanos,Obligatorio,"ERROR FRECUENTE: se le asigna Recursos Económicos, que es PS.04"
+PS.06,Soporte,Gestión de Abastecimiento y Servicios,Obligatorio,"ERROR FRECUENTE: se le asigna Recursos Humanos, que es PS.05"
+PS.07,Soporte,Gestión de la Tecnología de la Información,Obligatorio,"ERROR FRECUENTE: se le asigna Abastecimiento, que es PS.06"
+PS.08,Soporte,Gestión de Actividades Productivas,Opcional,No aplica a todas las facultades
+PS.09,Soporte,Gestión de Recursos Bibliográficos,Obligatorio,"ERROR FRECUENTE: se le asigna Comunicación, que es PS.10"
+PS.10,Soporte,Gestión de la Comunicación,Obligatorio,Ausente en 8 facultades; en varias figura sin nombre asignado

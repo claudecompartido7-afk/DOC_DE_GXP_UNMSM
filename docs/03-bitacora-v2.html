@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitácora v2.0 · Gestión por Procesos UNMSM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/doc.css">
+<style>
+.bit table{min-width:1000px} .bit td{font-size:13px}
+.rp td{background:var(--tinta);color:#fff;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.06em;padding:8px 13px}
+.nt{font-size:11.5px;color:var(--acero);margin-top:4px;font-style:italic;line-height:1.4}
+.sm{font-size:12px} .nw{white-space:nowrap;font-size:11.5px}
+</style></head><body>
+
+<header class="dh"><div class="wrap">
+  <a class="volver" href="../index.html">← Centro de documentación</a>
+  <div class="ceja">D3 · Versión 2.0 · Reemplaza a la bitácora de plantilla Vertex42</div>
+  <h1>Bitácora de ejecución</h1>
+  <p class="sub">Registro reconstruido sobre la EDT: cada subtarea cuelga de una tarea real del cronograma, con código único, estado del diccionario común y fecha en formato dd/mm/aaaa.</p>
+</div></header>
+
+<main class="wrap doc">
+
+<div class="kpis">
+  <div class="kpi"><div class="v">111</div><div class="l">Subtareas registradas</div></div>
+  <div class="kpi"><div class="v" style="color:var(--verde)">99</div><div class="l">Conformes</div></div>
+  <div class="kpi"><div class="v" style="color:var(--azul)">6</div><div class="l">En proceso</div></div>
+  <div class="kpi"><div class="v" style="color:var(--ocre)">5</div><div class="l">Observadas</div></div>
+  <div class="kpi"><div class="v" style="color:var(--acero)">1</div><div class="l">No iniciadas</div></div>
+</div>
+
+<h2>Estructura del código de subtarea</h2>
+<div class="cod-ej">
+  <span class="mono grande">S1.3.2.02.14</span>
+  <ul>
+    <li><b>S</b> · subtarea de bitácora</li>
+    <li><b>1.3.2.02</b> · tarea padre en el cronograma, sin el prefijo T</li>
+    <li><b>14</b> · correlativo de dos dígitos dentro de esa tarea, sin reutilizar</li>
+  </ul>
+</div>
+<p>Con esta regla, cualquier fila de la bitácora se cruza con el cronograma por el campo <span class="mono">Tarea_padre_cronograma</span>. Es la conexión que no existía entre los dos documentos.</p>
+
+<h2>Registro de ejecución</h2>
+<p>Agrupado por tarea padre. Se retiraron de este archivo el cronograma de visitas y el de capacitación en Bizagi, que ahora viven en documentos propios.</p>
+<div class="tabla bit"><table>
+<thead><tr><th>Código</th><th>Subtarea</th><th>Responsable</th><th>Proceso</th><th>Inicio</th><th>Fin</th><th>Estado</th></tr></thead>
+<tbody><tr class="rp"><td colspan="7">Tarea padre · T1.3.2.01</td></tr><tr>
+<td class="mono cod">S1.3.2.01.01</td><td>Revisar los indicadores del Plan Estratégico 2026-2030</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">10/03/2026</td><td class="mono nw">13/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.02</td><td>Determinar el mecanismo de control «Porcentaje de ejecución presupuestaria de recursos directamente recaudados»</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">17/03/2026</td><td class="mono nw">18/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.03</td><td>Determinar el mecanismo de control «Hoja de reporte de recursos ordinarios (RO)»</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">19/03/2026</td><td class="mono nw">20/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.04</td><td>Determinar el mecanismo de control «Porcentaje de cumplimiento de acciones estratégicas»</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">23/03/2026</td><td class="mono nw">24/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.05</td><td>Determinar el mecanismo de control «Hoja de reporte de actividades operativas ejecutadas»</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">25/03/2026</td><td class="mono nw">26/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.06</td><td>Diagramar el procedimiento D.01 Formulación del Plan Estratégico</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">27/03/2026</td><td class="mono nw">28/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.07</td><td>Diagramar el procedimiento D.02 Seguimiento del Plan Estratégico</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">31/03/2026</td><td class="mono nw">02/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.08</td><td>Diagramar el procedimiento D.03 Evaluación del Plan Estratégico</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">03/04/2026</td><td class="mono nw">05/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.09</td><td>Diagramar el procedimiento D.04 Formulación del Plan Operativo</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">06/04/2026</td><td class="mono nw">07/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.01.10</td><td>Diagramar el procedimiento D.05 Evaluación del Plan Operativo</td>
+<td class="sm">OR</td><td class="mono sm">PE.01</td>
+<td class="mono nw">10/04/2026</td><td class="mono nw">12/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr class="rp"><td colspan="7">Tarea padre · T1.3.2.02</td></tr><tr>
+<td class="mono cod">S1.3.2.02.01</td><td>Reunión de trabajo: presentar el indicador de PE.02<div class="nt">Reunión virtual por cierre de la universidad.</div></td>
+<td class="sm">OGPL / OCCAA / OCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">13/04/2026</td><td class="mono nw">13/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.02</td><td>Elaborar el diagrama preliminar</td>
+<td class="sm">OGPL</td><td class="mono sm">PE.02</td>
+<td class="mono nw">14/04/2026</td><td class="mono nw">14/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.03</td><td>Revisar y analizar los flujogramas de PE.02 remitidos por las facultades<div class="nt">Solo 6 de 20 facultades remitieron la diagramación. Riesgo R-01.</div></td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">14/04/2026</td><td class="mono nw">14/04/2026</td>
+<td><span class="pill p-obs">OBSERVADO</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.04</td><td>Diagramar D.01 Formación del Comité de Calidad<div class="nt">Base: guías publicadas por la OCCAA.</div></td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">14/04/2026</td><td class="mono nw">15/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.05</td><td>Diagramar D.02 Planificación de la Autoevaluación</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">15/04/2026</td><td class="mono nw">15/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.06</td><td>Diagramar D.03 Desarrollo de la Autoevaluación</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">15/04/2026</td><td class="mono nw">16/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.07</td><td>Diagramar D.04 Evaluación Externa</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">16/04/2026</td><td class="mono nw">16/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.08</td><td>Diagramar D.05 Acreditación</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">16/04/2026</td><td class="mono nw">17/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.09</td><td>Diagramar D.06 Seguimiento</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">17/04/2026</td><td class="mono nw">17/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.10</td><td>Ajustar los diagramas</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">17/04/2026</td><td class="mono nw">17/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.11</td><td>Ajustar los procedimientos preliminares con la OCCAA<div class="nt">Visita de pares evaluadores dificultó la reunión. Incidencia INC-05.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">20/04/2026</td><td class="mono nw">20/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.12</td><td>Reajustar o aprobar D.01 Formación del Comité de Calidad<div class="nt">La OCCAA brindó observaciones de reajuste.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">21/04/2026</td><td class="mono nw">22/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.13</td><td>Reajustar o aprobar D.02 Planificación de la Autoevaluación<div class="nt">La OCCAA brindó observaciones de reajuste.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">22/04/2026</td><td class="mono nw">23/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.14</td><td>Reajustar o aprobar D.03 Desarrollo de la Autoevaluación<div class="nt">La OCCAA no emitió recomendación: falta listar las evidencias por estándar del modelo CONEAU 2025. Riesgo R-03.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">23/04/2026</td><td class="mono nw">24/04/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.15</td><td>Reajustar o aprobar D.04 Evaluación Externa<div class="nt">La OCCAA brindó observaciones de reajuste.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">24/04/2026</td><td class="mono nw">25/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.16</td><td>Reajustar o aprobar D.05 Acreditación<div class="nt">La OCCAA brindó observaciones de reajuste.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">25/04/2026</td><td class="mono nw">26/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.17</td><td>Reajustar o aprobar D.06 Seguimiento<div class="nt">La OCCAA brindó observaciones de reajuste.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">26/04/2026</td><td class="mono nw">27/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.18</td><td>Aprobar los procedimientos de PE.02<div class="nt">Bloqueado por la falta del listado de evidencias. Riesgo R-03.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">27/04/2026</td><td class="mono nw">30/04/2026</td>
+<td><span class="pill p-pend">NO INICIADO</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.19</td><td>Desarrollar el instrumento de encuesta para medir los 29 indicadores de CONEAU<div class="nt">Reprogramada por cruce con actividades de aniversario.</div></td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">06/05/2026</td><td class="mono nw">06/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.20</td><td>Revisar bibliografía para las encuestas dirigidas a estudiantes</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">06/05/2026</td><td class="mono nw">11/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.21</td><td>Redactar las encuestas dirigidas a estudiantes<div class="nt">Reanudada tras la toma de la universidad. Incidencia INC-01.</div></td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">22/05/2026</td><td class="mono nw">23/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.22</td><td>Revisar bibliografía para las encuestas dirigidas a docentes</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">23/05/2026</td><td class="mono nw">26/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.23</td><td>Redactar las encuestas dirigidas a docentes</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">26/05/2026</td><td class="mono nw">31/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.24</td><td>Revisar bibliografía para las encuestas dirigidas a egresados</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">31/05/2026</td><td class="mono nw">03/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.25</td><td>Redactar las encuestas dirigidas a egresados</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">03/06/2026</td><td class="mono nw">05/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.26</td><td>Reunión de revisión de los ítems propuestos</td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">10/06/2026</td><td class="mono nw">10/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.27</td><td>Remitir los ítems preliminares al VRAP, a los jefes de OCAA y al presidente del comité</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">10/06/2026</td><td class="mono nw">10/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.28</td><td>Recepcionar la retroalimentación de los ítems<div class="nt">Solo 3 facultades respondieron; el VRAP no remitió retroalimentación. Riesgo R-02.</div></td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">10/06/2026</td><td class="mono nw">18/06/2026</td>
+<td><span class="pill p-obs">OBSERVADO</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.29</td><td>Analizar la incorporación de las retroalimentaciones</td>
+<td class="sm">OR</td><td class="mono sm">PE.02</td>
+<td class="mono nw">18/06/2026</td><td class="mono nw">22/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.30</td><td>Reuniones con presidentes de comité y jefes de OCAA</td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">23/06/2026</td><td class="mono nw">26/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.31</td><td>Reunión OGPL–OCCAA–Quipucamayoc para contratar un programador y un bolsista<div class="nt">Las contrataciones no se hicieron efectivas en julio. Riesgo R-06.</div></td>
+<td class="sm">OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">01/07/2026</td><td class="mono nw">01/07/2026</td>
+<td><span class="pill p-obs">OBSERVADO</span></td></tr><tr>
+<td class="mono cod">S1.3.2.02.32</td><td>Revisar la retroalimentación de las encuestas<div class="nt">Solo se completó la encuesta de alumnos; se paralizó por renuncia de personal. Riesgo R-04.</div></td>
+<td class="sm">OR / OCCAA</td><td class="mono sm">PE.02</td>
+<td class="mono nw">02/07/2026</td><td class="mono nw">11/07/2026</td>
+<td><span class="pill p-obs">OBSERVADO</span></td></tr><tr class="rp"><td colspan="7">Tarea padre · T1.3.2.04</td></tr><tr>
+<td class="mono cod">S1.3.2.04.01</td><td>Extraer los procesos y productos de PE.03 desde el Anexo 1</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">PE.03</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.04.02</td><td>Analizar la denominación de los subprocesos de PE.03</td>
+<td class="sm">OR – ALV</td><td class="mono sm">PE.03</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.04.03</td><td>Determinar el primer mecanismo de control de PE.03: «Porcentaje de convenios activos»</td>
+<td class="sm">OR – ALV</td><td class="mono sm">PE.03</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.04.04</td><td>Determinar el segundo mecanismo de control de PE.03<div class="nt">Corregido: en la bitácora v1 repetía el mismo indicador del primero.</div></td>
+<td class="sm">OR – ALV</td><td class="mono sm">PE.03</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.04.05</td><td>Analizar la denominación de los subprocesos de PM.02<div class="nt">Recodificada: en v1 figuraba bajo PE.03 por error de copia.</div></td>
+<td class="sm">OR – ALV</td><td class="mono sm">PM.02</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.2.04.06</td><td>Determinar el mecanismo de control de PM.02 Gestión de la Investigación<div class="nt">En v1 se le asignó «Porcentaje de convenios activos», que corresponde a PE.03. Debe redefinirse.</div></td>
+<td class="sm">OR – ALV</td><td class="mono sm">PM.02</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-obs">OBSERVADO</span></td></tr><tr class="rp"><td colspan="7">Tarea padre · T1.3.3.01</td></tr><tr>
+<td class="mono cod">S1.3.3.01.01</td><td>Revisar los avances del llenado de los Anexos 1 y 3</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.02</td><td>Revisar el Manual de Procesos para el envío, recepción y trámites del proceso de matrícula</td>
+<td class="sm">OR – ALV</td><td class="mono sm">PS.01</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">03/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.03</td><td>Integrar los indicadores de las facultades por tramo de avance</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">03/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.04</td><td>Verificar las fórmulas de porcentaje de avance por facultad<div class="nt">Fórmula confirmada: (completos + 0,5 × observados) ÷ total.</div></td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.05</td><td>Adecuar la bitácora al Plan de Gestión del Cronograma<div class="nt">Se completa con esta versión 2.0.</div></td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.06</td><td>Revisar el Anexo 1 de la Facultad de Medicina Veterinaria<div class="nt">Pendientes los Anexos 2 y 3.</div></td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.07</td><td>Elaborar y enviar el cronograma de visitas a las facultades sobre 80%</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.08</td><td>Coordinar la reunión con el SUM</td>
+<td class="sm">OR – ALV</td><td class="mono sm">PS.01</td>
+<td class="mono nw">04/08/2026</td><td class="mono nw">04/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.09</td><td>Revisar los Anexos 2 y 3 de Medicina Veterinaria</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">05/08/2026</td><td class="mono nw">05/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.10</td><td>Revisar los Anexos 1 y 3 de Ciencias Económicas</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">05/08/2026</td><td class="mono nw">05/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.11</td><td>Enviar el informe de cumplimiento de los acuerdos del 1 de julio a OCCAA y Quipucamayoc</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">05/08/2026</td><td class="mono nw">05/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.12</td><td>Revisar los Anexos 1 y 3 de Ciencias Contables</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">07/08/2026</td><td class="mono nw">07/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.13</td><td>Presidir la reunión de observaciones con FMV</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">07/08/2026</td><td class="mono nw">07/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.14</td><td>Presidir la reunión de observaciones con FCE</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">10/08/2026</td><td class="mono nw">10/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.15</td><td>Preparar y enviar el correo de documentos observados a FMV</td>
+<td class="sm">OR – ISA / OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">10/08/2026</td><td class="mono nw">10/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.16</td><td>Presidir la reunión de observaciones con FCC</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">10/08/2026</td><td class="mono nw">10/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.17</td><td>Presidir la reunión de observaciones con el SUM</td>
+<td class="sm">OR – ALV</td><td class="mono sm">PS.01</td>
+<td class="mono nw">11/08/2026</td><td class="mono nw">11/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.18</td><td>Actualizar y mejorar la automatización del tablero de los anexos</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">11/08/2026</td><td class="mono nw">11/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.19</td><td>Preparar y enviar el correo de documentos observados al SUM</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">PS.01</td>
+<td class="mono nw">11/08/2026</td><td class="mono nw">11/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.20</td><td>Presidir la reunión de observaciones con FE</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">12/08/2026</td><td class="mono nw">12/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.21</td><td>Preparar y enviar el correo de documentos observados a FE</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">12/08/2026</td><td class="mono nw">12/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.22</td><td>Actualizar los Anexos 1 y 3</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">13/08/2026</td><td class="mono nw">13/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.23</td><td>Crear el primer prototipo en Apps Script para automatizar la revisión de los anexos</td>
+<td class="sm">OR – ALV / OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">13/08/2026</td><td class="mono nw">13/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.24</td><td>Crear el prototipo en Apps Script para la revisión del Anexo 1</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">14/08/2026</td><td class="mono nw">14/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.25</td><td>Incorporar la firma digital y el llenado automático de participantes en el SIGEA</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">14/08/2026</td><td class="mono nw">14/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.26</td><td>Actualizar y mejorar el Anexo 3</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">17/08/2026</td><td class="mono nw">17/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.27</td><td>Actualizar y mejorar el Anexo 1</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">17/08/2026</td><td class="mono nw">18/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.28</td><td>Automatizar el Anexo 3 con fórmulas en la hoja de FDCP</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">18/08/2026</td><td class="mono nw">18/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.29</td><td>Automatizar el apartado de subprocesos del Anexo 3 en FDCP<div class="nt">En v1 tres subtareas distintas compartían el número 31.</div></td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">19/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.30</td><td>Automatizar el apartado de proveedores y entradas del Anexo 3 en FDCP</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">19/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.31</td><td>Automatizar el apartado de salidas, beneficiarios y registros del Anexo 3 en FDCP</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">20/08/2026</td><td class="mono nw">21/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.32</td><td>Participar en la reunión con el programador backend para validar el cronograma</td>
+<td class="sm">OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">20/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.33</td><td>Automatizar el Anexo 3 con Apps Script en la hoja de FPSIC</td>
+<td class="sm">OR – ISA</td><td class="mono sm">Todos</td>
+<td class="mono nw">21/08/2026</td><td class="mono nw">21/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.3.01.34</td><td>Crear el prototipo de llenado automático en Docs de los Anexos 1 y 3<div class="nt">El script no reproduce correctamente el cuadro del Anexo 1. Riesgo R-05.</div></td>
+<td class="sm">OR – ISA / OR – ALV</td><td class="mono sm">Todos</td>
+<td class="mono nw">21/08/2026</td><td class="mono nw">24/08/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr><tr class="rp"><td colspan="7">Tarea padre · T1.3.4.01</td></tr><tr>
+<td class="mono cod">S1.3.4.01.01</td><td>Finalizar los diseños en Figma de la página web</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">02/03/2026</td><td class="mono nw">05/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.02</td><td>Integrar el front-end del primer prototipo para la vista pública</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">05/03/2026</td><td class="mono nw">17/03/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.03</td><td>Integrar el ingreso al portal con dos vías de acceso: facultades y Oficina de Racionalización</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">18/03/2026</td><td class="mono nw">17/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.04</td><td>Desarrollar el primer prototipo del backend</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">30/03/2026</td><td class="mono nw">01/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.05</td><td>Mejorar el diseño del módulo público: título e información general</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">20/04/2026</td><td class="mono nw">24/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.06</td><td>Implementar las secciones de indicadores, flujogramas y fichas de caracterización</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">20/04/2026</td><td class="mono nw">24/04/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.07</td><td>Culminar el primer prototipo de backend en Java</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">13/04/2026</td><td class="mono nw">06/05/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.08</td><td>Integrar el front-end con el backend</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">07/05/2026</td><td class="mono nw">30/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.09</td><td>Adaptar la interfaz a los requerimientos del backend</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">07/05/2026</td><td class="mono nw">30/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.10</td><td>Culminar las pruebas del backend en las secciones administrativa y de facultades</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">08/06/2026</td><td class="mono nw">12/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.11</td><td>Revisar el backend del módulo público y el inicio de sesión</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">22/06/2026</td><td class="mono nw">29/06/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.12</td><td>Adaptar el backend a un esquema híbrido con datos estáticos para pruebas</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">02/07/2026</td><td class="mono nw">14/07/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.13</td><td>Implementar ajustes menores en el front-end</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">15/07/2026</td><td class="mono nw">21/07/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.14</td><td>Implementar la descarga de expedientes</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">22/07/2026</td><td class="mono nw">24/07/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.15</td><td>Implementar la descarga de la ficha de indicadores</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">27/07/2026</td><td class="mono nw">30/07/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.16</td><td>Revisar todos los módulos respecto del uso de la API híbrida</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">31/07/2026</td><td class="mono nw">12/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.17</td><td>Revisar el envío de documentos del módulo de OR hacia las facultades</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">12/08/2026</td><td class="mono nw">12/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.18</td><td>Implementar los colores oscuros en las pestañas del módulo de facultades</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">11/08/2026</td><td class="mono nw">12/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.19</td><td>Conectar el envío de documentos entre Racionalización y las facultades</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">13/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.20</td><td>Implementar el nuevo diseño de fichas técnicas y hojas de inventario</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">18/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.21</td><td>Conectar los documentos de Google Sheets al repositorio de inventario y fichas</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.22</td><td>Modificar el diseño de previsualización de los documentos de Google Sheets</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.23</td><td>Cambiar el diseño del mapa de procesos del módulo público</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.24</td><td>Implementar el botón «Inventario» para previsualizar el documento</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">19/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.25</td><td>Corregir el botón «Inventario» para cada tipo de proceso</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">21/08/2026</td><td class="mono nw">21/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.26</td><td>Elaborar el cronograma de entregables de SIGPRO</td>
+<td class="sm">OR – MELI / OR – ALV</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">20/08/2026</td><td class="mono nw">20/08/2026</td>
+<td><span class="pill p-ok">CONFORME</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.27</td><td>Diseñar la encuesta para facultades en el módulo público</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">24/08/2026</td><td class="mono nw">24/08/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.28</td><td>Ajustar el módulo de facultades</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">24/08/2026</td><td class="mono nw">24/08/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr><tr>
+<td class="mono cod">S1.3.4.01.29</td><td>Corregir los expedientes de caracterización</td>
+<td class="sm">OR – MELI</td><td class="mono sm">SIGPRO</td>
+<td class="mono nw">24/08/2026</td><td class="mono nw">24/08/2026</td>
+<td><span class="pill p-proc">EN PROCESO</span></td></tr></tbody></table></div>
+
+<h2>Registro de riesgos</h2>
+<p>Nueve riesgos, seis de ellos ya materializados. Todos provienen de anotaciones que estaban sueltas en la columna de observaciones de la bitácora v1.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:70px">ID</th><th>Riesgo y evidencia</th><th style="width:120px">Categoría</th>
+<th style="width:110px">Prob. / Impacto</th><th style="width:90px">Responsable</th><th style="width:240px">Respuesta</th><th style="width:110px">Estado</th></tr></thead>
+<tbody><tr><td class="mono">R-01</td><td>Las facultades no remiten la documentación solicitada en plazo<div class="nt">Solo 6 de 20 facultades remitieron la diagramación de PE.02</div></td>
+<td class="sm">Dependencia externa</td><td class="sm">Alta / Alto</td><td class="sm">OR</td>
+<td class="sm">Escalamiento formal por oficio decanal con plazo de 5 días hábiles y copia al Vicerrectorado</td><td><span class="pill p-cri">Materializado</span></td></tr><tr><td class="mono">R-02</td><td>Los órganos consultados no emiten retroalimentación<div class="nt">Solo 3 facultades respondieron los ítems; el VRAP no remitió su retroalimentación</div></td>
+<td class="sm">Dependencia externa</td><td class="sm">Alta / Medio</td><td class="sm">OR</td>
+<td class="sm">Regla de silencio administrativo positivo: transcurridos 5 días hábiles se da por conforme</td><td><span class="pill p-cri">Materializado</span></td></tr><tr><td class="mono">R-03</td><td>La OCCAA no aprueba los procedimientos de PE.02 por falta del listado de evidencias CONEAU 2025<div class="nt">Subtarea S1.3.2.02.18 bloqueada desde el 30/04/2026</div></td>
+<td class="sm">Dependencia externa</td><td class="sm">Alta / Alto</td><td class="sm">OGPL</td>
+<td class="sm">Fijar hito conjunto con la OCCAA y fecha límite; si no se cumple, aprobar con la evidencia disponible</td><td><span class="pill p-cri">Materializado</span></td></tr><tr><td class="mono">R-04</td><td>Dependencia de una sola persona para el desarrollo de SIGPRO<div class="nt">Las 29 subtareas de SIGPRO están asignadas a OR – MELI</div></td>
+<td class="sm">Recursos</td><td class="sm">Alta / Crítico</td><td class="sm">OGPL</td>
+<td class="sm">Documentar el código en el repositorio y designar un segundo responsable técnico</td><td><span class="pill p-obs">Abierto</span></td></tr><tr><td class="mono">R-05</td><td>El script de llenado automático no reproduce el cuadro del Anexo 1<div class="nt">Subtarea S1.3.3.01.34 en proceso desde el 21/08/2026</div></td>
+<td class="sm">Técnico</td><td class="sm">Media / Medio</td><td class="sm">OR – ISA</td>
+<td class="sm">Asignar responsable y fecha de cierre; plan alterno de llenado manual asistido</td><td><span class="pill p-obs">Abierto</span></td></tr><tr><td class="mono">R-06</td><td>Las contrataciones de programador y bolsista no se concretan<div class="nt">Acordadas el 01/07/2026, sin efectivizar al 26/08/2026</div></td>
+<td class="sm">Adquisiciones</td><td class="sm">Alta / Alto</td><td class="sm">OGPL</td>
+<td class="sm">Plan alterno: reasignar horas del equipo interno si no se concreta en setiembre</td><td><span class="pill p-obs">Abierto</span></td></tr><tr><td class="mono">R-07</td><td>Datos contaminados entre facultades por uso de formularios ajenos<div class="nt">FCF usa mayoritariamente el sufijo _F02, que pertenece a FDCP</div></td>
+<td class="sm">Calidad</td><td class="sm">Media / Alto</td><td class="sm">OR</td>
+<td class="sm">Auditoría de codificación T1.3.3.04 y validación automática del sufijo por pestaña</td><td><span class="pill p-obs">Abierto</span></td></tr><tr><td class="mono">R-08</td><td>Dos numeraciones de procesos de soporte en circulación<div class="nt">PS.04 a PS.10 desplazados un dígito en la bitácora y en varias facultades</div></td>
+<td class="sm">Alcance</td><td class="sm">Alta / Crítico</td><td class="sm">OGPL</td>
+<td class="sm">Publicar el catálogo maestro y auditar las 20 pestañas antes de continuar el llenado</td><td><span class="pill p-obs">Abierto</span></td></tr><tr><td class="mono">R-09</td><td>La ruta crítica no admite retrasos: 24 días de trabajo en 25 disponibles<div class="nt">T1.3.3.02 → T1.3.5.01 → T1.3.5.02 → H1.3.5.03</div></td>
+<td class="sm">Cronograma</td><td class="sm">Alta / Crítico</td><td class="sm">OGPL</td>
+<td class="sm">Arrancar el levantamiento de observaciones esta semana; preparar solicitud de cambio de plazo</td><td><span class="pill p-obs">Abierto</span></td></tr></tbody></table></div>
+
+<h2>Registro de incidencias</h2>
+<p>Aproximadamente 26 días hábiles perdidos que el cronograma v1 no reconocía. Ya están descontados del calendario laborable del cronograma v2.0.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:70px">ID</th><th style="width:180px">Periodo</th><th class="num" style="width:70px">Días</th>
+<th>Evento</th><th style="width:250px">Efecto</th><th style="width:110px">Área</th></tr></thead>
+<tbody><tr><td class="mono">INC-01</td><td class="mono nw">11/05/2026 – 22/05/2026</td>
+<td class="num">10</td><td>Toma de la universidad</td><td class="sm">Paralización total de actividades</td>
+<td class="sm">Cronograma</td></tr><tr><td class="mono">INC-02</td><td class="mono nw">12/07/2026 – 31/07/2026</td>
+<td class="num">14</td><td>Reorganización del personal de la Oficina de Racionalización</td><td class="sm">Paralización de actividades</td>
+<td class="sm">Cronograma</td></tr><tr><td class="mono">INC-03</td><td class="mono nw">01/07/2026 – 31/07/2026</td>
+<td class="num">—</td><td>Hospitalización y descanso médico del Jefe de OGPL y de la Jefa de Racionalización</td><td class="sm">Las contrataciones acordadas no se hicieron efectivas</td>
+<td class="sm">Recursos</td></tr><tr><td class="mono">INC-04</td><td class="mono nw">12/07/2026 – 31/07/2026</td>
+<td class="num">—</td><td>Renuncia de personal sin reemplazo durante el mes</td><td class="sm">Se detuvo la revisión de las encuestas</td>
+<td class="sm">Recursos</td></tr><tr><td class="mono">INC-05</td><td class="mono nw">20/04/2026 – 20/04/2026</td>
+<td class="num">—</td><td>Visita de pares evaluadores para evaluación externa</td><td class="sm">Dificultó las reuniones con la OCCAA</td>
+<td class="sm">Cronograma</td></tr><tr><td class="mono">INC-06</td><td class="mono nw">19/03/2026 – 20/03/2026</td>
+<td class="num">2</td><td>Semana Santa</td><td class="sm">Feriado institucional</td>
+<td class="sm">Calendario</td></tr></tbody></table></div>
+
+<h2>Qué cambió respecto de la versión 1</h2>
+<div class="tabla"><table>
+<thead><tr><th style="width:150px">Hallazgo</th><th>Corrección aplicada</th></tr></thead>
+<tbody>
+<tr><td class="mono">D3-01</td><td>Cada subtarea declara su tarea padre con el código del cronograma. El indicador de PE.01 es T1.3.2.01 en ambos documentos.</td></tr>
+<tr><td class="mono">D3-02</td><td>Desaparece «Sub Tarea 1»: todas tienen correlativo único de dos dígitos.</td></tr>
+<tr><td class="mono">D3-03</td><td>Sin códigos repetidos. Las tres «Subtarea 31» son ahora S1.3.3.01.29, .30 y .31.</td></tr>
+<tr><td class="mono">D3-04</td><td>La fecha de inicio del proyecto es 01/06/2025, igual que en el cronograma.</td></tr>
+<tr><td class="mono">D3-05</td><td>Se abandona la plantilla de Excel: no hay fórmulas heredadas ni celdas #NAME?.</td></tr>
+<tr><td class="mono">D3-06</td><td>Las paralizaciones pasan al registro de incidencias, con días hábiles cuantificados.</td></tr>
+<tr><td class="mono">D3-07</td><td>Los riesgos de las observaciones pasan al registro de riesgos, con responsable y respuesta.</td></tr>
+<tr><td class="mono">D3-08</td><td>Un archivo por objeto: la bitácora ya no contiene el cronograma de visitas ni el de capacitación.</td></tr>
+<tr><td class="mono">D3-09</td><td>Las subtareas de PM.02 se separan de PE.03 y su indicador queda marcado como pendiente de redefinir.</td></tr>
+<tr><td class="mono">D3-10</td><td>Formato de fecha dd/mm/aaaa en todas las filas.</td></tr>
+</tbody></table></div>
+
+<div class="descarga">
+  <a class="btn" href="../data/03-bitacora-v2.csv" download>Bitácora v2.0 · CSV</a>
+  <a class="btn sec" href="../data/registro-riesgos.csv" download>Registro de riesgos · CSV</a>
+  <a class="btn sec" href="../data/registro-incidencias.csv" download>Registro de incidencias · CSV</a>
+</div>
+
+</main>
+<footer class="df"><div class="wrap">
+  <span>Bitácora v2.0 · Oficina de Racionalización · OGPL UNMSM</span>
+  <a href="../index.html">Centro de documentación</a>
+</div></footer>
+</body></html>

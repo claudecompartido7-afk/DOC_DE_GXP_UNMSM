@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cronograma v2.0 · Gestión por Procesos UNMSM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/doc.css">
+<style>
+.crono table{min-width:1180px}
+.crono td{font-size:13px}
+.rf td{background:var(--tinta);color:#fff;font-family:var(--disp);font-weight:700;font-size:13.5px;
+  letter-spacing:.04em;padding:9px 13px;text-transform:uppercase}
+tr.hito td{background:#FBF4E2}
+tr.hito:hover td{background:#F7EDD3}
+tr.crit .cod{color:var(--rojo);font-weight:600}
+.mk{color:var(--ocre);font-weight:700}
+.et{font-size:12px;color:var(--acero);width:196px}
+.ac{font-family:var(--mono);font-size:10.5px;color:var(--granate);margin-top:3px}
+.nt{font-size:11.5px;color:var(--acero);margin-top:5px;font-style:italic;line-height:1.4}
+.sm{font-size:11.5px;width:118px}
+.vk{color:var(--acero);font-size:10px;margin-top:2px}
+.ct{text-align:center;color:var(--rojo);font-size:15px;width:34px}
+.nw{white-space:nowrap;font-size:11.5px}
+.leyenda{display:flex;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--acero);margin:14px 0 0}
+.leyenda b{color:var(--tinta)}
+</style></head><body>
+
+<header class="dh"><div class="wrap">
+  <a class="volver" href="../index.html">← Centro de documentación</a>
+  <div class="ceja">D2 · Versión 2.0 · Reemplaza al cronograma del 24 de julio de 2026</div>
+  <h1>Plan de Gestión del Cronograma</h1>
+  <p class="sub">Estructura completa con códigos únicos, responsables, dependencias, hitos declarados y ruta crítica. Los 11 hallazgos del diagnóstico están resueltos y anotados fila por fila.</p>
+</div></header>
+
+<main class="wrap doc">
+
+<div class="kpis">
+  <div class="kpi"><div class="v">35</div><div class="l">Tareas</div></div>
+  <div class="kpi"><div class="v">6</div><div class="l">Hitos declarados</div></div>
+  <div class="kpi"><div class="v" style="color:var(--rojo)">15</div><div class="l">En la ruta crítica</div></div>
+  <div class="kpi"><div class="v" style="color:var(--verde)">4</div><div class="l">Tareas nuevas incorporadas</div></div>
+  <div class="kpi"><div class="v">0</div><div class="l">Códigos duplicados</div></div>
+</div>
+
+<h2>Ruta crítica de la Fase 1</h2>
+<p>Cinco elementos encadenados sin holgura. Cualquier día de atraso en uno de ellos mueve el cierre del 30 de setiembre.</p>
+<div class="ruta">
+  <span>T1.3.3.01<small>Llenado de Anexos 1 y 3</small></span><i>→</i>
+  <span>T1.3.3.02<small>Levantar 1 901 observaciones</small></span><i>→</i>
+  <span>T1.3.5.01<small>Validación de MAGPROF</small></span><i>→</i>
+  <span>T1.3.5.02<small>Aprobación por Decanos</small></span><i>→</i>
+  <span class="fin">H1.3.5.03<small>Cierre de Fase 1 · 30/09/2026</small></span>
+</div>
+<div class="aviso">
+  <strong>Advertencia de plazo.</strong> Al 26 de agosto quedan 25 días hábiles hasta el cierre y la ruta crítica consume 24. La holgura total del proyecto es de un día. El levantamiento de las 1 901 observaciones debe arrancar esta semana; si se retrasa, el 30 de setiembre deja de ser alcanzable y corresponde tramitar una solicitud de cambio del alcance temporal.
+</div>
+
+<h2>Cronograma detallado</h2>
+<p>Formato de fecha <span class="mono">dd/mm/aaaa</span>. Duración en días hábiles. Vínculos: <span class="mono">FC</span> fin-comienzo, <span class="mono">CC</span> comienzo-comienzo.</p>
+<div class="tabla crono"><table>
+<thead><tr>
+<th>Código</th><th>Etapa y actividad</th><th>Tarea</th><th>Responsable</th>
+<th>Inicio</th><th>Fin</th><th class="num">Días</th><th>Estado</th><th>Predecesora</th><th>RC</th>
+</tr></thead>
+<tbody>
+<tr class="rf"><td colspan="10">F1 · Identificación</td></tr><tr class="">
+<td class="mono cod">T1.1.1.01</td>
+<td class="et">E1.1 Inicio y sensibilización<div class="ac">A1.1.1 Revisión de la norma</div></td>
+<td>Análisis de la Norma Técnica N.º 002-2025-PCM-SGP<div class="nt">Se corrige el rango del gráfico para incluir junio 2025 (antes empezaba en julio y esta tarea no se graficaba).</div></td>
+<td>OR</td>
+<td class="mono nw">01/06/2025</td>
+<td class="mono nw">22/07/2025</td>
+<td class="num">51</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">—<div class="vk">—</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.1.2.01</td>
+<td class="et">E1.1 Inicio y sensibilización<div class="ac">A1.1.2 Difusión y arranque</div></td>
+<td>Preparación de material de difusión<div class="nt">Antes compartía el código 1.1.2.1 con la tarea siguiente.</div></td>
+<td>OR</td>
+<td class="mono nw">22/07/2025</td>
+<td class="mono nw">04/08/2025</td>
+<td class="num">13</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.1.1.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.1.2.02</td>
+<td class="et">E1.1 Inicio y sensibilización<div class="ac">A1.1.2 Difusión y arranque</div></td>
+<td>Presentación de la continuidad de la Gestión por Procesos<div class="nt">Antes estaba en la Actividad «Campaña de Difusión», que duplicaba el código 1.1.2.</div></td>
+<td>OR</td>
+<td class="mono nw">04/08/2025</td>
+<td class="mono nw">09/08/2025</td>
+<td class="num">5</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.1.2.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.1.3.01</td>
+<td class="et">E1.1 Inicio y sensibilización<div class="ac">A1.1.3 Capacitación inicial</div></td>
+<td>Capacitación y asesoría a los Dueños de Proceso en la identificación de productos</td>
+<td>OR</td>
+<td class="mono nw">11/08/2025</td>
+<td class="mono nw">20/09/2025</td>
+<td class="num">40</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.1.2.02<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.2.1.01</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.1 Elaboración de la Guía</div></td>
+<td>Preparación del material para la elaboración de la Guía de GxP</td>
+<td>OR</td>
+<td class="mono nw">23/09/2025</td>
+<td class="mono nw">04/10/2025</td>
+<td class="num">11</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.1.3.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.2.2.01</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.2 Reajuste del Mapa de Procesos</div></td>
+<td>Análisis de la información preexistente (Mapa e Indicadores)</td>
+<td>OR</td>
+<td class="mono nw">06/10/2025</td>
+<td class="mono nw">17/10/2025</td>
+<td class="num">11</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.2.1.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.2.2.02</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.2 Reajuste del Mapa de Procesos</div></td>
+<td>Presentación de los hallazgos del Mapa e Indicadores</td>
+<td>OR</td>
+<td class="mono nw">27/10/2025</td>
+<td class="mono nw">31/10/2025</td>
+<td class="num">4</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.2.2.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.2.2.03</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.2 Reajuste del Mapa de Procesos</div></td>
+<td>Recepción del feedback del Mapa de Procesos de las 20 Facultades</td>
+<td>OR / Facultades</td>
+<td class="mono nw">16/12/2025</td>
+<td class="mono nw">14/03/2026</td>
+<td class="num">88</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.2.2.02<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="hito">
+<td class="mono cod">H1.2.2.04</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.2 Reajuste del Mapa de Procesos</div></td>
+<td>Mapa de Procesos Estándar presentado a las Facultades <span class="mk">★</span><div class="nt">Declarado como hito. Vínculo comienzo-comienzo: se presentó con el feedback parcial, mientras la recepción seguía abierta hasta el 14/03.</div></td>
+<td>OGPL</td>
+<td class="mono nw">27/02/2026</td>
+<td class="mono nw">27/02/2026</td>
+<td class="num">—</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.2.2.03<div class="vk">CC+50</div></td>
+<td class="ct"></td>
+</tr><tr class="hito">
+<td class="mono cod">H1.2.3.01</td>
+<td class="et">E1.2 Identificación de procesos<div class="ac">A1.2.3 Aprobación de la Guía</div></td>
+<td>Guía de Gestión por Procesos aprobada y emitida <span class="mk">★</span><div class="nt">Declarado como hito. Antes figuraba como tarea de duración 0.</div></td>
+<td>OGPL</td>
+<td class="mono nw">02/03/2026</td>
+<td class="mono nw">02/03/2026</td>
+<td class="num">—</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">H1.2.2.04<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.1.01</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.1 Ajuste de instrumentos</div></td>
+<td>Ajustes de las fichas de productos y procesos (Anexos 1 y 3)</td>
+<td>OR</td>
+<td class="mono nw">27/02/2026</td>
+<td class="mono nw">07/03/2026</td>
+<td class="num">8</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">H1.2.2.04<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.01</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicador estándar de PE.01 Gestión Estratégica<div class="nt">En la bitácora v1 esta tarea se llamaba 1.3.1.2. Código unificado.</div></td>
+<td>OR / UPPR</td>
+<td class="mono nw">02/03/2026</td>
+<td class="mono nw">09/03/2026</td>
+<td class="num">7</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.3.1.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.02</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicador estándar de PE.02 Gestión de la Calidad y Mejora Continua</td>
+<td>OR / OCCAA</td>
+<td class="mono nw">27/04/2026</td>
+<td class="mono nw">06/05/2026</td>
+<td class="num">9</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.3.2.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.03</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicadores estándar de PM.01, PS.01, PS.02 y PS.03</td>
+<td>OR</td>
+<td class="mono nw">27/04/2026</td>
+<td class="mono nw">06/05/2026</td>
+<td class="num">9</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.3.2.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.04</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicadores estándar de PE.03 y PM.02<div class="nt">Antes duplicaba el código 1.3.2.4 con la tarea siguiente.</div></td>
+<td>OR</td>
+<td class="mono nw">03/08/2026</td>
+<td class="mono nw">04/08/2026</td>
+<td class="num">1</td>
+<td><span class="pill p-ok">CONFORME</span></td>
+<td class="mono sm">T1.3.2.02<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.05</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicadores estándar de PM.03 y PS.04 a PS.09<div class="nt">Renumerada. Antes duplicaba el código 1.3.2.4 con distinto estado.</div></td>
+<td>OR</td>
+<td class="mono nw">03/08/2026</td>
+<td class="mono nw">31/08/2026</td>
+<td class="num">28</td>
+<td><span class="pill p-proc">EN PROCESO</span></td>
+<td class="mono sm">T1.3.2.04<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.2.06</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.2 Indicadores estándar</div></td>
+<td>Indicador estándar de PS.10 Gestión de la Comunicación<div class="nt">TAREA NUEVA. PS.10 no aparecía en el cronograma v1 y es el proceso ausente en 8 facultades.</div></td>
+<td>OR</td>
+<td class="mono nw">01/09/2026</td>
+<td class="mono nw">04/09/2026</td>
+<td class="num">4</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.2.05<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="crit">
+<td class="mono cod">T1.3.3.01</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.3 Documentación de procesos</div></td>
+<td>Llenado del Anexo 1 y del Anexo 3 por facultad<div class="nt">Se retira el Anexo 2 del nombre: fue derogado por incompatibilidad con SIGPRO.</div></td>
+<td>Facultades / OR</td>
+<td class="mono nw">03/03/2026</td>
+<td class="mono nw">30/09/2026</td>
+<td class="num">211</td>
+<td><span class="pill p-proc">EN PROCESO</span></td>
+<td class="mono sm">H1.2.3.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T1.3.3.02</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.3 Documentación de procesos</div></td>
+<td>Levantamiento de las observaciones de los 1 901 productos observados<div class="nt">TAREA NUEVA. Es el trabajo dominante hasta setiembre y no existía en el cronograma v1.</div></td>
+<td>Facultades / OR</td>
+<td class="mono nw">27/08/2026</td>
+<td class="mono nw">17/09/2026</td>
+<td class="num">16</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.3.01<div class="vk">CC</div></td>
+<td class="ct">●</td>
+</tr><tr class="">
+<td class="mono cod">T1.3.3.03</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.3 Documentación de procesos</div></td>
+<td>Registro de los 73 procesos de Nivel 0 obligatorios ausentes<div class="nt">TAREA NUEVA. Afecta a 13 de las 20 facultades.</div></td>
+<td>Facultades / OR</td>
+<td class="mono nw">27/08/2026</td>
+<td class="mono nw">10/09/2026</td>
+<td class="num">11</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.3.01<div class="vk">CC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.3.04</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.3 Documentación de procesos</div></td>
+<td>Auditoría de codificación de las 20 pestañas contra el catálogo maestro<div class="nt">TAREA NUEVA. Corrige el desplazamiento de PS.04–PS.10 y los formularios ajenos de FCF y FIGMMG.</div></td>
+<td>OR</td>
+<td class="mono nw">27/08/2026</td>
+<td class="mono nw">08/09/2026</td>
+<td class="num">9</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.3.01<div class="vk">CC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T1.3.4.01</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.4 SIGPRO · versión mínima</div></td>
+<td>Front-end culminado<div class="nt">Holgura de 3 días hábiles respecto del hito de cierre.</div></td>
+<td>OR – MELI</td>
+<td class="mono nw">01/09/2026</td>
+<td class="mono nw">25/09/2026</td>
+<td class="num">24</td>
+<td><span class="pill p-proc">EN PROCESO</span></td>
+<td class="mono sm">—<div class="vk">—</div></td>
+<td class="ct"></td>
+</tr><tr class="hito">
+<td class="mono cod">H1.3.4.02</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.4 SIGPRO · versión mínima</div></td>
+<td>SIGPRO disponible en modo consulta <span class="mk">★</span><div class="nt">DECISIÓN v2: la Fase 1 solo exige disponibilidad en modo consulta. El backend y los módulos pasan a la Fase 2.</div></td>
+<td>OGPL</td>
+<td class="mono nw">30/09/2026</td>
+<td class="mono nw">30/09/2026</td>
+<td class="num">—</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.4.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="crit">
+<td class="mono cod">T1.3.5.01</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.5 Consolidación y cierre</div></td>
+<td>Revisión y validación de los MAGPROF de las 20 facultades<div class="nt">Antes era la Actividad 1.3.5, con código de tarea que colisionaba con el indicador de PE.01.</div></td>
+<td>OR</td>
+<td class="mono nw">18/09/2026</td>
+<td class="mono nw">24/09/2026</td>
+<td class="num">5</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.3.02<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T1.3.5.02</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.5 Consolidación y cierre</div></td>
+<td>Aprobación de los MAGPROF por los Decanos<div class="nt">Un solo aprobador: el Decano. El Jefe de OGPL pasa a consultado (corrige la doble A del RACI).</div></td>
+<td>Decanos</td>
+<td class="mono nw">25/09/2026</td>
+<td class="mono nw">29/09/2026</td>
+<td class="num">3</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.5.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="hito">
+<td class="mono cod">H1.3.5.03</td>
+<td class="et">E1.3 Elaboración del MAGPROF<div class="ac">A1.3.5 Consolidación y cierre</div></td>
+<td>Cierre de la Fase 1 — Identificación <span class="mk">★</span><div class="nt">FECHA ÚNICA. Antes convivían tres: 30/09 en el alcance, 01–03/10 en las fechas y «30 Oct» en el nombre.</div></td>
+<td>OGPL</td>
+<td class="mono nw">30/09/2026</td>
+<td class="mono nw">30/09/2026</td>
+<td class="num">—</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T1.3.5.02<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="rf"><td colspan="10">F2 · Implementación</td></tr><tr class="crit">
+<td class="mono cod">T2.1.1.01</td>
+<td class="et">E2.1 Diagramación de procedimientos<div class="ac">A2.1.1 Desarrollo de flujogramas</div></td>
+<td>Diagramación de los procedimientos en Bizagi</td>
+<td>OR / Facultades</td>
+<td class="mono nw">01/10/2026</td>
+<td class="mono nw">30/11/2026</td>
+<td class="num">43</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">H1.3.5.03<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T2.1.1.02</td>
+<td class="et">E2.1 Diagramación de procedimientos<div class="ac">A2.1.1 Desarrollo de flujogramas</div></td>
+<td>Validación de los procedimientos en Bizagi con las Facultades</td>
+<td>OR / Facultades</td>
+<td class="mono nw">01/12/2026</td>
+<td class="mono nw">15/01/2027</td>
+<td class="num">32</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.1.1.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="">
+<td class="mono cod">T2.2.1.01</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Backend integrado y sistema base operativo<div class="nt">Trasladada desde la Fase 1. En v1 empezaba el 25/06, antes que el front-end del que depende.</div></td>
+<td>OR – MELI / Programador</td>
+<td class="mono nw">01/10/2026</td>
+<td class="mono nw">16/10/2026</td>
+<td class="num">12</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">H1.3.4.02<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T2.2.1.02</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Módulo de encuesta terminado<div class="nt">Trasladada desde la Fase 1.</div></td>
+<td>OR – MELI</td>
+<td class="mono nw">19/10/2026</td>
+<td class="mono nw">30/10/2026</td>
+<td class="num">10</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.2.1.01<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T2.2.1.03</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Módulo de facultades por escuelas profesionales terminado<div class="nt">Trasladada desde la Fase 1.</div></td>
+<td>OR – MELI</td>
+<td class="mono nw">02/11/2026</td>
+<td class="mono nw">10/11/2026</td>
+<td class="num">7</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.2.1.02<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T2.2.1.04</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Módulo del acta digital terminado<div class="nt">Trasladada desde la Fase 1.</div></td>
+<td>OR – MELI</td>
+<td class="mono nw">11/11/2026</td>
+<td class="mono nw">20/11/2026</td>
+<td class="num">8</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.2.1.03<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="">
+<td class="mono cod">T2.2.1.05</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Automatización de la carga de datos en SIGPRO<div class="nt">RENOMBRADA. Antes se llamaba «Automatización culminada», lo que chocaba con la exclusión de alcance.</div></td>
+<td>OR – MELI</td>
+<td class="mono nw">23/11/2026</td>
+<td class="mono nw">30/11/2026</td>
+<td class="num">6</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.2.1.04<div class="vk">FC</div></td>
+<td class="ct"></td>
+</tr><tr class="crit">
+<td class="mono cod">T2.2.1.06</td>
+<td class="et">E2.2 SIGPRO · desarrollo y despliegue<div class="ac">A2.2.1 Construcción del sistema</div></td>
+<td>Pruebas y despliegue del módulo de procesos</td>
+<td>OR – MELI</td>
+<td class="mono nw">16/01/2027</td>
+<td class="mono nw">28/02/2027</td>
+<td class="num">31</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.1.1.02 ; T2.2.1.05<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T2.3.1.01</td>
+<td class="et">E2.3 Publicación oficial<div class="ac">A2.3.1 Emisión del MAPRO</div></td>
+<td>Publicación de los MAPRO en SIGPRO</td>
+<td>OGPL</td>
+<td class="mono nw">01/03/2027</td>
+<td class="mono nw">31/03/2027</td>
+<td class="num">23</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.2.1.06<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T2.3.1.02</td>
+<td class="et">E2.3 Publicación oficial<div class="ac">A2.3.1 Emisión del MAPRO</div></td>
+<td>Aprobación de los MAPRO por los Decanos</td>
+<td>Decanos</td>
+<td class="mono nw">01/04/2027</td>
+<td class="mono nw">29/04/2027</td>
+<td class="num">21</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.3.1.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="hito">
+<td class="mono cod">H2.3.1.03</td>
+<td class="et">E2.3 Publicación oficial<div class="ac">A2.3.1 Emisión del MAPRO</div></td>
+<td>Cierre de la Fase 2 — Implementación <span class="mk">★</span><div class="nt">Declarado como hito. En v1 era una tarea de 29 días llamada «Cierre de Fase 2».</div></td>
+<td>OGPL</td>
+<td class="mono nw">30/04/2027</td>
+<td class="mono nw">30/04/2027</td>
+<td class="num">—</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T2.3.1.02<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="rf"><td colspan="10">F3 · Evaluación</td></tr><tr class="crit">
+<td class="mono cod">T3.1.1.01</td>
+<td class="et">E3.1 Medición de indicadores<div class="ac">A3.1.1 Recolección de datos</div></td>
+<td>Medición de los indicadores de eficacia y eficiencia</td>
+<td>OR / Facultades</td>
+<td class="mono nw">01/05/2027</td>
+<td class="mono nw">20/05/2027</td>
+<td class="num">14</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">H2.3.1.03<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T3.1.2.01</td>
+<td class="et">E3.1 Medición de indicadores<div class="ac">A3.1.2 Auditoría interna</div></td>
+<td>Auditoría de cumplimiento de los procesos implementados</td>
+<td>OGPL / OCCAA</td>
+<td class="mono nw">21/05/2027</td>
+<td class="mono nw">10/06/2027</td>
+<td class="num">15</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T3.1.1.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="crit">
+<td class="mono cod">T3.2.1.01</td>
+<td class="et">E3.2 Informe final<div class="ac">A3.2.1 Resultados del sistema</div></td>
+<td>Elaboración del Informe de Evaluación</td>
+<td>OR</td>
+<td class="mono nw">11/06/2027</td>
+<td class="mono nw">25/06/2027</td>
+<td class="num">11</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T3.1.2.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr><tr class="hito">
+<td class="mono cod">H3.2.1.02</td>
+<td class="et">E3.2 Informe final<div class="ac">A3.2.1 Resultados del sistema</div></td>
+<td>Aprobación y cierre del proyecto <span class="mk">★</span><div class="nt">Declarado como hito.</div></td>
+<td>Rectorado / OGPL</td>
+<td class="mono nw">30/06/2027</td>
+<td class="mono nw">30/06/2027</td>
+<td class="num">—</td>
+<td><span class="pill p-pend">NO INICIADO</span></td>
+<td class="mono sm">T3.2.1.01<div class="vk">FC</div></td>
+<td class="ct">●</td>
+</tr>
+</tbody></table></div>
+<div class="leyenda">
+  <span><b>★</b> hito</span><span><b>●</b> ruta crítica</span>
+  <span>Fila ámbar: hito</span><span>Código en rojo: pertenece a la ruta crítica</span>
+</div>
+
+<h2>Qué cambió respecto de la versión 1</h2>
+<div class="tabla"><table>
+<thead><tr><th style="width:150px">Hallazgo</th><th>Corrección aplicada</th></tr></thead>
+<tbody>
+<tr><td class="mono">D2-01</td><td>El «% AVANCE DEL PROYECTO: 78%» se retira del cronograma. Correspondía a actividades iniciadas de la Fase 1 (7 de 9), no a avance. El avance de fase se toma únicamente del D4.</td></tr>
+<tr><td class="mono">D2-02</td><td>Los contadores se rotulan explícitamente como actividades y se separan de los de tareas.</td></tr>
+<tr><td class="mono">D2-03</td><td>«Desarrollo del sistema» ya no empieza antes que el front-end del que depende: pasa a T2.2.1.01 con predecesora H1.3.4.02.</td></tr>
+<tr><td class="mono">D2-04</td><td>Fecha única de cierre de Fase 1: 30/09/2026, en el nombre, en las fechas y en el Plan de Gestión.</td></tr>
+<tr><td class="mono">D2-05</td><td>El código T1.3.1.2 ya no se repite: las seis tareas de SIGPRO tienen código propio.</td></tr>
+<tr><td class="mono">D2-06</td><td>Un código, un nombre. «Consolidación y cierre» es la Actividad A1.3.5, única.</td></tr>
+<tr><td class="mono">D2-07</td><td>La Etapa E1.1 se llama «Inicio y sensibilización» en todas sus filas.</td></tr>
+<tr><td class="mono">D2-08</td><td>La segunda tarea 1.3.2.4 se renumera como T1.3.2.05.</td></tr>
+<tr><td class="mono">D2-09</td><td>Se agregan Responsable, Predecesora, Tipo de vínculo, Hito y Ruta crítica.</td></tr>
+<tr><td class="mono">D2-10</td><td>El rango del gráfico arranca en junio de 2025 para incluir la primera tarea.</td></tr>
+<tr><td class="mono">D2-11</td><td>La fecha de corte se declara en el encabezado y se actualiza al guardar.</td></tr>
+<tr><td class="mono">D1-03</td><td>SIGPRO: el desarrollo mínimo queda en Fase 1 con hito de disponibilidad en modo consulta; el backend, los módulos y el despliegue pasan a la Fase 2.</td></tr>
+<tr><td class="mono">D1-02</td><td>«Automatización culminada» se renombra «Automatización de la carga de datos en SIGPRO», compatible con la exclusión de alcance.</td></tr>
+<tr><td class="mono">D3-06</td><td>Las paralizaciones de mayo y julio de 2026 pasan al registro de incidencias y se descuentan del calendario laborable.</td></tr>
+</tbody></table></div>
+
+<h2>Cuatro tareas que no existían</h2>
+<p>El cronograma v1 no contemplaba el trabajo que hoy es mayoritario. Estas cuatro se incorporan con fecha y responsable:</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:120px">Código</th><th>Tarea</th><th style="width:290px">Por qué faltaba</th></tr></thead>
+<tbody>
+<tr><td class="mono">T1.3.2.06</td><td>Indicador estándar de PS.10</td><td>PS.10 nunca apareció en el cronograma y es el proceso ausente en 8 facultades.</td></tr>
+<tr><td class="mono">T1.3.3.02</td><td>Levantamiento de las 1 901 observaciones</td><td>Es el trabajo dominante hasta setiembre y encabeza la ruta crítica.</td></tr>
+<tr><td class="mono">T1.3.3.03</td><td>Registro de los 73 procesos de Nivel 0 ausentes</td><td>Afecta a 13 de las 20 facultades y no tenía tarea asignada.</td></tr>
+<tr><td class="mono">T1.3.3.04</td><td>Auditoría de codificación contra el catálogo maestro</td><td>Corrige el desplazamiento de PS.04–PS.10 y los formularios ajenos de FCF y FIGMMG.</td></tr>
+</tbody></table></div>
+
+<div class="descarga">
+  <a class="btn" href="../data/02-cronograma-v2.csv" download>Descargar CSV para Google Sheets o Excel</a>
+  <span>Codificación UTF-8 con BOM. Se importa sin ajustes.</span>
+</div>
+
+</main>
+<footer class="df"><div class="wrap">
+  <span>Cronograma v2.0 · Oficina de Racionalización · OGPL UNMSM</span>
+  <a href="../index.html">Centro de documentación</a>
+</div></footer>
+</body></html>

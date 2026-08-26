@@ -1,0 +1,71 @@
+# Gestión por Procesos · UNMSM
+
+Centro de documentación del proyecto **Implementación de la Gestión por Procesos en las 20 Facultades**, organizado bajo la guía del PMBOK 6.ª edición.
+
+Oficina General de Planificación · Oficina de Racionalización · Universidad Nacional Mayor de San Marcos.
+
+---
+
+## Qué contiene
+
+Una web interactiva con el diagnóstico de la documentación de trabajo, más los tres documentos de gestión corregidos en su versión 2.0.
+
+| | Documento | Estado |
+|---|---|---|
+| **D1** | Plan de Gestión del Proyecto | v2.0 |
+| **D2** | Plan de Gestión del Cronograma | v2.0 |
+| **D3** | Bitácora de ejecución | v2.0 |
+| **D4** | Revisión interna de avances | vigente en Drive |
+
+## Estructura
+
+```
+.
+├── index.html                        Centro de documentación (portada)
+├── docs/
+│   ├── 01-plan-de-gestion-v2.html
+│   ├── 02-cronograma-v2.html
+│   └── 03-bitacora-v2.html
+├── data/
+│   ├── 02-cronograma-v2.csv          41 filas
+│   ├── 03-bitacora-v2.csv            111 filas
+│   ├── registro-riesgos.csv          9 riesgos
+│   ├── registro-incidencias.csv      6 incidencias
+│   ├── catalogo-procesos-nivel0.csv  16 procesos
+│   └── diccionario-estados.csv       5 estados
+├── assets/doc.css
+└── PUBLICAR-EN-GITHUB.md
+```
+
+## Reglas que rigen esta documentación
+
+**Fuente única del avance de fase.** Se mide solo con la revisión interna (D4):
+
+```
+Avance de fase = (Completos + 0,5 × Observados) ÷ Total de productos
+```
+
+El porcentaje del cronograma mide actividades iniciadas o culminadas y no se usa para reportar avance.
+
+**Códigos.** Fase `F#` › Etapa `F#.E#` › Actividad `F#.E#.A#` › Tarea `T F#.E#.A#.T##` › Subtarea `S 1.3.2.02.14`. Los hitos usan el prefijo `H`. Ningún código se reutiliza.
+
+**Estados.** Cinco valores: `NO INICIADO`, `EN PROCESO`, `OBSERVADO`, `CONFORME`, `NO APLICA`.
+
+**Fechas.** Formato `dd/mm/aaaa`. Duración en días hábiles.
+
+**Procesos.** Rige el catálogo maestro de `data/catalogo-procesos-nivel0.csv`. Atención al bloque PS.04–PS.10: circula una numeración desplazada un dígito que debe corregirse.
+
+## Estado del proyecto
+
+- Avance de la Fase 1: **63%**
+- Cierre de la Fase 1: **30 de setiembre de 2026**
+- Productos catalogados: 2 823 · completos 828 · observados 1 901 · pendientes 94
+- Procesos de Nivel 0 obligatorios ausentes: 73, en 13 facultades
+
+> **Ruta crítica sin holgura.** Quedan 25 días hábiles hasta el cierre y la ruta crítica consume 24. El levantamiento de las 1 901 observaciones (T1.3.3.02) debe arrancar de inmediato.
+
+## Uso
+
+Abrir `index.html` en cualquier navegador, o publicar el repositorio con GitHub Pages siguiendo [PUBLICAR-EN-GITHUB.md](PUBLICAR-EN-GITHUB.md).
+
+Todos los enlaces internos son relativos: el sitio funciona igual en local que publicado.

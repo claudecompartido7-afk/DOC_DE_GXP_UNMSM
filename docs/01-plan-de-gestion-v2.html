@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de Gestión del Proyecto v2.0 · Gestión por Procesos UNMSM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/doc.css">
+<style>
+.ficha{background:var(--lienzo);border:1px solid var(--linea);border-top:3px solid var(--granate);
+  padding:22px 24px;margin-bottom:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:18px}
+.ficha div span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--acero);margin-bottom:4px}
+.ficha div b{font-family:var(--disp);font-size:14.5px;font-weight:600}
+.dec{background:var(--lienzo);border:1px solid var(--linea);border-left:3px solid var(--azul);
+  padding:16px 19px;margin:16px 0;max-width:88ch}
+.dec .et{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--azul);margin-bottom:6px}
+.dec h4{font-size:15.5px;margin-bottom:5px}
+.dec p{margin:0;font-size:14px;color:var(--tinta-70)}
+.raci td{text-align:center;font-family:var(--disp);font-weight:700}
+.raci td:first-child{text-align:left;font-family:var(--sans);font-weight:400}
+.raci .a{color:var(--granate)}
+.idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-weight:500;margin-right:9px}
+</style></head><body>
+
+<header class="dh"><div class="wrap">
+  <a class="volver" href="../index.html">← Centro de documentación</a>
+  <div class="ceja">D1 · Versión 2.0 · Reemplaza al Plan de Gestión del Alcance v1.0</div>
+  <h1>Plan de Gestión del Proyecto</h1>
+  <p class="sub">Implementación de la Gestión por Procesos en las 20 Facultades de la UNMSM. Incorpora las correcciones de los nueve hallazgos del diagnóstico y suma las áreas del PMBOK que el plan anterior no cubría.</p>
+</div></header>
+
+<main class="wrap doc">
+
+<div class="ficha">
+  <div><span>Proyecto</span><b>Implementación de la Gestión por Procesos</b></div>
+  <div><span>Área responsable</span><b>OGPL · Oficina de Racionalización</b></div>
+  <div><span>Alcance temporal</span><b>Fases 1 a 3</b></div>
+  <div><span>Inicio</span><b>01/06/2025</b></div>
+  <div><span>Cierre de Fase 1</span><b>30/09/2026</b></div>
+  <div><span>Cierre del proyecto</span><b>30/06/2027</b></div>
+  <div><span>Versión</span><b>2.0 · 26/08/2026</b></div>
+  <div><span>Avance de Fase 1</span><b>63%</b></div>
+</div>
+
+<h2><span class="idx">1</span>Propósito del plan</h2>
+<p>Este plan establece las directrices para definir, desarrollar, supervisar, controlar y validar el alcance global del proyecto y el de cada Manual de Gestión por Procesos de Facultad (MAGPROF), tomando como línea base la Norma Técnica N.º 002-2025-PCM-SGP. Incluye además la diagramación de los procedimientos que integran cada proceso del Mapa de Procesos Estándar.</p>
+<p>A diferencia de la versión 1.0, que cubría únicamente el área de Alcance, esta versión incorpora cronograma, calidad, recursos, comunicaciones, riesgos e interesados, y establece una fuente única para cada dato del proyecto.</p>
+
+<h2><span class="idx">2</span>Decisiones adoptadas en esta versión</h2>
+<p>Ocho decisiones cierran las contradicciones que el diagnóstico detectó entre los documentos. Cada una fija una fuente única y desactiva la ambigüedad.</p>
+
+<div class="dec"><div class="et">Decisión 1 · resuelve el hallazgo D1-01</div>
+<h4>Documentación de procesos</h4>
+<p>Está <b>dentro</b> del alcance la documentación que cada Facultad elabora en el Anexo 1 y el Anexo 3. Está <b>fuera</b> la documentación de procesos de unidades centrales de la universidad ajenas a las Facultades. La redacción contradictoria de la versión 1.0 queda derogada.</p></div>
+
+<div class="dec"><div class="et">Decisión 2 · resuelve D1-02</div>
+<h4>Alcance del término «automatización»</h4>
+<p>La exclusión se refiere a la <b>automatización de los procesos de negocio</b> de las Facultades. Sí está dentro del alcance automatizar la carga y validación de datos dentro de la plataforma SIGPRO. La tarea del cronograma se renombra en consecuencia.</p></div>
+
+<div class="dec"><div class="et">Decisión 3 · resuelve D1-03</div>
+<h4>Ubicación de SIGPRO en las fases</h4>
+<p>La Fase 1 exige únicamente la <b>disponibilidad de SIGPRO en modo consulta</b> al 30 de setiembre de 2026 (hito H1.3.4.02). El backend, los módulos de encuesta, facultades, acta digital y automatización, y el despliegue completo, se ejecutan en la Fase 2. Así el retraso de un módulo ya no bloquea el cierre de la Fase 1.</p></div>
+
+<div class="dec"><div class="et">Decisión 4 · resuelve D2-04</div>
+<h4>Fecha única de cierre de la Fase 1</h4>
+<p><b>30 de setiembre de 2026.</b> Esta fecha rige en el plan, en el nombre del hito y en las fechas del cronograma. Quedan sin efecto las menciones a «30 de octubre» y al rango 01–03/10.</p></div>
+
+<div class="dec"><div class="et">Decisión 5 · resuelve D2-01</div>
+<h4>Fuente única del avance de fase</h4>
+<p>El avance de fase se mide <b>exclusivamente con la revisión interna (D4)</b>, mediante la fórmula (Completos + 0,5 × Observados) ÷ Total de productos. El porcentaje del cronograma se reclasifica como «actividades iniciadas o culminadas» y no se usa para reportar avance.</p></div>
+
+<div class="dec"><div class="et">Decisión 6 · resuelve D4-07 y R-08</div>
+<h4>Catálogo maestro de procesos</h4>
+<p>Rige un único catálogo de los 16 procesos de Nivel 0. Toda codificación que use la numeración desplazada de PS.04 a PS.10 debe corregirse antes de continuar el llenado. La auditoría está programada como tarea T1.3.3.04.</p></div>
+
+<div class="dec"><div class="et">Decisión 7 · resuelve D4-05 y D4-06</div>
+<h4>Derogación del Anexo 2</h4>
+<p>El Anexo 2 <b>no se llena</b>: su contenido pasó al Anexo 1 por incompatibilidad de las celdas combinadas con SIGPRO. Se retiran sus columnas de la revisión interna, junto con las del «Anexo 4», que carece de archivo y de regla que lo defina.</p></div>
+
+<div class="dec"><div class="et">Decisión 8 · resuelve D1-06</div>
+<h4>Un solo aprobador por entregable</h4>
+<p>El <b>Decano</b> aprueba el MAGPROF y el MAPRO de su Facultad. El Jefe de OGPL pasa a consultado. La aprobación institucional consolidada se registra como hito aparte, a cargo del Rectorado.</p></div>
+
+<h2><span class="idx">3</span>Enunciado del alcance</h2>
+<p>El proyecto comprende el diseño, la implementación y la evaluación de la Gestión por Procesos (Fases 1 a 3) en las 20 Facultades de la UNMSM. La Fase 1 (Identificación) cierra el 30 de setiembre de 2026; la Fase 2 (Implementación) el 30 de abril de 2027; la Fase 3 (Evaluación) el 30 de junio de 2027. La Fase 4 (Mejora) requiere un plan independiente y no forma parte de este alcance.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:50%">Dentro del alcance</th><th style="width:50%">Fuera del alcance</th></tr></thead>
+<tbody>
+<tr><td>Elaboración del MAGPROF en las 20 Facultades</td><td>Rediseño de la estructura orgánica de la universidad</td></tr>
+<tr><td>Identificación de procesos estratégicos, misionales y de soporte</td><td>Estandarización de subprocesos</td></tr>
+<tr><td>Consolidación del Mapa de Procesos Estándar</td><td>Procesos de entidades externas vinculadas a la UNMSM</td></tr>
+<tr><td>Fichas de caracterización por proceso (Anexo 3)</td><td>Modificación de normativa nacional aplicable</td></tr>
+<tr><td>Capacitación a los Dueños de Proceso</td><td>Certificación externa de calidad (ISO u otra)</td></tr>
+<tr style="background:var(--verde-cl)"><td><b>Documentación de procesos elaborada por cada Facultad en los Anexos 1 y 3</b></td><td><b>Documentación de procesos de unidades centrales ajenas a las Facultades</b></td></tr>
+<tr><td>Determinación de los indicadores estándar por proceso</td><td>Estandarización de productos</td></tr>
+<tr style="background:var(--verde-cl)"><td><b>Desarrollo de la plataforma SIGPRO y automatización de la carga de datos en ella</b></td><td><b>Automatización de los procesos de negocio de las Facultades</b></td></tr>
+<tr><td>Diagramación de los procedimientos del Mapa Estándar en las 20 Facultades</td><td>Automatización de los procedimientos diagramados</td></tr>
+<tr><td>Implementación y evaluación (Fases 2 y 3)</td><td>Fase 4 — Mejora continua posterior</td></tr>
+</tbody></table></div>
+
+<h2><span class="idx">4</span>Estructura de desglose del trabajo</h2>
+<p>Cuatro niveles, idénticos a los del cronograma: Fase › Etapa › Actividad › Tarea. La versión 1.0 llegaba solo a tres y no permitía trazar una tarea hasta su paquete de trabajo.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:150px">Fase</th><th style="width:250px">Etapa</th><th style="width:270px">Actividad</th><th>Paquete de trabajo</th></tr></thead>
+<tbody>
+<tr><td rowspan="9" class="mono"><b>F1</b><br>Identificación<br><small>hasta 30/09/2026</small></td>
+    <td rowspan="3">E1.1 Inicio y sensibilización</td><td>A1.1.1 Revisión de la norma</td><td>Análisis de la NT 002-2025-PCM-SGP</td></tr>
+<tr><td>A1.1.2 Difusión y arranque</td><td>Material de difusión y presentación de continuidad</td></tr>
+<tr><td>A1.1.3 Capacitación inicial</td><td>Capacitación a Dueños de Proceso</td></tr>
+<tr><td rowspan="3">E1.2 Identificación de procesos</td><td>A1.2.1 Elaboración de la Guía</td><td>Material base de la Guía de GxP</td></tr>
+<tr><td>A1.2.2 Reajuste del Mapa de Procesos</td><td>Mapa de Procesos Estándar de Facultades</td></tr>
+<tr><td>A1.2.3 Aprobación de la Guía</td><td>Guía de GxP emitida</td></tr>
+<tr><td rowspan="3">E1.3 Elaboración del MAGPROF</td><td>A1.3.1 Ajuste de instrumentos · A1.3.2 Indicadores</td><td>Fichas ajustadas · 16 indicadores estándar</td></tr>
+<tr><td>A1.3.3 Documentación · A1.3.4 SIGPRO mínimo</td><td>Anexos 1 y 3 por facultad · SIGPRO en modo consulta</td></tr>
+<tr><td>A1.3.5 Consolidación y cierre</td><td>20 MAGPROF validados y aprobados</td></tr>
+<tr><td rowspan="3" class="mono"><b>F2</b><br>Implementación<br><small>hasta 30/04/2027</small></td>
+    <td>E2.1 Diagramación de procedimientos</td><td>A2.1.1 Desarrollo de flujogramas</td><td>Procedimientos diagramados y validados en Bizagi</td></tr>
+<tr><td>E2.2 SIGPRO · desarrollo y despliegue</td><td>A2.2.1 Construcción del sistema</td><td>Backend, módulos y despliegue del módulo de procesos</td></tr>
+<tr><td>E2.3 Publicación oficial</td><td>A2.3.1 Emisión del MAPRO</td><td>MAPRO publicado y aprobado</td></tr>
+<tr><td rowspan="2" class="mono"><b>F3</b><br>Evaluación<br><small>hasta 30/06/2027</small></td>
+    <td>E3.1 Medición de indicadores</td><td>A3.1.1 Recolección · A3.1.2 Auditoría</td><td>Medición de eficacia y eficiencia · auditoría de cumplimiento</td></tr>
+<tr><td>E3.2 Informe final</td><td>A3.2.1 Resultados del sistema</td><td>Informe de Evaluación aprobado</td></tr>
+</tbody></table></div>
+
+<h2><span class="idx">5</span>Matriz de trazabilidad de requisitos</h2>
+<p>Cada requisito apunta ahora a la tarea del cronograma que lo entrega. Es el vínculo que la versión 1.0 no tenía y que impedía verificar que todo requisito tuviera trabajo asignado.</p>
+<div class="tabla"><table>
+<thead><tr><th>ID</th><th>Requisito</th><th>Origen</th><th>Entregable</th><th>Tarea del cronograma</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td class="mono">RQ-01</td><td>Nombres de procesos definidos (estratégico, misional, soporte)</td><td>NT SGP</td><td>MAGPROF</td><td class="mono">T1.2.2.01 – T1.2.2.03</td><td><span class="pill p-ok">Conforme</span></td></tr>
+<tr><td class="mono">RQ-02</td><td>Mapa de Procesos Estándar para Facultades</td><td>OGPL</td><td>Mapa institucional</td><td class="mono">H1.2.2.04</td><td><span class="pill p-ok">Conforme</span></td></tr>
+<tr><td class="mono">RQ-03</td><td>Fichas de indicadores estándar de los 16 procesos</td><td>NT SGP</td><td>MAGPROF</td><td class="mono">T1.3.2.01 – T1.3.2.06</td><td><span class="pill p-proc">En proceso</span></td></tr>
+<tr><td class="mono">RQ-04</td><td>Ficha de caracterización por proceso</td><td>NT SGP</td><td>MAGPROF</td><td class="mono">T1.3.3.01 – T1.3.3.04</td><td><span class="pill p-proc">En proceso</span></td></tr>
+<tr><td class="mono">RQ-05</td><td>Aprobación del MAGPROF por los 20 Decanos</td><td>OGPL</td><td>MAGPROF</td><td class="mono">T1.3.5.02</td><td><span class="pill p-pend">No iniciado</span></td></tr>
+<tr><td class="mono">RQ-06</td><td>Plataforma SIGPRO disponible en modo consulta</td><td>OGPL</td><td>SIGPRO</td><td class="mono">T1.3.4.01 · H1.3.4.02</td><td><span class="pill p-proc">En proceso</span></td></tr>
+<tr><td class="mono">RQ-07</td><td>MAPRO — Manual de procedimientos publicado</td><td>OGPL</td><td>MAPRO</td><td class="mono">T2.3.1.01 – T2.3.1.02</td><td><span class="pill p-pend">No iniciado</span></td></tr>
+<tr style="background:var(--verde-cl)"><td class="mono">RQ-08</td><td>Los 16 procesos de Nivel 0 registrados en las 20 Facultades</td><td>NT SGP · Regla 2.1</td><td>Anexo 1</td><td class="mono">T1.3.3.03</td><td><span class="pill p-pend">No iniciado</span></td></tr>
+<tr style="background:var(--verde-cl)"><td class="mono">RQ-09</td><td>Codificación conforme al catálogo maestro en las 20 pestañas</td><td>OGPL</td><td>Anexos 1 y 3</td><td class="mono">T1.3.3.04</td><td><span class="pill p-pend">No iniciado</span></td></tr>
+</tbody></table></div>
+<p>RQ-08 y RQ-09 son requisitos nuevos: recogen los 73 procesos obligatorios ausentes y el problema de codificación que el diagnóstico detectó y que no tenían requisito ni tarea.</p>
+
+<h2><span class="idx">6</span>Criterios de aceptación</h2>
+<div class="tabla"><table>
+<thead><tr><th style="width:180px">Entregable</th><th style="width:170px">Revisor técnico</th><th>Criterio de aceptación</th><th style="width:130px">Aprobador</th></tr></thead>
+<tbody>
+<tr><td>MAGPROF de Facultad</td><td>Oficina de Racionalización</td><td>Los 16 procesos de Nivel 0 registrados; inventario de productos completo; fichas de caracterización sin observaciones; codificación conforme al catálogo maestro</td><td>Decano</td></tr>
+<tr><td>SIGPRO · modo consulta</td><td>Oficina de Racionalización</td><td>Front-end operativo con acceso público y por facultad; visualización de mapa, indicadores y fichas</td><td>Jefe de OGPL</td></tr>
+<tr><td>SIGPRO · versión completa</td><td>Oficina de Racionalización</td><td>Todos los módulos funcionales y operativos, con carga de datos automatizada</td><td>Jefe de OGPL</td></tr>
+<tr><td>MAPRO de Facultad</td><td>Oficina de Racionalización</td><td>Procedimientos alineados a los procesos validados en el MAGPROF y diagramados en Bizagi</td><td>Decano</td></tr>
+<tr><td>Informe de Evaluación</td><td>OGPL · OCCAA</td><td>Medición de los indicadores de eficacia y eficiencia de los 16 procesos, con auditoría de cumplimiento</td><td>Rectorado</td></tr>
+</tbody></table></div>
+
+<h2><span class="idx">7</span>Roles y responsabilidades</h2>
+<p>Un solo aprobador por actividad. La versión 1.0 asignaba doble responsabilidad final en dos filas, con lo que ninguna decisión quedaba formalmente cerrada.</p>
+<div class="tabla"><table class="raci">
+<thead><tr><th>Actividad</th><th>Decano</th><th>Resp. GxP Facultad</th><th>Of. Racionalización</th><th>Jefe OGPL</th><th>Rectorado</th></tr></thead>
+<tbody>
+<tr><td>Capacitar en la implementación de GxP</td><td>I</td><td>I</td><td>R</td><td class="a">A</td><td>I</td></tr>
+<tr><td>Elaborar el MAGPROF</td><td>I</td><td>R</td><td>C</td><td>I</td><td>—</td></tr>
+<tr><td>Validar la documentación</td><td>C</td><td>C</td><td>R</td><td class="a">A</td><td>I</td></tr>
+<tr><td>Aprobar el MAGPROF de la Facultad</td><td class="a">A</td><td>I</td><td>C</td><td>C</td><td>I</td></tr>
+<tr><td>Aprobar el MAPRO de la Facultad</td><td class="a">A</td><td>I</td><td>C</td><td>C</td><td>I</td></tr>
+<tr><td>Desarrollar la plataforma SIGPRO</td><td>I</td><td>I</td><td>R</td><td class="a">A</td><td>I</td></tr>
+<tr><td>Evaluar solicitudes de cambio</td><td>I</td><td>C</td><td>R</td><td class="a">A</td><td>I</td></tr>
+<tr><td>Aprobar el cierre del proyecto</td><td>I</td><td>I</td><td>C</td><td>R</td><td class="a">A</td></tr>
+</tbody></table></div>
+<p><b>R</b> ejecuta · <b>A</b> aprueba y rinde cuentas · <b>C</b> consultado · <b>I</b> informado</p>
+
+<h2><span class="idx">8</span>Control de cambios del alcance</h2>
+<p>Seis pasos, todos con responsable asignado. La versión 1.0 numeraba dos pasos como «5» y dejaba la aprobación del Mapa sin dueño.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:60px">Paso</th><th>Acción</th><th style="width:270px">Responsable</th></tr></thead>
+<tbody>
+<tr><td class="mono">1</td><td>Registro de la solicitud de cambio</td><td>Responsable de GxP de Facultad</td></tr>
+<tr><td class="mono">2</td><td>Evaluación de viabilidad, factibilidad e impacto en el cronograma y en la ruta crítica</td><td>Oficina de Racionalización</td></tr>
+<tr><td class="mono">3</td><td>Decisión: aprobar, rechazar o diferir</td><td>Jefe de OGPL</td></tr>
+<tr><td class="mono">4</td><td>Actualización del Mapa de Procesos y de los Anexos afectados</td><td>Oficina de Racionalización</td></tr>
+<tr><td class="mono">5</td><td>Aprobación del Mapa de Procesos actualizado</td><td>Jefe de OGPL</td></tr>
+<tr><td class="mono">6</td><td>Comunicación del cambio a las Facultades y registro en la bitácora</td><td>Oficina de Racionalización</td></tr>
+</tbody></table></div>
+
+<h2><span class="idx">9</span>Gestión del cronograma</h2>
+<p>El detalle completo vive en el <a href="02-cronograma-v2.html">Cronograma v2.0</a>. Las reglas que rigen su mantenimiento son estas:</p>
+<ul>
+<li>Los códigos son únicos y no se reutilizan. Formato: <span class="mono">F#.E#.A#.T##</span> para tareas y <span class="mono">H</span> en lugar de <span class="mono">T</span> para hitos.</li>
+<li>Toda tarea declara responsable, predecesora y tipo de vínculo. Sin dependencias no hay ruta crítica.</li>
+<li>Las fechas se escriben en formato <span class="mono">dd/mm/aaaa</span> y la duración en días hábiles.</li>
+<li>Las paralizaciones se registran como incidencias y se descuentan del calendario laborable.</li>
+<li>Un elemento de duración cero es un hito y se marca como tal; no se registra como tarea.</li>
+</ul>
+<div class="aviso"><strong>Estado de la ruta crítica al 26 de agosto de 2026.</strong> Quedan 25 días hábiles hasta el cierre de la Fase 1 y la ruta crítica consume 24. La holgura total es de un día. Si el levantamiento de las 1 901 observaciones (T1.3.3.02) no arranca esta semana, corresponde tramitar una solicitud de cambio del plazo por el procedimiento de la sección 8.</div>
+
+<h2><span class="idx">10</span>Gestión de la calidad</h2>
+<p>El control de calidad se ejerce mediante la revisión interna de los Anexos 1 y 3 contra los criterios de validación vigentes. Es la única fuente del avance de fase.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:250px">Medición</th><th style="width:330px">Fórmula</th><th>Uso</th></tr></thead>
+<tbody>
+<tr style="background:var(--verde-cl)"><td><b>Avance de fase</b> · oficial</td><td class="mono">(Completos + 0,5 × Observados) ÷ Total productos</td><td>Reporte al Rectorado y a los Decanos. Fuente única: revisión interna.</td></tr>
+<tr><td>Ejecución de actividades</td><td class="mono">Actividades culminadas ÷ Actividades de la fase</td><td>Gestión interna del equipo. No es avance de fase.</td></tr>
+<tr><td>Conformidad documental</td><td class="mono">Completos ÷ Total productos</td><td>Indicador de calidad: qué proporción se puede publicar sin observaciones.</td></tr>
+</tbody></table></div>
+<p>El coeficiente 0,5 acredita medio punto al producto ya catalogado que aún tiene observaciones por levantar. <b>Ajuste pendiente:</b> el denominador debe incluir los 16 procesos obligatorios de Nivel 0 aunque no se hayan cargado; de lo contrario, registrar menos procesos eleva artificialmente el porcentaje, como ocurre hoy con FCM al 100% pese a que le falta PS.10.</p>
+
+<h2><span class="idx">11</span>Gestión de riesgos</h2>
+<p>Nueve riesgos identificados, seis ya materializados. El registro completo, con probabilidad, impacto, responsable y respuesta, está en la <a href="03-bitacora-v2.html">Bitácora v2.0</a>.</p>
+<div class="tabla"><table>
+<thead><tr><th style="width:70px">ID</th><th>Riesgo</th><th style="width:110px">Impacto</th><th style="width:120px">Estado</th></tr></thead>
+<tbody>
+<tr><td class="mono">R-04</td><td>Dependencia de una sola persona para el desarrollo de SIGPRO</td><td>Crítico</td><td><span class="pill p-obs">Abierto</span></td></tr>
+<tr><td class="mono">R-08</td><td>Dos numeraciones de procesos de soporte en circulación</td><td>Crítico</td><td><span class="pill p-obs">Abierto</span></td></tr>
+<tr><td class="mono">R-09</td><td>La ruta crítica no admite retrasos: 24 días de trabajo en 25 disponibles</td><td>Crítico</td><td><span class="pill p-obs">Abierto</span></td></tr>
+<tr><td class="mono">R-01</td><td>Las Facultades no remiten la documentación en plazo</td><td>Alto</td><td><span class="pill p-cri">Materializado</span></td></tr>
+<tr><td class="mono">R-03</td><td>La OCCAA no aprueba los procedimientos de PE.02 por falta del listado de evidencias</td><td>Alto</td><td><span class="pill p-cri">Materializado</span></td></tr>
+<tr><td class="mono">R-06</td><td>Las contrataciones de programador y bolsista no se concretan</td><td>Alto</td><td><span class="pill p-obs">Abierto</span></td></tr>
+<tr><td class="mono">R-07</td><td>Datos contaminados entre Facultades por uso de formularios ajenos</td><td>Alto</td><td><span class="pill p-obs">Abierto</span></td></tr>
+<tr><td class="mono">R-02</td><td>Los órganos consultados no emiten retroalimentación</td><td>Medio</td><td><span class="pill p-cri">Materializado</span></td></tr>
+<tr><td class="mono">R-05</td><td>El script de llenado automático no reproduce el cuadro del Anexo 1</td><td>Medio</td><td><span class="pill p-obs">Abierto</span></td></tr>
+</tbody></table></div>
+
+<h2><span class="idx">12</span>Interesados y comunicaciones</h2>
+<div class="tabla"><table>
+<thead><tr><th style="width:190px">Interesado</th><th style="width:110px">Influencia</th><th>Interés y expectativa</th><th style="width:230px">Comunicación</th></tr></thead>
+<tbody>
+<tr><td>Rectorado</td><td>Alta</td><td>Cumplimiento de la Norma Técnica SGP y de los plazos comprometidos</td><td>Reporte de avance mensual con la cifra oficial del D4</td></tr>
+<tr><td>Jefe de OGPL</td><td>Alta</td><td>Cierre de la Fase 1 en plazo y disponibilidad de SIGPRO</td><td>Reunión semanal de seguimiento de la ruta crítica</td></tr>
+<tr><td>Decanos (20)</td><td>Alta</td><td>Aprobar un MAGPROF que refleje la realidad de su Facultad</td><td>Oficio con observaciones y plazo; reunión de cierre por facultad</td></tr>
+<tr><td>Responsables de GxP de Facultad</td><td>Media</td><td>Instrucciones claras y estables sobre qué anexos llenar</td><td>Correo con observaciones tras cada revisión; reuniones de levantamiento</td></tr>
+<tr><td>OCCAA y OCAA</td><td>Media</td><td>Alineamiento con el modelo de acreditación CONEAU 2025</td><td>Reuniones de validación de procedimientos de PE.02</td></tr>
+<tr><td>VRAP</td><td>Media</td><td>Consistencia académica de los procesos misionales</td><td>Remisión de ítems para retroalimentación, con plazo de 5 días hábiles</td></tr>
+<tr><td>Quipucamayoc</td><td>Baja</td><td>Integración técnica de SIGPRO con los sistemas institucionales</td><td>Coordinación puntual por hito técnico</td></tr>
+</tbody></table></div>
+<div class="nota-ok"><strong>Regla de silencio administrativo.</strong> Transcurridos 5 días hábiles desde la remisión formal sin respuesta del órgano consultado, la propuesta se da por conforme y el proyecto avanza. Se adopta como respuesta al riesgo R-02, que ya se materializó dos veces.</div>
+
+<h2><span class="idx">13</span>Documentos que integran este plan</h2>
+<div class="tabla"><table>
+<thead><tr><th style="width:220px">Documento</th><th style="width:130px">Versión</th><th>Contenido y fuente única que provee</th></tr></thead>
+<tbody>
+<tr><td>Plan de Gestión del Proyecto</td><td class="mono">v2.0 · este documento</td><td>Alcance, EDT, trazabilidad, RACI, control de cambios, calidad, riesgos e interesados</td></tr>
+<tr><td><a href="02-cronograma-v2.html">Cronograma</a></td><td class="mono">v2.0</td><td>Fechas, dependencias, responsables, hitos y ruta crítica</td></tr>
+<tr><td><a href="03-bitacora-v2.html">Bitácora de ejecución</a></td><td class="mono">v2.0</td><td>Registro diario, registro de riesgos y registro de incidencias</td></tr>
+<tr><td>Revisión interna de avances</td><td class="mono">vigente</td><td>Avance de fase por facultad y control de calidad de los Anexos 1 y 3</td></tr>
+<tr><td><a href="../data/catalogo-procesos-nivel0.csv">Catálogo maestro de procesos</a></td><td class="mono">v1.0 · nuevo</td><td>Denominación oficial de los 16 procesos de Nivel 0</td></tr>
+<tr><td><a href="../data/diccionario-estados.csv">Diccionario de estados</a></td><td class="mono">v1.0 · nuevo</td><td>Cinco estados únicos y su peso en el cálculo del avance</td></tr>
+</tbody></table></div>
+
+<div class="descarga">
+  <a class="btn" href="02-cronograma-v2.html">Ver el Cronograma v2.0</a>
+  <a class="btn sec" href="03-bitacora-v2.html">Ver la Bitácora v2.0</a>
+  <a class="btn sec" href="../data/catalogo-procesos-nivel0.csv" download>Catálogo de procesos · CSV</a>
+  <a class="btn sec" href="../data/diccionario-estados.csv" download>Diccionario de estados · CSV</a>
+</div>
+
+</main>
+<footer class="df"><div class="wrap">
+  <span>Plan de Gestión del Proyecto v2.0 · Oficina de Racionalización · OGPL UNMSM</span>
+  <a href="../index.html">Centro de documentación</a>
+</div></footer>
+</body></html>

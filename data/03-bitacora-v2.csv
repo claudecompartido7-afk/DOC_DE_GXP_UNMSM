@@ -1,0 +1,112 @@
+﻿Codigo_subtarea,Tarea_padre_cronograma,Descripcion,Responsable,Participa,Proceso,Inicio,Fin,Estado,Observacion
+S1.3.2.01.01,T1.3.2.01,Revisar los indicadores del Plan Estratégico 2026-2030,OR,Equipo UPPR,PE.01,10/03/2026,13/03/2026,CONFORME,
+S1.3.2.01.02,T1.3.2.01,Determinar el mecanismo de control «Porcentaje de ejecución presupuestaria de recursos directamente recaudados»,OR,Equipo OR,PE.01,17/03/2026,18/03/2026,CONFORME,
+S1.3.2.01.03,T1.3.2.01,Determinar el mecanismo de control «Hoja de reporte de recursos ordinarios (RO)»,OR,Equipo OR,PE.01,19/03/2026,20/03/2026,CONFORME,
+S1.3.2.01.04,T1.3.2.01,Determinar el mecanismo de control «Porcentaje de cumplimiento de acciones estratégicas»,OR,Equipo OR,PE.01,23/03/2026,24/03/2026,CONFORME,
+S1.3.2.01.05,T1.3.2.01,Determinar el mecanismo de control «Hoja de reporte de actividades operativas ejecutadas»,OR,Equipo OR,PE.01,25/03/2026,26/03/2026,CONFORME,
+S1.3.2.01.06,T1.3.2.01,Diagramar el procedimiento D.01 Formulación del Plan Estratégico,OR,Equipo OR,PE.01,27/03/2026,28/03/2026,CONFORME,
+S1.3.2.01.07,T1.3.2.01,Diagramar el procedimiento D.02 Seguimiento del Plan Estratégico,OR,Equipo OR,PE.01,31/03/2026,02/04/2026,CONFORME,
+S1.3.2.01.08,T1.3.2.01,Diagramar el procedimiento D.03 Evaluación del Plan Estratégico,OR,Equipo OR,PE.01,03/04/2026,05/04/2026,CONFORME,
+S1.3.2.01.09,T1.3.2.01,Diagramar el procedimiento D.04 Formulación del Plan Operativo,OR,Equipo OR,PE.01,06/04/2026,07/04/2026,CONFORME,
+S1.3.2.01.10,T1.3.2.01,Diagramar el procedimiento D.05 Evaluación del Plan Operativo,OR,Equipo OR,PE.01,10/04/2026,12/04/2026,CONFORME,
+S1.3.2.02.01,T1.3.2.02,Reunión de trabajo: presentar el indicador de PE.02,OGPL / OCCAA / OCAA,"Equipo OR, OCCAA y OCAA",PE.02,13/04/2026,13/04/2026,CONFORME,Reunión virtual por cierre de la universidad.
+S1.3.2.02.02,T1.3.2.02,Elaborar el diagrama preliminar,OGPL,Equipo OR y OCCAA,PE.02,14/04/2026,14/04/2026,CONFORME,
+S1.3.2.02.03,T1.3.2.02,Revisar y analizar los flujogramas de PE.02 remitidos por las facultades,OR,Equipo OR,PE.02,14/04/2026,14/04/2026,OBSERVADO,Solo 6 de 20 facultades remitieron la diagramación. Riesgo R-01.
+S1.3.2.02.04,T1.3.2.02,Diagramar D.01 Formación del Comité de Calidad,OR,Equipo OR,PE.02,14/04/2026,15/04/2026,CONFORME,Base: guías publicadas por la OCCAA.
+S1.3.2.02.05,T1.3.2.02,Diagramar D.02 Planificación de la Autoevaluación,OR,Equipo OR,PE.02,15/04/2026,15/04/2026,CONFORME,
+S1.3.2.02.06,T1.3.2.02,Diagramar D.03 Desarrollo de la Autoevaluación,OR,Equipo OR,PE.02,15/04/2026,16/04/2026,CONFORME,
+S1.3.2.02.07,T1.3.2.02,Diagramar D.04 Evaluación Externa,OR,Equipo OR,PE.02,16/04/2026,16/04/2026,CONFORME,
+S1.3.2.02.08,T1.3.2.02,Diagramar D.05 Acreditación,OR,Equipo OR,PE.02,16/04/2026,17/04/2026,CONFORME,
+S1.3.2.02.09,T1.3.2.02,Diagramar D.06 Seguimiento,OR,Equipo OR,PE.02,17/04/2026,17/04/2026,CONFORME,
+S1.3.2.02.10,T1.3.2.02,Ajustar los diagramas,OR,Equipo OR,PE.02,17/04/2026,17/04/2026,CONFORME,
+S1.3.2.02.11,T1.3.2.02,Ajustar los procedimientos preliminares con la OCCAA,OCCAA,Equipo OCCAA,PE.02,20/04/2026,20/04/2026,CONFORME,Visita de pares evaluadores dificultó la reunión. Incidencia INC-05.
+S1.3.2.02.12,T1.3.2.02,Reajustar o aprobar D.01 Formación del Comité de Calidad,OCCAA,Equipo OCCAA,PE.02,21/04/2026,22/04/2026,CONFORME,La OCCAA brindó observaciones de reajuste.
+S1.3.2.02.13,T1.3.2.02,Reajustar o aprobar D.02 Planificación de la Autoevaluación,OCCAA,Equipo OCCAA,PE.02,22/04/2026,23/04/2026,CONFORME,La OCCAA brindó observaciones de reajuste.
+S1.3.2.02.14,T1.3.2.02,Reajustar o aprobar D.03 Desarrollo de la Autoevaluación,OCCAA,Equipo OCCAA,PE.02,23/04/2026,24/04/2026,EN PROCESO,La OCCAA no emitió recomendación: falta listar las evidencias por estándar del modelo CONEAU 2025. Riesgo R-03.
+S1.3.2.02.15,T1.3.2.02,Reajustar o aprobar D.04 Evaluación Externa,OCCAA,Equipo OCCAA,PE.02,24/04/2026,25/04/2026,CONFORME,La OCCAA brindó observaciones de reajuste.
+S1.3.2.02.16,T1.3.2.02,Reajustar o aprobar D.05 Acreditación,OCCAA,Equipo OCCAA,PE.02,25/04/2026,26/04/2026,CONFORME,La OCCAA brindó observaciones de reajuste.
+S1.3.2.02.17,T1.3.2.02,Reajustar o aprobar D.06 Seguimiento,OCCAA,Equipo OCCAA,PE.02,26/04/2026,27/04/2026,CONFORME,La OCCAA brindó observaciones de reajuste.
+S1.3.2.02.18,T1.3.2.02,Aprobar los procedimientos de PE.02,OCCAA,Equipo OCCAA,PE.02,27/04/2026,30/04/2026,NO INICIADO,Bloqueado por la falta del listado de evidencias. Riesgo R-03.
+S1.3.2.02.19,T1.3.2.02,Desarrollar el instrumento de encuesta para medir los 29 indicadores de CONEAU,OR,Equipo OR y OCCAA,PE.02,06/05/2026,06/05/2026,CONFORME,Reprogramada por cruce con actividades de aniversario.
+S1.3.2.02.20,T1.3.2.02,Revisar bibliografía para las encuestas dirigidas a estudiantes,OR,Equipo OCCAA,PE.02,06/05/2026,11/05/2026,CONFORME,
+S1.3.2.02.21,T1.3.2.02,Redactar las encuestas dirigidas a estudiantes,OR,Equipo OCCAA,PE.02,22/05/2026,23/05/2026,CONFORME,Reanudada tras la toma de la universidad. Incidencia INC-01.
+S1.3.2.02.22,T1.3.2.02,Revisar bibliografía para las encuestas dirigidas a docentes,OR,Equipo OCCAA,PE.02,23/05/2026,26/05/2026,CONFORME,
+S1.3.2.02.23,T1.3.2.02,Redactar las encuestas dirigidas a docentes,OR,Equipo OCCAA,PE.02,26/05/2026,31/05/2026,CONFORME,
+S1.3.2.02.24,T1.3.2.02,Revisar bibliografía para las encuestas dirigidas a egresados,OR,Equipo OCCAA,PE.02,31/05/2026,03/06/2026,CONFORME,
+S1.3.2.02.25,T1.3.2.02,Redactar las encuestas dirigidas a egresados,OR,Equipo OCCAA,PE.02,03/06/2026,05/06/2026,CONFORME,
+S1.3.2.02.26,T1.3.2.02,Reunión de revisión de los ítems propuestos,OCCAA,"Equipo OR, OCCAA y OCAA",PE.02,10/06/2026,10/06/2026,CONFORME,
+S1.3.2.02.27,T1.3.2.02,"Remitir los ítems preliminares al VRAP, a los jefes de OCAA y al presidente del comité",OR,Equipo OR,PE.02,10/06/2026,10/06/2026,CONFORME,
+S1.3.2.02.28,T1.3.2.02,Recepcionar la retroalimentación de los ítems,OR,Equipo OR,PE.02,10/06/2026,18/06/2026,OBSERVADO,Solo 3 facultades respondieron; el VRAP no remitió retroalimentación. Riesgo R-02.
+S1.3.2.02.29,T1.3.2.02,Analizar la incorporación de las retroalimentaciones,OR,Equipo OR,PE.02,18/06/2026,22/06/2026,CONFORME,
+S1.3.2.02.30,T1.3.2.02,Reuniones con presidentes de comité y jefes de OCAA,OCCAA,"Equipo OR, OCCAA y OCAA",PE.02,23/06/2026,26/06/2026,CONFORME,
+S1.3.2.02.31,T1.3.2.02,Reunión OGPL–OCCAA–Quipucamayoc para contratar un programador y un bolsista,OCCAA,"Equipo OR, OCCAA y Quipucamayoc",PE.02,01/07/2026,01/07/2026,OBSERVADO,Las contrataciones no se hicieron efectivas en julio. Riesgo R-06.
+S1.3.2.02.32,T1.3.2.02,Revisar la retroalimentación de las encuestas,OR / OCCAA,Equipo OR y OCCAA,PE.02,02/07/2026,11/07/2026,OBSERVADO,Solo se completó la encuesta de alumnos; se paralizó por renuncia de personal. Riesgo R-04.
+S1.3.2.04.01,T1.3.2.04,Extraer los procesos y productos de PE.03 desde el Anexo 1,OR – ALV / OR – ISA,Equipo OR,PE.03,03/08/2026,03/08/2026,CONFORME,
+S1.3.2.04.02,T1.3.2.04,Analizar la denominación de los subprocesos de PE.03,OR – ALV,Equipo OR,PE.03,03/08/2026,03/08/2026,CONFORME,
+S1.3.2.04.03,T1.3.2.04,Determinar el primer mecanismo de control de PE.03: «Porcentaje de convenios activos»,OR – ALV,Equipo OR,PE.03,03/08/2026,04/08/2026,CONFORME,
+S1.3.2.04.04,T1.3.2.04,Determinar el segundo mecanismo de control de PE.03,OR – ALV,Equipo OR,PE.03,03/08/2026,03/08/2026,CONFORME,Corregido: en la bitácora v1 repetía el mismo indicador del primero.
+S1.3.2.04.05,T1.3.2.04,Analizar la denominación de los subprocesos de PM.02,OR – ALV,Equipo OR,PM.02,03/08/2026,03/08/2026,CONFORME,Recodificada: en v1 figuraba bajo PE.03 por error de copia.
+S1.3.2.04.06,T1.3.2.04,Determinar el mecanismo de control de PM.02 Gestión de la Investigación,OR – ALV,Equipo OR,PM.02,04/08/2026,04/08/2026,OBSERVADO,"En v1 se le asignó «Porcentaje de convenios activos», que corresponde a PE.03. Debe redefinirse."
+S1.3.3.01.01,T1.3.3.01,Revisar los avances del llenado de los Anexos 1 y 3,OR – ISA,Equipo OR,Todos,03/08/2026,03/08/2026,CONFORME,
+S1.3.3.01.02,T1.3.3.01,"Revisar el Manual de Procesos para el envío, recepción y trámites del proceso de matrícula",OR – ALV,Equipo OR,PS.01,03/08/2026,03/08/2026,CONFORME,
+S1.3.3.01.03,T1.3.3.01,Integrar los indicadores de las facultades por tramo de avance,OR – ALV,Equipo OR,Todos,03/08/2026,04/08/2026,CONFORME,
+S1.3.3.01.04,T1.3.3.01,Verificar las fórmulas de porcentaje de avance por facultad,OR – ISA,Equipo OR,Todos,04/08/2026,04/08/2026,CONFORME,"Fórmula confirmada: (completos + 0,5 × observados) ÷ total."
+S1.3.3.01.05,T1.3.3.01,Adecuar la bitácora al Plan de Gestión del Cronograma,OR – ALV,Equipo OR,Todos,04/08/2026,04/08/2026,EN PROCESO,Se completa con esta versión 2.0.
+S1.3.3.01.06,T1.3.3.01,Revisar el Anexo 1 de la Facultad de Medicina Veterinaria,OR – ISA,Equipo OR,Todos,04/08/2026,04/08/2026,CONFORME,Pendientes los Anexos 2 y 3.
+S1.3.3.01.07,T1.3.3.01,Elaborar y enviar el cronograma de visitas a las facultades sobre 80%,OR – ALV,Equipo OR,Todos,04/08/2026,04/08/2026,CONFORME,
+S1.3.3.01.08,T1.3.3.01,Coordinar la reunión con el SUM,OR – ALV,Equipo OR,PS.01,04/08/2026,04/08/2026,CONFORME,
+S1.3.3.01.09,T1.3.3.01,Revisar los Anexos 2 y 3 de Medicina Veterinaria,OR – ISA,Equipo OR,Todos,05/08/2026,05/08/2026,CONFORME,
+S1.3.3.01.10,T1.3.3.01,Revisar los Anexos 1 y 3 de Ciencias Económicas,OR – ISA,Equipo OR,Todos,05/08/2026,05/08/2026,CONFORME,
+S1.3.3.01.11,T1.3.3.01,Enviar el informe de cumplimiento de los acuerdos del 1 de julio a OCCAA y Quipucamayoc,OR – ALV,Equipo OR,Todos,05/08/2026,05/08/2026,CONFORME,
+S1.3.3.01.12,T1.3.3.01,Revisar los Anexos 1 y 3 de Ciencias Contables,OR – ISA,Equipo OR,Todos,07/08/2026,07/08/2026,CONFORME,
+S1.3.3.01.13,T1.3.3.01,Presidir la reunión de observaciones con FMV,OR – ALV / OR – ISA,Equipo OR,Todos,07/08/2026,07/08/2026,CONFORME,
+S1.3.3.01.14,T1.3.3.01,Presidir la reunión de observaciones con FCE,OR – ALV / OR – ISA,Equipo OR,Todos,10/08/2026,10/08/2026,CONFORME,
+S1.3.3.01.15,T1.3.3.01,Preparar y enviar el correo de documentos observados a FMV,OR – ISA / OR – ALV,Equipo OR,Todos,10/08/2026,10/08/2026,CONFORME,
+S1.3.3.01.16,T1.3.3.01,Presidir la reunión de observaciones con FCC,OR – ALV / OR – ISA,Equipo OR,Todos,10/08/2026,10/08/2026,CONFORME,
+S1.3.3.01.17,T1.3.3.01,Presidir la reunión de observaciones con el SUM,OR – ALV,Equipo OR,PS.01,11/08/2026,11/08/2026,CONFORME,
+S1.3.3.01.18,T1.3.3.01,Actualizar y mejorar la automatización del tablero de los anexos,OR – ALV / OR – ISA,Equipo OR,Todos,11/08/2026,11/08/2026,CONFORME,
+S1.3.3.01.19,T1.3.3.01,Preparar y enviar el correo de documentos observados al SUM,OR – ALV / OR – ISA,Equipo OR,PS.01,11/08/2026,11/08/2026,CONFORME,
+S1.3.3.01.20,T1.3.3.01,Presidir la reunión de observaciones con FE,OR – ALV / OR – ISA,Equipo OR,Todos,12/08/2026,12/08/2026,CONFORME,
+S1.3.3.01.21,T1.3.3.01,Preparar y enviar el correo de documentos observados a FE,OR – ALV / OR – ISA,Equipo OR,Todos,12/08/2026,12/08/2026,CONFORME,
+S1.3.3.01.22,T1.3.3.01,Actualizar los Anexos 1 y 3,OR – ALV / OR – ISA,Equipo OR,Todos,13/08/2026,13/08/2026,CONFORME,
+S1.3.3.01.23,T1.3.3.01,Crear el primer prototipo en Apps Script para automatizar la revisión de los anexos,OR – ALV / OR – ISA,Equipo OR,Todos,13/08/2026,13/08/2026,CONFORME,
+S1.3.3.01.24,T1.3.3.01,Crear el prototipo en Apps Script para la revisión del Anexo 1,OR – ALV,Equipo OR,Todos,14/08/2026,14/08/2026,CONFORME,
+S1.3.3.01.25,T1.3.3.01,Incorporar la firma digital y el llenado automático de participantes en el SIGEA,OR – ALV,Equipo OR,Todos,14/08/2026,14/08/2026,CONFORME,
+S1.3.3.01.26,T1.3.3.01,Actualizar y mejorar el Anexo 3,OR – ISA,Equipo OR,Todos,17/08/2026,17/08/2026,CONFORME,
+S1.3.3.01.27,T1.3.3.01,Actualizar y mejorar el Anexo 1,OR – ALV,Equipo OR,Todos,17/08/2026,18/08/2026,CONFORME,
+S1.3.3.01.28,T1.3.3.01,Automatizar el Anexo 3 con fórmulas en la hoja de FDCP,OR – ISA,Equipo OR,Todos,18/08/2026,18/08/2026,CONFORME,
+S1.3.3.01.29,T1.3.3.01,Automatizar el apartado de subprocesos del Anexo 3 en FDCP,OR – ISA,Equipo OR,Todos,19/08/2026,19/08/2026,CONFORME,En v1 tres subtareas distintas compartían el número 31.
+S1.3.3.01.30,T1.3.3.01,Automatizar el apartado de proveedores y entradas del Anexo 3 en FDCP,OR – ALV,Equipo OR,Todos,19/08/2026,19/08/2026,CONFORME,
+S1.3.3.01.31,T1.3.3.01,"Automatizar el apartado de salidas, beneficiarios y registros del Anexo 3 en FDCP",OR – ISA,Equipo OR,Todos,20/08/2026,21/08/2026,CONFORME,
+S1.3.3.01.32,T1.3.3.01,Participar en la reunión con el programador backend para validar el cronograma,OR – ALV,Equipo OR,Todos,20/08/2026,20/08/2026,CONFORME,
+S1.3.3.01.33,T1.3.3.01,Automatizar el Anexo 3 con Apps Script en la hoja de FPSIC,OR – ISA,Equipo OR,Todos,21/08/2026,21/08/2026,CONFORME,
+S1.3.3.01.34,T1.3.3.01,Crear el prototipo de llenado automático en Docs de los Anexos 1 y 3,OR – ISA / OR – ALV,Equipo OR,Todos,21/08/2026,24/08/2026,EN PROCESO,El script no reproduce correctamente el cuadro del Anexo 1. Riesgo R-05.
+S1.3.4.01.01,T1.3.4.01,Finalizar los diseños en Figma de la página web,OR – MELI,Equipo OR,SIGPRO,02/03/2026,05/03/2026,CONFORME,
+S1.3.4.01.02,T1.3.4.01,Integrar el front-end del primer prototipo para la vista pública,OR – MELI,Equipo OR,SIGPRO,05/03/2026,17/03/2026,CONFORME,
+S1.3.4.01.03,T1.3.4.01,Integrar el ingreso al portal con dos vías de acceso: facultades y Oficina de Racionalización,OR – MELI,Equipo OR,SIGPRO,18/03/2026,17/04/2026,CONFORME,
+S1.3.4.01.04,T1.3.4.01,Desarrollar el primer prototipo del backend,OR – MELI,Equipo OR,SIGPRO,30/03/2026,01/04/2026,CONFORME,
+S1.3.4.01.05,T1.3.4.01,Mejorar el diseño del módulo público: título e información general,OR – MELI,Equipo OR,SIGPRO,20/04/2026,24/04/2026,CONFORME,
+S1.3.4.01.06,T1.3.4.01,"Implementar las secciones de indicadores, flujogramas y fichas de caracterización",OR – MELI,Equipo OR,SIGPRO,20/04/2026,24/04/2026,CONFORME,
+S1.3.4.01.07,T1.3.4.01,Culminar el primer prototipo de backend en Java,OR – MELI,Equipo OR,SIGPRO,13/04/2026,06/05/2026,CONFORME,
+S1.3.4.01.08,T1.3.4.01,Integrar el front-end con el backend,OR – MELI,Equipo OR,SIGPRO,07/05/2026,30/06/2026,CONFORME,
+S1.3.4.01.09,T1.3.4.01,Adaptar la interfaz a los requerimientos del backend,OR – MELI,Equipo OR,SIGPRO,07/05/2026,30/06/2026,CONFORME,
+S1.3.4.01.10,T1.3.4.01,Culminar las pruebas del backend en las secciones administrativa y de facultades,OR – MELI,Equipo OR,SIGPRO,08/06/2026,12/06/2026,CONFORME,
+S1.3.4.01.11,T1.3.4.01,Revisar el backend del módulo público y el inicio de sesión,OR – MELI,Equipo OR,SIGPRO,22/06/2026,29/06/2026,CONFORME,
+S1.3.4.01.12,T1.3.4.01,Adaptar el backend a un esquema híbrido con datos estáticos para pruebas,OR – MELI,Equipo OR,SIGPRO,02/07/2026,14/07/2026,CONFORME,
+S1.3.4.01.13,T1.3.4.01,Implementar ajustes menores en el front-end,OR – MELI,Equipo OR,SIGPRO,15/07/2026,21/07/2026,CONFORME,
+S1.3.4.01.14,T1.3.4.01,Implementar la descarga de expedientes,OR – MELI,Equipo OR,SIGPRO,22/07/2026,24/07/2026,CONFORME,
+S1.3.4.01.15,T1.3.4.01,Implementar la descarga de la ficha de indicadores,OR – MELI,Equipo OR,SIGPRO,27/07/2026,30/07/2026,CONFORME,
+S1.3.4.01.16,T1.3.4.01,Revisar todos los módulos respecto del uso de la API híbrida,OR – MELI,Equipo OR,SIGPRO,31/07/2026,12/08/2026,CONFORME,
+S1.3.4.01.17,T1.3.4.01,Revisar el envío de documentos del módulo de OR hacia las facultades,OR – MELI,Equipo OR,SIGPRO,12/08/2026,12/08/2026,CONFORME,
+S1.3.4.01.18,T1.3.4.01,Implementar los colores oscuros en las pestañas del módulo de facultades,OR – MELI,Equipo OR,SIGPRO,11/08/2026,12/08/2026,CONFORME,
+S1.3.4.01.19,T1.3.4.01,Conectar el envío de documentos entre Racionalización y las facultades,OR – MELI,Equipo OR,SIGPRO,13/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.20,T1.3.4.01,Implementar el nuevo diseño de fichas técnicas y hojas de inventario,OR – MELI,Equipo OR,SIGPRO,18/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.21,T1.3.4.01,Conectar los documentos de Google Sheets al repositorio de inventario y fichas,OR – MELI,Equipo OR,SIGPRO,19/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.22,T1.3.4.01,Modificar el diseño de previsualización de los documentos de Google Sheets,OR – MELI,Equipo OR,SIGPRO,19/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.23,T1.3.4.01,Cambiar el diseño del mapa de procesos del módulo público,OR – MELI,Equipo OR,SIGPRO,19/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.24,T1.3.4.01,Implementar el botón «Inventario» para previsualizar el documento,OR – MELI,Equipo OR,SIGPRO,19/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.25,T1.3.4.01,Corregir el botón «Inventario» para cada tipo de proceso,OR – MELI,Equipo OR,SIGPRO,21/08/2026,21/08/2026,CONFORME,
+S1.3.4.01.26,T1.3.4.01,Elaborar el cronograma de entregables de SIGPRO,OR – MELI / OR – ALV,Equipo OR,SIGPRO,20/08/2026,20/08/2026,CONFORME,
+S1.3.4.01.27,T1.3.4.01,Diseñar la encuesta para facultades en el módulo público,OR – MELI,Equipo OR,SIGPRO,24/08/2026,24/08/2026,EN PROCESO,
+S1.3.4.01.28,T1.3.4.01,Ajustar el módulo de facultades,OR – MELI,Equipo OR,SIGPRO,24/08/2026,24/08/2026,EN PROCESO,
+S1.3.4.01.29,T1.3.4.01,Corregir los expedientes de caracterización,OR – MELI,Equipo OR,SIGPRO,24/08/2026,24/08/2026,EN PROCESO,

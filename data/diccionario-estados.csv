@@ -1,0 +1,6 @@
+﻿Estado_estandar,Definicion,Equivalencias_en_documentos_v1,Peso_para_el_avance
+NO INICIADO,El trabajo aún no comienza,Pendiente / POR INICIAR,"0,0"
+EN PROCESO,El trabajo comenzó y no ha concluido,En Proceso / EN DESARROLLO,"0,5"
+OBSERVADO,Concluido pero con observaciones por levantar,OBSERVADO / PARCIAL,"0,5"
+CONFORME,Concluido y sin observaciones,Culminado / COMPLETADO / COMPLETO,"1,0"
+NO APLICA,No corresponde a esta facultad o unidad,NO APLICA,excluir del denominador
