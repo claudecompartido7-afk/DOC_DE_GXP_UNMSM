@@ -1,0 +1,49 @@
+/* Decisiones sobre las recomendaciones del diagnóstico
+   Usa las variables de color y tipografía ya definidas en index.html. */
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.rec-zona{margin-top:6px}
+
+.recs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+
+.rec{border:1px solid var(--linea);border-left:2px solid var(--niebla-2);
+  background:var(--lienzo);padding:12px 14px}
+.rec[data-estado="aceptada"]{border-left-color:var(--verde);background:#FAFCFB}
+.rec[data-estado="editando"]{border-left-color:var(--ocre);background:#FDFBF6}
+
+.rec-texto{font-size:14.5px;line-height:1.5;color:var(--tinta)}
+
+.rec-edicion textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;
+  line-height:1.5;color:var(--tinta);background:var(--lienzo);
+  border:1px solid var(--acero);border-radius:var(--r);padding:9px 11px;resize:vertical}
+.rec-edicion textarea:focus{outline:2px solid var(--granate);outline-offset:1px;
+  border-color:var(--granate)}
+.rec-ayuda{margin:6px 0 0;font-size:12px;color:var(--acero);font-style:italic}
+
+.rec-pie{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:11px}
+.rec-botones{display:flex;gap:8px;flex-wrap:wrap}
+
+.rec .bt{font-family:var(--disp);font-size:12.5px;font-weight:600;letter-spacing:.01em;
+  padding:6px 13px;border:1px solid var(--linea);border-radius:var(--r);
+  background:var(--lienzo);color:var(--tinta);cursor:pointer;
+  transition:background .12s,border-color .12s,color .12s}
+.rec .bt:hover{border-color:var(--acero)}
+.rec .bt:focus-visible{outline:2px solid var(--granate);outline-offset:2px}
+
+.rec .bt-si{background:var(--verde);border-color:var(--verde);color:#fff}
+.rec .bt-si:hover{background:#164C42;border-color:#164C42}
+.rec .bt-ed{background:var(--lienzo);border-color:var(--ocre);color:#7A4C08}
+.rec .bt-ed:hover{background:var(--ocre-cl)}
+.rec .bt-no{background:var(--lienzo);border-color:var(--linea);color:var(--acero)}
+.rec .bt-no:hover{border-color:var(--granate);color:var(--granate)}
+
+.rec-sello{font-family:var(--mono);font-size:11px;color:var(--verde);letter-spacing:.02em}
+.rec-sello[data-sync="pendiente"]{color:var(--ocre)}
+.rec-sello[data-sync="error"]{color:var(--rojo)}
+
+@media (max-width:600px){
+  .rec-pie{align-items:flex-start;flex-direction:column;gap:8px}
+  .rec .bt{width:100%;text-align:center}
+}

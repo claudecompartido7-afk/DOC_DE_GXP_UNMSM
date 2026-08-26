@@ -33,9 +33,30 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 │   ├── registro-incidencias.csv      6 incidencias
 │   ├── catalogo-procesos-nivel0.csv  16 procesos
 │   └── diccionario-estados.csv       5 estados
-├── assets/doc.css
+├── assets/
+│   ├── doc.css
+│   ├── decisiones.css                interfaz de aceptación de recomendaciones
+│   └── decisiones.js
+├── apps-script/                      backend del registro de decisiones
+│   ├── Codigo.gs                     Web App: escribe en los 4 documentos
+│   ├── appsscript.json
+│   └── README.md                     despliegue paso a paso
 └── PUBLICAR-EN-GITHUB.md
 ```
+
+## Registro de decisiones
+
+En el panel **Diagnóstico**, cada hallazgo despliega sus recomendaciones con dos
+botones: «Acepto la recomendación» y «Mejorar la recomendación». El segundo abre
+el texto para editarlo y lo confirma con «Acepto recomendación».
+
+Cada aceptación se registra en tiempo real en los documentos de Drive que el
+hallazgo afecta, más el Plan de Alcance como libro maestro. Consulte
+[apps-script/README.md](apps-script/README.md) para el despliegue y para conectar
+el endpoint en `index.html`.
+
+Sin endpoint configurado la interfaz funciona igual, pero las decisiones sólo se
+guardan en el navegador.
 
 ## Reglas que rigen esta documentación
 

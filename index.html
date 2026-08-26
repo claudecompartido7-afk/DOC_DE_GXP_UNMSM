@@ -244,6 +244,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
+<link rel="stylesheet" href="assets/decisiones.css">
 </head>
 <body>
 
@@ -707,6 +708,12 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
   <div><a href="https://drive.google.com/drive/folders/1rblnuHlVZBJNMwhEN5afhDjPi6GyEn0f" target="_blank" rel="noopener">Abrir la carpeta en Drive ↗</a></div>
 </div></footer>
 
+<!-- Endpoint de la Web App de Apps Script. Sustituya por su URL /exec.
+     Mientras esté vacío la interfaz funciona y guarda en el navegador,
+     pero no registra nada en los documentos de Drive. -->
+<script>window.GXP_ENDPOINT = '';</script>
+<script src="assets/decisiones.js"></script>
+
 <script>
 /* ============ NAVEGACIÓN ============ */
 document.querySelectorAll('.navin button').forEach(b=>{
@@ -874,6 +881,8 @@ const HALL=[
  co:'Publicar el catálogo maestro y auditar las 20 pestañas contra él antes de continuar el llenado.'}
 ];
 
+window.HALL=HALL;
+
 const cont=document.getElementById('listaHall');
 let fSev='todos',fDoc=null,fQ='';
 function pintarHall(){
@@ -897,8 +906,10 @@ function pintarHall(){
       <dt>Evidencia</dt><dd class="ev">${x.ev}</dd>
       <dt>Por qué importa</dt><dd>${x.im}</dd>
       <dt>Corrección</dt><dd>${x.co}</dd>
+      ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
     </dl>
   </details>`).join('');
+  if (window.GXP_DEC) window.GXP_DEC.enlazar(cont);
 }
 document.querySelectorAll('.chip.fs').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.chip.fs').forEach(x=>x.setAttribute('aria-pressed','false'));
