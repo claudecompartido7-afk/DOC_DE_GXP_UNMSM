@@ -162,3 +162,10 @@ mark.hl{background:#FCEB8B;color:var(--tinta);padding:1px 2px;
 .mtzc-gana{display:inline-block;font-family:var(--disp);font-weight:700;font-size:14px;
   color:var(--tinta);background:var(--verde-cl);border:1px solid #A9C7BE;padding:3px 11px}
 .mtzc-pq{margin:8px 0 0;font-size:13.5px;line-height:1.55;color:var(--tinta-70)}
+
+/* Número correlativo de cada ubicación */
+.ubic-n{font-family:var(--disp);font-size:12px;font-weight:700;color:var(--lienzo);
+  background:var(--azul);width:19px;height:19px;flex:0 0 19px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ubic:hover .ubic-n{background:var(--tinta)}
+.ubic-nota{margin:5px 0 0 31px}

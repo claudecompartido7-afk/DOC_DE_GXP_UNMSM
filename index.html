@@ -920,10 +920,10 @@ function pintarHall(){
       </span>
     </summary>
     <dl class="det">
-      <dt>Evidencia</dt><dd class="ev">${x.ev}</dd>
+      <dt>Hallazgo</dt><dd class="ev">${x.ev}</dd>
+      ${window.GXP_VISOR ? window.GXP_VISOR.bloqueLoc(x.c) : ''}
       <dt>Por qué importa</dt><dd>${x.im}</dd>
       <dt>Corrección en una línea</dt><dd>${x.co}</dd>
-      ${window.GXP_VISOR ? window.GXP_VISOR.bloqueLoc(x.c) : ''}
       ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
     </dl>
   </details>`).join('');

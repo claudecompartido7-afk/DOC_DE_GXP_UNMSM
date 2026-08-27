@@ -471,6 +471,7 @@
       return `
       <li>
         <button type="button" class="ubic" data-ubic="${esc(codigo)}" data-i="${i}">
+          <span class="ubic-n">${i + 1}</span>
           <span class="ubic-doc">${esc(l.d)}</span>
           <span class="ubic-cuerpo">
             <span class="ubic-ruta">${esc(l.r)}${l.c ? ' · ' + esc(l.c) : ''}</span>
@@ -483,7 +484,7 @@
     }).join('');
 
     return `
-    <dt>Dónde está exactamente</dt>
+    <dt>Ubicación del hallazgo</dt>
     <dd class="ubic-zona"><ul class="ubics">${chips}</ul></dd>`;
   }
 
