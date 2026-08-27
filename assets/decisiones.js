@@ -52,7 +52,22 @@
   let estado = leerJSON(CLAVE_ESTADO, {});   // { 'D1-01-R1': {texto, editada, fecha, sync} }
   let cola   = leerJSON(CLAVE_COLA, []);     // decisiones pendientes de enviar
 
-  const persistir = () => guardarJSON(CLAVE_ESTADO, estado);
+  function persistir() {
+    guardarJSON(CLAVE_ESTADO, estado);
+    // La vista de hallazgos se repinta al oír esto: así el hallazgo
+    // resuelto desaparece de la lista sin que este módulo la conozca.
+    document.dispatchEvent(new CustomEvent('gxp:decision'));
+  }
+
+  /** Un hallazgo está resuelto cuando no le queda ninguna recomendación abierta. */
+  function resuelto(h) {
+    const recs = recomendacionesDe(h);
+    return recs.length > 0 && recs.every(function (r) { return !!estado[r.id]; });
+  }
+
+  function cuentaResueltos(lista) {
+    return (lista || []).filter(resuelto).length;
+  }
 
   /* ==================== MODELO ==================== */
 
@@ -96,7 +111,7 @@
     const recs = recomendacionesDe(h);
     if (!recs.length || !recs[0].texto) return '';
 
-    const filas = recs.map(function (r) {
+    const pintarFila = function (r) {
       const d = estado[r.id];
       return `
       <li class="rec" data-rec="${esc(r.id)}" data-estado="${d ? 'aceptada' : 'abierta'}">
@@ -119,13 +134,27 @@
           <span class="rec-sello" data-rol="sello" role="status" aria-live="polite"></span>
         </div>
       </li>`;
-    }).join('');
+    };
+
+    // Las aceptadas se repliegan: dejan de ocupar la vista, pero siguen
+    // alcanzables. Ocultarlas del todo impediría corregir una decisión.
+    const pendientes = recs.filter(function (r) { return !estado[r.id]; });
+    const hechas     = recs.filter(function (r) { return  estado[r.id]; });
+
+    const listaPend = pendientes.length
+      ? `<ul class="recs">${pendientes.map(pintarFila).join('')}</ul>`
+      : `<p class="rec-todo">Todas las recomendaciones de este hallazgo están aceptadas.</p>`;
+
+    const listaHechas = hechas.length
+      ? `<details class="rec-hechas">
+           <summary>${hechas.length} aceptada${hechas.length > 1 ? 's' : ''} · ver o corregir</summary>
+           <ul class="recs">${hechas.map(pintarFila).join('')}</ul>
+         </details>`
+      : '';
 
     return `
     <dt>Recomendaciones</dt>
-    <dd class="rec-zona">
-      <ul class="recs">${filas}</ul>
-    </dd>`;
+    <dd class="rec-zona">${listaPend}${listaHechas}</dd>`;
   }
 
   /** Dibuja los botones que corresponden al estado actual de una recomendación. */
@@ -334,5 +363,9 @@
   window.addEventListener('online', vaciarCola);
   vaciarCola();
 
-  window.GXP_DEC = { bloque, enlazar, estado: () => estado, enviar, vaciarCola };
+  window.GXP_DEC = {
+    bloque, enlazar, enviar, vaciarCola, endpoint,
+    resuelto, cuentaResueltos,
+    estado: () => estado
+  };
 })();

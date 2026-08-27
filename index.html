@@ -361,6 +361,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
     <button class="chip fd" data-d="D2" aria-pressed="false">D2 Cronograma</button>
     <button class="chip fd" data-d="D3" aria-pressed="false">D3 Bitácora</button>
     <button class="chip fd" data-d="D4" aria-pressed="false">D4 Revisión</button>
+    <button class="chip vr" id="chipResueltos" aria-pressed="false" hidden>Ver resueltos</button>
     <input class="buscador" type="search" id="qh" placeholder="Buscar en los hallazgos…" aria-label="Buscar hallazgos">
   </div>
   <div id="listaHall"></div>
@@ -894,15 +895,21 @@ const HALL=[
 window.HALL=HALL;
 
 const cont=document.getElementById('listaHall');
-let fSev='todos',fDoc=null,fQ='';
+let fSev='todos',fDoc=null,fQ='',verResueltos=false;
 function pintarHall(){
   const r=HALL.filter(x=>{
+    if(!verResueltos&&window.GXP_DEC&&window.GXP_DEC.resuelto(x))return false;
     if(fSev!=='todos'&&x.s!==fSev)return false;
     if(fDoc&&!x.d.includes(fDoc))return false;
     if(fQ){const t=(x.h+x.ev+x.im+x.co+x.c).toLowerCase();if(!t.includes(fQ))return false}
     return true;
   });
   document.getElementById('vacioHall').style.display=r.length?'none':'block';
+  // Se recuerda qué hallazgos estaban desplegados: aceptar una recomendación
+  // repinta la lista y, sin esto, el hallazgo se cerraría en las manos del usuario.
+  const abiertos=new Set([...cont.querySelectorAll('details.hall[open]')]
+    .map(d=>d.querySelector('.cod').textContent));
+  const desplaz=window.scrollY;
   cont.innerHTML=r.map(x=>`
   <details class="hall sev-${x.s}">
     <summary>
@@ -920,8 +927,22 @@ function pintarHall(){
       ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
     </dl>
   </details>`).join('');
+  cont.querySelectorAll('details.hall').forEach(d=>{
+    if(abiertos.has(d.querySelector('.cod').textContent)) d.open=true;
+  });
+  if(desplaz) window.scrollTo({top:desplaz});
   if (window.GXP_DEC) window.GXP_DEC.enlazar(cont);
+
+  const n = window.GXP_DEC ? window.GXP_DEC.cuentaResueltos(HALL) : 0;
+  const chip = document.getElementById('chipResueltos');
+  chip.hidden = n === 0;
+  chip.textContent = verResueltos ? `Ocultar resueltos (${n})` : `Ver resueltos (${n})`;
+  chip.setAttribute('aria-pressed', verResueltos ? 'true' : 'false');
 }
+document.getElementById('chipResueltos').addEventListener('click',()=>{
+  verResueltos=!verResueltos; pintarHall();
+});
+document.addEventListener('gxp:decision',()=>pintarHall());
 document.querySelectorAll('.chip.fs').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.chip.fs').forEach(x=>x.setAttribute('aria-pressed','false'));
   b.setAttribute('aria-pressed','true');fSev=b.dataset.f;pintarHall();

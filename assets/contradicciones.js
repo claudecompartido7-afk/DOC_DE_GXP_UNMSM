@@ -217,6 +217,9 @@
     const cont = document.getElementById('listaMtz');
     if (!cont) return;
 
+    const abiertos = new Set([].slice.call(cont.querySelectorAll('details[open]'))
+      .map(function (d) { return d.querySelector('.cod').textContent; }));
+
     cont.innerHTML = ITEMS.map(function (it) {
       const valores = ((window.MTZ || []).filter(r => r.a === it.asunto)[0] || {}).v || [];
       const docs = ['D1', 'D2', 'D3', 'D4'];
@@ -250,8 +253,14 @@
       </details>`;
     }).join('');
 
+    cont.querySelectorAll('details.mtzc').forEach(function (d) {
+      if (abiertos.has(d.querySelector('.cod').textContent)) d.open = true;
+    });
     if (window.GXP_DEC) window.GXP_DEC.enlazar(cont);
   }
+
+  // Aceptar una recomendación de la matriz también repinta esta lista.
+  document.addEventListener('gxp:decision', function () { pintar(); });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', pintar);

@@ -65,7 +65,11 @@ divergir.
 
 La unidad de decisión es la recomendación, no el hallazgo: se acepta, se edita o
 se deja abierta cada una por separado, y cada una viaja al registro con su propio
-código (`D1-01-R2`, `MTZ-06-R4`). En total, **150 decisiones registrables**. Los botones son «Acepto la recomendación» y «Mejorar la
+código (`D1-01-R2`, `MTZ-06-R4`). En total, **150 decisiones registrables**.
+
+Al aceptar, la recomendación se repliega bajo «N aceptadas · ver o corregir», y
+cuando un hallazgo se queda sin recomendaciones abiertas desaparece de la lista.
+El chip «Ver resueltos (N)» los devuelve a la vista: se ocultan, no se borran. Los botones son «Acepto la recomendación» y «Mejorar la
 recomendación»; el segundo abre el texto para editarlo y lo confirma con «Acepto
 recomendación».
 
@@ -83,14 +87,24 @@ Cada hallazgo del diagnóstico y cada celda de la matriz de contradicciones
 declaran **dónde está el problema**: la ruta dentro del documento, el texto
 literal con el que encontrarlo y, en las hojas de cálculo, la celda.
 
-Al pulsar «Ver» se abre a la derecha el documento de origen. En las hojas el
-visor salta directamente a la celda; en los documentos de texto Google no
-permite anclar a un texto arbitrario desde la URL, así que el visor entrega el
-texto ancla con un botón de copiar para pegarlo en Ctrl+F.
+Al pulsar «Ver» el documento se abre a la derecha, **con la frase del hallazgo
+resaltada en amarillo**, y puede corregirse ahí mismo marcando «Editar el
+documento». Los cambios no se envían solos: quedan marcados hasta pulsar
+«Guardar en Drive».
 
-Las 52 anclas están en [assets/localizaciones.js](assets/localizaciones.js). El
-visor incrusta la vista previa de Drive: quien lo consulte necesita acceso de
-lectura a los cuatro archivos.
+**Por qué el documento se renderiza y no se incrusta.** Un iframe a
+docs.google.com es de otro origen: el navegador impide pintar un resaltado
+dentro y activar la edición, y Google bloquea `/edit` en iframes. Por eso el
+visor pide el contenido al backend —que sí tiene permisos—, lo pinta como HTML
+propio y devuelve las correcciones por la misma vía. Sin endpoint configurado
+cae en la vista incrustada de Google, de sólo lectura.
+
+**Direcciones, no búsquedas.** Cada bloque que entrega el backend viene con la
+dirección con la que se le escribe después (índice del elemento, o fila y
+columna). Al guardar no se busca texto: se escribe en esa dirección, así que
+una frase repetida nunca se corrige en el lugar equivocado.
+
+Las 52 anclas están en [assets/localizaciones.js](assets/localizaciones.js).
 
 ## Reglas que rigen esta documentación
 

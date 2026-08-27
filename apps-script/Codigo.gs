@@ -66,6 +66,8 @@ function doPost(e) {
       case 'decision':  return responder(registrarDecision(datos));
       case 'eliminar':  return responder(eliminarDecision(datos));
       case 'listar':    return responder(listarDecisiones());
+      case 'contenido': return responder(contenidoDe(datos));
+      case 'editar':    return responder(editarContenido(datos));
       default:
         return responder({ ok: false, error: 'Acción no reconocida: ' + datos.accion });
     }
@@ -494,4 +496,149 @@ function inicializarDestinos() {
       Logger.log(d.clave + ' · ERROR: ' + err);
     }
   });
+}
+
+/* ==================== LECTURA Y EDICIÓN DEL CONTENIDO ====================
+ *
+ * El visor de la web no puede incrustar el documento de Google y a la vez
+ * resaltar texto o editarlo: el iframe es de otro origen y el navegador
+ * impide tocar su contenido. La salida es servir el contenido desde aquí,
+ * que sí tiene permisos, y dejar que la web lo pinte y lo devuelva editado.
+ *
+ *   contenido → entrega el documento como una lista de bloques direccionables
+ *   editar    → reescribe un bloque concreto por su dirección
+ *
+ * Cada bloque lleva la dirección con la que se le puede escribir después,
+ * de modo que la web nunca tiene que adivinar dónde estaba el texto.
+ */
+
+const TOPE_BLOQUES = 1500;   // bloques de documento por respuesta
+const TOPE_FILAS   = 120;    // filas de hoja por respuesta
+const TOPE_COLS    = 24;
+
+function destinoPorClave(clave) {
+  const d = DESTINOS.filter(function (x) { return x.clave === clave; })[0];
+  if (!d) throw new Error('Destino no reconocido: ' + clave);
+  if (!d.activo) throw new Error('El destino ' + clave + ' está desactivado.');
+  return d;
+}
+
+function contenidoDe(datos) {
+  const destino = destinoPorClave(datos.destino);
+  const id = idEfectivo(destino);
+  const salida = destino.tipo === 'doc'
+    ? contenidoDoc(id)
+    : contenidoHoja(id, datos.hoja, datos.rango);
+  salida.ok = true;
+  salida.destino = destino.clave;
+  salida.tipo = destino.tipo;
+  return salida;
+}
+
+/** El documento como lista plana de bloques: párrafos, ítems y celdas. */
+function contenidoDoc(id) {
+  const doc = DocumentApp.openById(id);
+  const cuerpo = doc.getBody();
+  const bloques = [];
+  const total = cuerpo.getNumChildren();
+
+  for (let i = 0; i < total && bloques.length < TOPE_BLOQUES; i++) {
+    const el = cuerpo.getChild(i);
+    const tipo = el.getType();
+
+    if (tipo === DocumentApp.ElementType.PARAGRAPH) {
+      const p = el.asParagraph();
+      const texto = p.getText();
+      if (!texto.trim()) continue;
+      if (texto.indexOf(MARCADOR) !== -1) continue;      // marcador interno
+      bloques.push({ k: 'p', i: i, t: texto, h: String(p.getHeading()) });
+
+    } else if (tipo === DocumentApp.ElementType.LIST_ITEM) {
+      const li = el.asListItem();
+      if (li.getText().trim()) bloques.push({ k: 'li', i: i, t: li.getText() });
+
+    } else if (tipo === DocumentApp.ElementType.TABLE) {
+      const tabla = el.asTable();
+      for (let r = 0; r < tabla.getNumRows() && bloques.length < TOPE_BLOQUES; r++) {
+        const fila = tabla.getRow(r);
+        for (let c = 0; c < fila.getNumCells(); c++) {
+          bloques.push({ k: 'td', i: i, r: r, c: c, t: fila.getCell(c).getText(),
+                         nc: fila.getNumCells() });
+        }
+      }
+    }
+  }
+  return { nombre: doc.getName(), bloques: bloques, truncado: bloques.length >= TOPE_BLOQUES };
+}
+
+/** La hoja como matriz de celdas, acotada para no devolver el libro entero. */
+function contenidoHoja(id, nombreHoja, rango) {
+  const libro = SpreadsheetApp.openById(id);
+  const hojas = libro.getSheets().map(function (h) { return h.getName(); });
+  const hoja = nombreHoja ? libro.getSheetByName(nombreHoja) : libro.getSheets()[0];
+  if (!hoja) throw new Error('No existe la pestaña «' + nombreHoja + '».');
+
+  let fila0 = 1, col0 = 1;
+  let filas = Math.min(hoja.getLastRow() || 1, TOPE_FILAS);
+  let cols  = Math.min(hoja.getLastColumn() || 1, TOPE_COLS);
+
+  // Si se pide un rango concreto, se sirve una ventana alrededor de él.
+  if (rango) {
+    try {
+      const r = hoja.getRange(rango);
+      fila0 = Math.max(1, r.getRow() - 12);
+      filas = Math.min(TOPE_FILAS, (hoja.getLastRow() || 1) - fila0 + 1);
+    } catch (err) { /* rango inválido: se sirve el inicio de la hoja */ }
+  }
+  filas = Math.max(1, filas);
+
+  const valores = hoja.getRange(fila0, col0, filas, cols).getDisplayValues();
+  return {
+    nombre: libro.getName(), hoja: hoja.getName(), hojas: hojas,
+    fila0: fila0, col0: col0, valores: valores,
+    truncado: (hoja.getLastRow() > fila0 + filas - 1) || (hoja.getLastColumn() > cols)
+  };
+}
+
+/**
+ * Reescribe un bloque por su dirección. La dirección es la que el propio
+ * `contenido` entregó, así que no hay búsqueda de texto ni ambigüedad.
+ */
+function editarContenido(datos) {
+  const destino = destinoPorClave(datos.destino);
+  const id = idEfectivo(destino);
+  const texto = String(datos.texto == null ? '' : datos.texto);
+
+  const bloqueo = LockService.getScriptLock();
+  if (!bloqueo.tryLock(25000)) return { ok: false, error: 'El documento está ocupado.' };
+  try {
+    if (destino.tipo === 'doc') {
+      const cuerpo = DocumentApp.openById(id).getBody();
+      const el = cuerpo.getChild(Number(datos.i));
+      const tipo = el.getType();
+
+      if (datos.k === 'td') {
+        if (tipo !== DocumentApp.ElementType.TABLE) {
+          return { ok: false, error: 'El bloque indicado ya no es una tabla. Recargue el visor.' };
+        }
+        el.asTable().getRow(Number(datos.r)).getCell(Number(datos.c)).setText(texto);
+      } else if (tipo === DocumentApp.ElementType.PARAGRAPH) {
+        el.asParagraph().setText(texto);
+      } else if (tipo === DocumentApp.ElementType.LIST_ITEM) {
+        el.asListItem().setText(texto);
+      } else {
+        return { ok: false, error: 'El bloque indicado ya no existe. Recargue el visor.' };
+      }
+      return { ok: true, destino: destino.clave, aplicado: texto };
+    }
+
+    const libro = SpreadsheetApp.openById(id);
+    const hoja = datos.hoja ? libro.getSheetByName(datos.hoja) : libro.getSheets()[0];
+    if (!hoja) return { ok: false, error: 'No existe la pestaña indicada.' };
+    hoja.getRange(Number(datos.fila), Number(datos.col)).setValue(texto);
+    return { ok: true, destino: destino.clave, celda: datos.fila + ',' + datos.col, aplicado: texto };
+
+  } finally {
+    bloqueo.releaseLock();
+  }
 }
