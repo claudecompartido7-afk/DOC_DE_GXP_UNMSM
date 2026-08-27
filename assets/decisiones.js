@@ -87,7 +87,9 @@
       const obj = typeof r === 'string' ? { t: r } : r;
       return {
         id: h.c + '-R' + (i + 1),
-        texto: obj.t,
+        texto: obj.t || textoDePares(obj.pares),
+        pares: obj.pares || null,
+        hallazgo: h.n ? 'H' + h.n : h.c,
         responsable: obj.q || '',
         entregable: obj.e || '',
         orden: i + 1,
@@ -98,6 +100,19 @@
         destinos: h.d || []
       };
     });
+  }
+
+  /**
+   * Una recomendación de pares se registra en Drive como texto plano: el
+   * documento de decisiones tiene una sola columna para la recomendación,
+   * y esta forma se lee igual en el papel que en la pantalla.
+   */
+  function textoDePares(pares) {
+    if (!pares || !pares.length) return '';
+    return pares.map(function (p) {
+      return 'Donde dice' + (p.et ? ' (' + p.et + ')' : '') + ': «' + p.dd + '»\n' +
+             'Debe decir: ' + p.db;
+    }).join('\n\n');
   }
 
   const esc = (s) => String(s == null ? '' : s)
@@ -116,14 +131,22 @@
       return `
       <li class="rec" data-rec="${esc(r.id)}" data-estado="${d ? 'aceptada' : 'abierta'}">
         <div class="rec-cab">
-          <span class="rec-n">R${r.orden}${r.total > 1 ? ' de ' + r.total : ''}</span>
+          <span class="rec-n">R${r.orden} de ${esc(r.hallazgo)}</span>
           ${r.responsable ? `<span class="rec-quien">${esc(r.responsable)}</span>` : ''}
         </div>
-        <div class="rec-texto" data-rol="texto">${esc(d ? d.texto : r.texto)}</div>
+        ${(!d && r.pares)
+          ? `<div class="rec-texto" data-rol="texto" data-pares="1">${r.pares.map(function (par) {
+              return `<div class="par">
+                ${par.et ? `<span class="par-et">${esc(par.et)}</span>` : ''}
+                <p class="par-dd"><b>Donde dice:</b> «${esc(par.dd)}»</p>
+                <p class="par-db"><b>Debe decir:</b> ${esc(par.db)}</p>
+              </div>`;
+            }).join('')}</div>`
+          : `<div class="rec-texto" data-rol="texto">${esc(d ? d.texto : r.texto)}</div>`}
         ${r.entregable ? `<p class="rec-ent">Entregable → ${esc(r.entregable)}</p>` : ''}
         <div class="rec-edicion" data-rol="edicion" hidden>
           <label class="sr-only" for="ta-${esc(r.id)}">Editar la recomendación ${esc(r.id)}</label>
-          <textarea id="ta-${esc(r.id)}" data-rol="area" rows="4"
+          <textarea id="ta-${esc(r.id)}" data-rol="area" rows="${r.pares ? 7 : 4}"
             aria-describedby="ay-${esc(r.id)}">${esc(d ? d.texto : r.texto)}</textarea>
           <p class="rec-ayuda" id="ay-${esc(r.id)}">
             Ajuste la redacción y confirme. El texto que quede aquí es el que se registra.
@@ -330,7 +353,11 @@
     const act = boton.dataset.act;
 
     if (act === 'aceptar') {
-      aceptar(li, li.querySelector('[data-rol="texto"]').textContent.trim(), false);
+      const { base } = datosDe(li);
+      // Con pares, el texto que se registra es el serializado, no el del DOM,
+      // que lleva las etiquetas «Donde dice» intercaladas con saltos perdidos.
+      aceptar(li, base.pares ? base.texto
+                             : li.querySelector('[data-rol="texto"]').textContent.trim(), false);
     } else if (act === 'mejorar') {
       modo(li, 'editando');
     } else if (act === 'cancelar') {

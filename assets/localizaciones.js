@@ -41,15 +41,17 @@ window.GXP_LOC = {
 /* ---------- D1 · Plan de Gestión del Alcance ---------- */
 
 'D1-01': [
-  { d:'D1', r:'§2 Enunciado del Alcance › tabla «Dentro / Fuera» › fila 6',
+  { d:'D1', r:'Enunciado del Alcance › tabla «Dentro / Fuera» › fila 6',
     a:'Documentación de lo Procesos por parte de la Facultad',
-    n:'Columna izquierda. En la misma fila, a la derecha, dice «Documentación de los Procesos»: la misma actividad declarada dentro y fuera.' },
-  { d:'D1', r:'§3 Redacción de la Definición del Alcance › último párrafo',
+    n:'Columna izquierda. En la misma fila, a la derecha, dice «Documentación de los Procesos»: la misma actividad declarada dentro y fuera.' }
+],
+'D1-10': [
+  { d:'D1', r:'Redacción de la Definición del Alcance › último párrafo',
     a:'Tampoco se abordará la automatización informática de los procesos',
-    n:'El párrafo de exclusiones repite la ambigüedad en prosa.' }
+    n:'Oración a suprimir. Contradice la automatización que ya se ejecuta para el llenado y la revisión de los documentos de los procesos.' }
 ],
 'D1-02': [
-  { d:'D1', r:'§2 Enunciado del Alcance › columna «Fuera del alcance» › fila 8',
+  { d:'D1', r:'Enunciado del Alcance › columna «Fuera del alcance» › fila 8',
     a:'Automatización de los procesos',
     n:'La exclusión no distingue entre automatizar SIGPRO y automatizar los procesos de las facultades.' },
   { d:'D2', r:'Fase 1 › Etapa 1.3 › Actividad 1.3.4 Desarrollo de SIGPRO', c:'D27',
@@ -57,7 +59,7 @@ window.GXP_LOC = {
     n:'Tarea del 23/11/2026 al 30/11/2026, estado Pendiente. Es la tarea que contradice la exclusión del D1.' }
 ],
 'D1-03': [
-  { d:'D1', r:'§3 Redacción de la Definición del Alcance › párrafo 3',
+  { d:'D1', r:'Redacción de la Definición del Alcance › párrafo 3',
     a:'Para la Fase 2, el trabajo se enfocará en la diagramación',
     n:'El mismo párrafo sitúa el despliegue de SIGPRO en la Fase 2.' },
   { d:'D2', r:'Fase 1 › Etapa 1.3 › Actividad 1.3.4', c:'C22:C27',
@@ -65,7 +67,7 @@ window.GXP_LOC = {
     n:'Las seis tareas de SIGPRO están dentro de la Fase 1, no de la Fase 2.' }
 ],
 'D1-04': [
-  { d:'D1', r:'§4 Estructura de Desglose del Trabajo (EDT)',
+  { d:'D1', r:'Estructura de Desglose del Trabajo (EDT)',
     a:'Estructura de Desglose',
     n:'La EDT llega a 3 niveles y sus celdas están desalineadas en los niveles 2 y 3.' },
   { d:'D2', r:'Fila de encabezados del cronograma', c:'A4:D4',
@@ -73,22 +75,22 @@ window.GXP_LOC = {
     n:'El cronograma declara cuatro niveles: Fase, Etapa, Actividad, Tarea.' }
 ],
 'D1-05': [
-  { d:'D1', r:'§ Control de cambios del alcance › tabla de pasos',
+  { d:'D1', r:'Control de cambios del alcance › tabla de pasos',
     a:'Aprobación de MAPA DE PROCESOS',
     n:'Este paso está numerado 5 y su celda de responsable está vacía. El paso siguiente también está numerado 5.' }
 ],
 'D1-06': [
-  { d:'D1', r:'§ Matriz RACI › filas «Aprobar el MAGPROF» y «MAPRO»',
+  { d:'D1', r:'Matriz RACI › filas «Aprobar el MAGPROF» y «MAPRO»',
     a:'Aprobar el MAGPROF',
     n:'Hay una A en la columna del Decano y otra A en la del Jefe de OGPL, en la misma fila.' }
 ],
 'D1-07': [
-  { d:'D1', r:'§ Matriz de trazabilidad de requisitos › encabezados',
+  { d:'D1', r:'Matriz de trazabilidad de requisitos › encabezados',
     a:'RQ-01',
     n:'Recorra los encabezados: no existe columna que apunte a la EDT ni a una tarea del cronograma.' }
 ],
 'D1-08': [
-  { d:'D1', r:'§ Matriz de trazabilidad › fila RQ-03',
+  { d:'D1', r:'Matriz de trazabilidad › fila RQ-03',
     a:'Ficha de los Indicadores',
     n:'Estado escrito a mano «En curso».' },
   { d:'D2', r:'Fase 1 › Etapa 1.3 › Actividad 1.3.2 Indicadores', c:'C16:H20',
@@ -286,7 +288,7 @@ window.GXP_LOC = {
    El índice del arreglo interior corresponde a las columnas D1, D2, D3, D4. */
 window.GXP_LOC_MTZ = {
   'Fecha de cierre de la Fase 1': [
-    { d:'D1', r:'§3 Definición del Alcance', a:'30 de setiembre de 2026' },
+    { d:'D1', r:'Definición del Alcance', a:'30 de setiembre de 2026' },
     { d:'D2', r:'Actividad 1.3.2 › cierre', c:'D30', a:'Cierre de Fase 1 (Cierre 30 Oct)' },
     { d:'D3', r:'Bitácora › bloque de validación del MAGPROF', a:'MAGPROF',
       n:'La bitácora cierra la validación el 18/09/2026, doce días antes que el hito del D1.' },
@@ -297,7 +299,7 @@ window.GXP_LOC_MTZ = {
     { d:'D3', r:'Encabezado de la bitácora', a:'1/3/2026' },
     null ],
   'Fase en la que vive SIGPRO': [
-    { d:'D1', r:'§3 Definición del Alcance › párrafo 3', a:'Plataforma Web Institucional (SIGPRO)' },
+    { d:'D1', r:'Definición del Alcance › párrafo 3', a:'Plataforma Web Institucional (SIGPRO)' },
     { d:'D2', r:'Fase 1 › Etapa 1.3', c:'C22', a:'Actividad 1.3.4: Desarrollo de SIGPRO' },
     { d:'D3', r:'Bitácora › bloque SIGPRO', a:'SIGPRO' },
     null ],
@@ -326,7 +328,7 @@ window.GXP_LOC_MTZ = {
     { d:'D3', r:'Bitácora › observaciones', a:'anexo 2' },
     { d:'D4', r:'Tablero › columnas del Anexo 2', a:'A.2 COMPLETADO' } ],
   'Formato de fecha': [
-    { d:'D1', r:'§3 Definición del Alcance', a:'30 de setiembre de 2026' },
+    { d:'D1', r:'Definición del Alcance', a:'30 de setiembre de 2026' },
     { d:'D2', r:'Columna Fecha de Inicio', c:'E16', a:'02/03/2026' },
     { d:'D3', r:'Bitácora › columnas de fecha', a:'9-3-26' },
     null ]

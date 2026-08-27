@@ -100,7 +100,7 @@
     { t:'Extender el rango del gráfico del cronograma hasta junio de 2025, para que la primera tarea deje de quedar fuera del Gantt.',
       q:'OR', e:'Gantt graficando desde junio 2025' },
     { t:'Incorporar la fecha de inicio al Plan de Alcance, que hoy no la declara pese a ser el documento de línea base.',
-      q:'OR', e:'Fecha de inicio en el §3 del D1' }
+      q:'OR', e:'Fecha de inicio en el del D1' }
   ],
 
   'MTZ-03': [
@@ -110,8 +110,8 @@
       q:'OGPL', e:'Decisión de alcance documentada' },
     { t:'Reubicar en el cronograma la Actividad 1.3.4 según lo acordado, junto con sus seis tareas.',
       q:'OR', e:'Actividad 1.3.4 reubicada' },
-    { t:'Alinear el párrafo 3 del §3 del Plan de Alcance, que hoy sitúa el despliegue de SIGPRO en la Fase 2.',
-      q:'OR', e:'§3 del D1 coherente con el cronograma' },
+    { t:'Alinear el párrafo 3 de la Definición del Alcance del Plan de Alcance, que hoy sitúa el despliegue de SIGPRO en la Fase 2.',
+      q:'OR', e:'del D1 coherente con el cronograma' },
     { t:'Reflejar la decisión en la bitácora, donde el bloque de SIGPRO acumula 32 subtareas sin fase declarada.',
       q:'OR', e:'Bloque SIGPRO de la bitácora etiquetado' }
   ],

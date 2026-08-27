@@ -6,6 +6,14 @@
  * una por separado, y cada una viaja al registro de Drive con su propio
  * código (D1-01-R1, D1-01-R2, …).
  *
+ * Dos formatos de recomendación
+ *  · `t`     acción redactada en imperativo.
+ *  · `pares` corrección literal sobre el documento: para cada punto, el texto
+ *            que hoy figura (`dd`, «donde dice») y el que debe figurar (`db`,
+ *            «debe decir»), con una etiqueta opcional (`et`) que precisa en qué
+ *            parte del documento se aplica. Es el formato preferente cuando la
+ *            corrección se puede escribir palabra por palabra.
+ *
  * Criterios de redacción
  *  · Una sola acción por recomendación, en imperativo y verificable.
  *  · Ordenadas por dependencia: primero lo que desbloquea, después lo que
@@ -22,19 +30,33 @@ window.GXP_RECS = {
 /* ==================== D1 · PLAN DE GESTIÓN DEL ALCANCE ==================== */
 
 'D1-01': [
-  { t:'Sustituir las dos filas contradictorias de la tabla «Dentro / Fuera» por una sola redacción: dentro del alcance está la documentación de procesos que cada facultad elabora en los Anexos 1 y 3; fuera está la documentación de procesos de unidades centrales ajenas a la facultad.',
-    q:'OR', e:'Tabla §2 corregida en el D1 v2.0' },
-  { t:'Añadir al §3 el criterio que resuelve cualquier caso futuro: documenta el proceso la unidad que lo ejecuta, no la que lo supervisa.',
-    q:'OR', e:'Párrafo nuevo en §3' },
+  { pares: [
+      { et:'Dentro del alcance',
+        dd:'Documentación de los Procesos por parte de la Facultad',
+        db:'El Responsable de la Gestión por Procesos y Dueño de Proceso de la Facultad o Dependencia llenará y actualizará la Documentación de los Procesos.' },
+      { et:'Fuera del alcance',
+        dd:'Documentación de los Procesos',
+        db:'La Oficina Responsable de Gestión por Procesos de la Universidad llenará la documentación de gestión por procesos.' }
+    ],
+    q:'OR', e:'Tabla «Dentro / Fuera» corregida en el D1 v2.0' },
   { t:'Tramitar la corrección como solicitud de cambio del alcance y comunicarla por oficio a las 20 facultades, para que ninguna siga trabajando con la versión ambigua.',
     q:'OGPL', e:'Oficio circular con acuse de las 20 facultades' }
+],
+
+'D1-10': [
+  { pares: [
+      { et:'Redacción de la Definición del Alcance, último párrafo',
+        dd:'Tampoco se abordará la automatización informática de los procesos',
+        db:'Se debe suprimir esta oración del documento.' }
+    ],
+    q:'OR', e:'Oración suprimida en el D1 v2.0' }
 ],
 
 'D1-02': [
   { t:'Renombrar la tarea del cronograma «AUTOMATIZACIÓN CULMINADA» como «Automatización de la carga de datos en SIGPRO», de modo que su nombre indique qué se automatiza.',
     q:'OR', e:'Celda D27 del cronograma actualizada' },
   { t:'Precisar la exclusión del D1: donde dice «Automatización de los procesos» debe decir «Automatización de los procesos de negocio de las facultades», que es lo que realmente queda fuera.',
-    q:'OR', e:'Fila 8 de la tabla §2 corregida' },
+    q:'OR', e:'Fila 8 de la tabla corregida' },
   { t:'Incorporar al glosario del D1 la distinción entre automatizar el sistema de gestión (dentro del alcance) y automatizar el proceso de la facultad (fuera del alcance).',
     q:'OR', e:'Entrada de glosario en el D1' }
 ],
@@ -44,7 +66,7 @@ window.GXP_RECS = {
     q:'OGPL', e:'Acta de acuerdo del equipo' },
   { t:'Declarar expresamente si la disponibilidad de SIGPRO es condición para cerrar la Fase 1. De la respuesta depende que su retraso bloquee o no el 30 de setiembre.',
     q:'OGPL', e:'Cláusula en el criterio de cierre de fase' },
-  { t:'Una vez decidido, reubicar la Actividad 1.3.4 en el cronograma y alinear el párrafo 3 del §3 del D1 con esa ubicación.',
+  { t:'Una vez decidido, reubicar la Actividad 1.3.4 en el cronograma y alinear el párrafo 3 de la Definición del Alcance del D1 con esa ubicación.',
     q:'OR', e:'Cronograma y D1 coincidentes' }
 ],
 
@@ -132,7 +154,7 @@ window.GXP_RECS = {
 'D2-04': [
   { t:'Fijar una única fecha de cierre de la Fase 1 en acta de línea base. Hoy conviven tres: 30/09 en el D1, 01–03/10 en las fechas de la tarea y 30 de octubre en su nombre.',
     q:'OGPL', e:'Acta de línea base del cronograma v1.0' },
-  { t:'Propagar la fecha acordada a los tres lugares donde hoy discrepan: el §3 del D1, el nombre de la tarea y sus columnas de fecha.',
+  { t:'Propagar la fecha acordada a los tres lugares donde hoy discrepan: el del D1, el nombre de la tarea y sus columnas de fecha.',
     q:'OR', e:'Las tres referencias coincidentes' },
   { t:'Revisar el arranque de la Fase 2, programado para el 01/10, que depende de la fecha que se elija.',
     q:'OR', e:'Fechas de la Fase 2 ajustadas' }

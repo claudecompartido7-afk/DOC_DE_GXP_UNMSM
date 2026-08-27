@@ -69,3 +69,16 @@
 .rec-todo{margin:0;padding:10px 12px;font-size:13px;color:var(--verde);
   background:#F3F8F6;border:1px solid #CFE0DA}
 .chip.vr[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:#fff}
+
+/* Corrección literal: qué dice hoy el documento y qué debe decir */
+.rec-texto[data-pares] .par{padding:9px 0;border-top:1px solid var(--niebla)}
+.rec-texto[data-pares] .par:first-child{padding-top:0;border-top:0}
+.par-et{display:inline-block;font-family:var(--disp);font-size:10.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--acero);
+  border:1px solid var(--linea);padding:1px 7px;margin-bottom:7px}
+.par-dd,.par-db{margin:0;font-size:14px;line-height:1.5}
+.par-dd{color:var(--rojo);padding-left:10px;border-left:2px solid var(--rojo-cl)}
+.par-db{color:var(--verde);padding-left:10px;border-left:2px solid var(--verde-cl);
+  margin-top:6px}
+.par-dd b,.par-db b{font-family:var(--disp);font-weight:700;font-size:11px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--acero);margin-right:5px}

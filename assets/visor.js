@@ -466,13 +466,18 @@
     const grupo = LOC[codigo];
     if (!grupo || !grupo.length) return '';
 
+    // Prefijo del hallazgo: «H1 D1» identifica hallazgo y documento a la vez.
+    const item = ((window.HALL || []).concat(window.GXP_MTZ_ITEMS || []))
+      .filter(function (x) { return x.c === codigo; })[0];
+    const hp = item && item.n ? 'H' + item.n + ' ' : '';
+
     const chips = grupo.map(function (l, i) {
       const doc = DOCS[l.d] || {};
       return `
       <li>
         <button type="button" class="ubic" data-ubic="${esc(codigo)}" data-i="${i}">
           <span class="ubic-n">${i + 1}</span>
-          <span class="ubic-doc">${esc(l.d)}</span>
+          <span class="ubic-doc">${esc(hp + l.d)}</span>
           <span class="ubic-cuerpo">
             <span class="ubic-ruta">${esc(l.r)}${l.c ? ' · ' + esc(l.c) : ''}</span>
             <span class="ubic-ancla">«${esc(l.a)}»</span>

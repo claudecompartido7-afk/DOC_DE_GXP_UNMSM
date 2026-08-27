@@ -743,6 +743,10 @@ const HALL=[
  ev:'Dentro: «Documentación de los Procesos por parte de la Facultad» · Fuera: «Documentación de los Procesos»',
  im:'Ante una solicitud de cambio o una controversia con una facultad, el documento sostiene ambas posiciones. El alcance no es exigible.',
  co:'Redactar una sola línea: dentro del alcance está la documentación que elabora la facultad en los Anexos 1 y 3; fuera está la documentación de procesos de unidades centrales ajenas a la facultad.'},
+{c:'D1-10',s:'alto',d:['D1'],h:'La definición del alcance niega una automatización que ya se está ejecutando',
+ ev:'«Tampoco se abordará la automatización informática de los procesos».',
+ im:'La redacción contradice la realidad operativa actual: en la práctica sí se vienen ejecutando automatizaciones para el llenado y la revisión de los documentos de los procesos.',
+ co:'Suprimir la oración del documento.'},
 {c:'D1-02',s:'alto',d:['D1','D2'],h:'«Automatización» está excluida del alcance pero existe una tarea llamada Automatización culminada',
  ev:'D1 excluye «Automatización de los procesos» · D2 Actividad 1.3.4, tarea «AUTOMATIZACIÓN CULMINADA», 23 al 30 nov 2026',
  im:'No se sabe si esa tarea automatiza el sistema SIGPRO (permitido) o los procesos de las facultades (excluido). Riesgo de expansión no controlada del alcance.',
@@ -892,6 +896,8 @@ const HALL=[
  co:'Publicar el catálogo maestro y auditar las 20 pestañas contra él antes de continuar el llenado.'}
 ];
 
+// Número correlativo de hallazgo: H1, H2, … según el orden de la lista.
+HALL.forEach((x,i)=>{x.n=i+1});
 window.HALL=HALL;
 
 const cont=document.getElementById('listaHall');
