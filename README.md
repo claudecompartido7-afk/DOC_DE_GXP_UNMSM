@@ -49,6 +49,17 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 └── PUBLICAR-EN-GITHUB.md
 ```
 
+## Al modificar un archivo de `assets/`
+
+Los `.js` y `.css` se enlazan con un número de versión (`decisiones.js?v=6`).
+GitHub Pages los sirve con caché larga, así que sin ese número el navegador
+puede quedarse con un script antiguo junto a un `index.html` nuevo, y la página
+se comporta de forma incoherente sin dar ningún error.
+
+**Al tocar cualquier archivo de `assets/`, suba el número en las siete
+referencias de `index.html`.** Es la única forma de garantizar que todos los
+visitantes reciben el conjunto completo.
+
 ## Registro de decisiones
 
 En el panel **Diagnóstico**, cada hallazgo se descompone en **acciones
