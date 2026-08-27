@@ -190,8 +190,19 @@
         }
       })
       .catch(function (err) {
-        respaldo(loc, 'No se pudo leer el documento (' + err.message + '). ' +
-          'Se muestra la vista de Google, sin resaltado ni edición.');
+        // El backend antiguo responde «Acción no reconocida» porque la
+        // implementación publicada es anterior a estas acciones. Es el fallo
+        // más probable, y no se arregla desde la web: hay que volver a
+        // implementar el Apps Script.
+        const viejo = /no reconocida/i.test(err.message);
+        respaldo(loc, viejo
+          ? 'El Apps Script publicado está desactualizado: no conoce la acción ' +
+            '«contenido». Actualice Codigo.gs y cree una NUEVA VERSIÓN de la ' +
+            'implementación (Implementar › Gestionar implementaciones › ✏ › ' +
+            'Versión: Nueva versión). Mientras tanto se muestra la vista de ' +
+            'Google, sin resaltado ni edición.'
+          : 'No se pudo leer el documento (' + err.message + '). ' +
+            'Se muestra la vista de Google, sin resaltado ni edición.');
       });
   }
 

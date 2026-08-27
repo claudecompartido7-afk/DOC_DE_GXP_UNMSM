@@ -53,8 +53,28 @@ marcador invisible. En D2, D3 y D4 es una **pestaña propia** llamada
 7. **Verifique.** Abra la URL `/exec` en el navegador: `doGet` devuelve el estado
    de los cuatro destinos con su nombre, su MIME y si son escribibles.
 
-> Cada vez que modifique el código debe crear una **nueva versión** de la
-> implementación para que los cambios entren en producción.
+## Actualizar el backend · el paso que se olvida
+
+Pegar el código nuevo en el editor **no cambia nada en producción**. Apps Script
+sigue sirviendo la última *versión implementada* hasta que se crea una nueva.
+
+1. Pegue el `Codigo.gs` actualizado y guarde (Ctrl+S).
+2. **Implementar › Gestionar implementaciones**.
+3. Pulse el lápiz **✏** de la implementación activa.
+4. En **Versión** elija **Nueva versión**. Este es el paso decisivo.
+5. **Implementar**.
+
+La URL `/exec` no cambia: no hay que tocar `index.html`.
+
+Para comprobarlo, abra la URL `/exec` en el navegador. La respuesta incluye:
+
+```json
+{"ok":true,"version":"2.1.0","acciones":["ping","decision","eliminar","listar","contenido","editar"], …}
+```
+
+Si no aparece `version` o falta `contenido` en `acciones`, la implementación
+sigue siendo la antigua y el visor mostrará *«El Apps Script publicado está
+desactualizado»* en lugar del documento con resaltado.
 
 ## Cómo se estructura el envío a varios IDs
 

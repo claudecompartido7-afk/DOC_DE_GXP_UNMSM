@@ -16,6 +16,10 @@
 
 /* ==================== CONFIGURACIÓN ==================== */
 
+/* Se incrementa al añadir acciones. La web lo compara con lo que espera para
+   poder avisar de que la implementación publicada quedó atrás. */
+const VERSION = '2.1.0';
+
 const TITULO    = 'Registro de decisiones sobre los hallazgos del diagnóstico';
 const MARCADOR  = '⟦REGISTRO-DECISIONES-GXP⟧';
 const HOJA      = 'Decisiones GxP';
@@ -245,6 +249,8 @@ function diagnostico() {
   });
   return {
     ok: estado.every(function (l) { return l.ok !== false; }),
+    version: VERSION,
+    acciones: ['ping', 'decision', 'eliminar', 'listar', 'contenido', 'editar'],
     modo: MODO_DESTINO,
     destinos: estado
   };
