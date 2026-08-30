@@ -18,7 +18,7 @@
 
 /* Se incrementa al añadir acciones. La web lo compara con lo que espera para
    poder avisar de que la implementación publicada quedó atrás. */
-const VERSION = '2.1.0';
+const VERSION = '3.0.0';
 
 const TITULO    = 'Registro de decisiones sobre los hallazgos del diagnóstico';
 const MARCADOR  = '⟦REGISTRO-DECISIONES-GXP⟧';
@@ -65,8 +65,18 @@ function doPost(e) {
     }
     const datos = JSON.parse(e.postData.contents);
 
+    // Sin credenciales sólo se responde al diagnóstico de estado y al acceso.
     switch (datos.accion) {
       case 'ping':      return responder(diagnostico());
+      case 'entrar':    return responder(entrar(datos));
+      case 'salir':     return responder(salir(datos));
+    }
+
+    // Todo lo demás toca datos internos o escribe en los documentos.
+    exigirSesion(datos);
+
+    switch (datos.accion) {
+      case 'datos':     return responder(datosDeSesion(datos));
       case 'decision':  return responder(registrarDecision(datos));
       case 'eliminar':  return responder(eliminarDecision(datos));
       case 'listar':    return responder(listarDecisiones());
@@ -250,7 +260,9 @@ function diagnostico() {
   return {
     ok: estado.every(function (l) { return l.ok !== false; }),
     version: VERSION,
-    acciones: ['ping', 'decision', 'eliminar', 'listar', 'contenido', 'editar'],
+    acciones: ['ping', 'entrar', 'salir', 'datos', 'decision', 'eliminar',
+               'listar', 'contenido', 'editar'],
+    usuarios: usuarios().length,
     modo: MODO_DESTINO,
     destinos: estado
   };
@@ -647,4 +659,135 @@ function editarContenido(datos) {
   } finally {
     bloqueo.releaseLock();
   }
+}
+
+/* ==================== ACCESO INTERNO ====================
+ *
+ * El Centro de Documentación es público: el tablero y los tres documentos de
+ * gestión los ve cualquiera con el enlace. El diagnóstico —hallazgos,
+ * contradicciones y recomendaciones— no.
+ *
+ * Como el sitio es estático, esa separación sólo es real si el contenido
+ * interno no viaja al navegador sin credenciales. Por eso vive en Datos.gs y
+ * se entrega aquí, después de comprobar quién pregunta.
+ *
+ * Las contraseñas no se guardan: se guarda su huella SHA-256 con una sal
+ * distinta por usuario. Quien lea las propiedades del script no puede
+ * deducirlas.
+ */
+
+const PROP_USUARIOS = 'USUARIOS_GXP';
+const HORAS_SESION  = 10;
+
+function props() { return PropertiesService.getScriptProperties(); }
+
+function usuarios() {
+  const crudo = props().getProperty(PROP_USUARIOS);
+  return crudo ? JSON.parse(crudo) : [];
+}
+
+function huella(clave, sal) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256, sal + '·' + clave, Utilities.Charset.UTF_8);
+  return bytes.map(function (b) {
+    return ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2);
+  }).join('');
+}
+
+/**
+ * Da de alta o actualiza a una persona. Ejecútese desde el editor de Apps
+ * Script, nunca desde la web: es la única forma de crear credenciales.
+ *
+ *   altaUsuario('nombre@unmsm.edu.pe', 'clave-inicial', 'Nombre Apellido')
+ */
+function altaUsuario(correo, clave, nombre) {
+  if (!correo || !clave) throw new Error('Hacen falta correo y clave.');
+  if (String(clave).length < 8) throw new Error('La clave debe tener 8 caracteres o más.');
+
+  const lista = usuarios().filter(function (u) {
+    return u.correo !== String(correo).toLowerCase().trim();
+  });
+  const sal = Utilities.getUuid();
+  lista.push({
+    correo: String(correo).toLowerCase().trim(),
+    nombre: nombre || correo,
+    sal: sal,
+    huella: huella(clave, sal),
+    alta: new Date().toISOString()
+  });
+  props().setProperty(PROP_USUARIOS, JSON.stringify(lista));
+  Logger.log('Alta correcta: ' + correo + ' · usuarios registrados: ' + lista.length);
+  return lista.length;
+}
+
+function bajaUsuario(correo) {
+  const c = String(correo).toLowerCase().trim();
+  const lista = usuarios().filter(function (u) { return u.correo !== c; });
+  props().setProperty(PROP_USUARIOS, JSON.stringify(lista));
+  Logger.log('Baja de ' + c + ' · quedan ' + lista.length);
+  return lista.length;
+}
+
+function listarUsuarios() {
+  usuarios().forEach(function (u) { Logger.log(u.correo + ' · ' + u.nombre); });
+  return usuarios().length;
+}
+
+/* ---------- Sesiones ---------- */
+
+function abrirSesion(correo) {
+  const ficha = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
+  const hasta = Date.now() + HORAS_SESION * 3600 * 1000;
+  CacheService.getScriptCache().put('ses_' + ficha,
+    JSON.stringify({ correo: correo, hasta: hasta }), HORAS_SESION * 3600);
+  return { ficha: ficha, hasta: hasta };
+}
+
+function sesionDe(ficha) {
+  if (!ficha) return null;
+  const crudo = CacheService.getScriptCache().get('ses_' + String(ficha));
+  if (!crudo) return null;
+  const s = JSON.parse(crudo);
+  return s.hasta > Date.now() ? s : null;
+}
+
+function exigirSesion(datos) {
+  const s = sesionDe(datos && datos.ficha);
+  if (!s) throw new Error('SESION_INVALIDA');
+  return s;
+}
+
+/* ---------- Acciones ---------- */
+
+function entrar(datos) {
+  const correo = String(datos.correo || '').toLowerCase().trim();
+  const clave  = String(datos.clave || '');
+
+  const lista = usuarios();
+  if (!lista.length) {
+    return { ok: false, error: 'No hay usuarios dados de alta. Ejecute altaUsuario() ' +
+                               'una vez desde el editor de Apps Script.' };
+  }
+  const u = lista.filter(function (x) { return x.correo === correo; })[0];
+
+  // Misma respuesta exista o no el correo: no se revela quién está registrado.
+  if (!u || huella(clave, u.sal) !== u.huella) {
+    Utilities.sleep(600);                       // frena los intentos por fuerza bruta
+    return { ok: false, error: 'Correo o contraseña incorrectos.' };
+  }
+
+  const ses = abrirSesion(u.correo);
+  return { ok: true, ficha: ses.ficha, hasta: ses.hasta,
+           nombre: u.nombre, correo: u.correo, datos: datosInternos() };
+}
+
+function salir(datos) {
+  if (datos && datos.ficha) CacheService.getScriptCache().remove('ses_' + datos.ficha);
+  return { ok: true };
+}
+
+/** Renueva los datos sin volver a pedir la contraseña, mientras dure la sesión. */
+function datosDeSesion(datos) {
+  const s = exigirSesion(datos);
+  return { ok: true, correo: s.correo, datos: datosInternos() };
 }

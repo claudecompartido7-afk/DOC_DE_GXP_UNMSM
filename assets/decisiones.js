@@ -296,7 +296,7 @@
       method: 'POST',
       // text/plain evita la petición previa OPTIONS, que Apps Script no atiende.
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(cuerpo),
+      body: JSON.stringify(Object.assign({ ficha: window.GXP_FICHA }, cuerpo)),
       redirect: 'follow'
     })
       .then(r => r.json())

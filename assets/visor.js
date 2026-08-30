@@ -172,6 +172,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
+        ficha: window.GXP_FICHA,
         accion: 'contenido', destino: loc.d,
         hoja: loc.h || '', rango: loc.c || ''
       }),
@@ -386,6 +387,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(Object.assign({
+        ficha: window.GXP_FICHA,
         accion: 'editar', destino: destino,
         hoja: (contenido && contenido.hoja) || '',
         texto: sucios[clave].texto

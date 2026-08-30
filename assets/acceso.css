@@ -1,0 +1,56 @@
+/* Puerta de acceso al área interna y barra de sesión */
+
+.puerta{position:fixed;inset:0;z-index:200;background:var(--tinta);
+  display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.puerta[hidden]{display:none}
+
+.puerta-caja{width:100%;max-width:432px;background:var(--lienzo);
+  border-top:4px solid var(--granate);padding:38px 40px 30px;
+  box-shadow:0 24px 60px rgba(0,0,0,.34)}
+
+.puerta-marca{display:flex;flex-direction:column;gap:3px;padding-bottom:20px;
+  border-bottom:1px solid var(--niebla);margin-bottom:22px}
+.puerta-inst{font-family:var(--disp);font-size:11.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--tinta)}
+.puerta-ofi{font-family:var(--mono);font-size:10.5px;color:var(--acero);line-height:1.5}
+
+.puerta-caja h1{font-family:var(--disp);font-size:23px;font-weight:800;
+  line-height:1.2;margin:0 0 10px;color:var(--tinta)}
+.puerta-txt{margin:0 0 24px;font-size:13.5px;line-height:1.6;color:var(--tinta-70)}
+
+.puerta-caja label{display:block;font-family:var(--disp);font-size:10.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--acero);margin-bottom:6px}
+.puerta-caja input{width:100%;box-sizing:border-box;font:inherit;font-size:14.5px;
+  padding:10px 12px;border:1px solid var(--linea);border-radius:var(--r);
+  background:var(--lienzo);color:var(--tinta);margin-bottom:16px}
+.puerta-caja input:focus{outline:2px solid var(--granate);outline-offset:1px;
+  border-color:var(--granate)}
+
+.puerta-caja button{width:100%;font-family:var(--disp);font-size:14px;font-weight:700;
+  letter-spacing:.02em;padding:11px;border:0;border-radius:var(--r);
+  background:var(--granate);color:#fff;cursor:pointer;margin-top:4px}
+.puerta-caja button:hover{background:var(--granate-cl)}
+.puerta-caja button:disabled{opacity:.6;cursor:progress}
+.puerta-caja button:focus-visible{outline:2px solid var(--tinta);outline-offset:2px}
+
+.puerta-aviso{margin:14px 0 0;min-height:18px;font-size:13px;line-height:1.5;
+  color:var(--rojo)}
+.puerta-aviso:empty{margin:0;min-height:0}
+
+.puerta-volver{display:inline-block;margin-top:22px;padding-top:18px;
+  border-top:1px solid var(--niebla);width:100%;box-sizing:border-box;
+  font-family:var(--disp);font-size:12.5px;color:var(--acero);text-decoration:none}
+.puerta-volver:hover{color:var(--granate)}
+
+/* Barra de sesión: sólo visible una vez dentro */
+.sesion-barra{display:none;position:sticky;top:0;z-index:50;
+  align-items:center;gap:12px;padding:7px 24px;
+  background:var(--granate);color:#fff;font-family:var(--disp);font-size:12px}
+body.dentro .sesion-barra{display:flex}
+.sesion-et{font-weight:700;letter-spacing:.09em;text-transform:uppercase;font-size:10.5px}
+.sesion-quien{flex:1;font-family:var(--mono);font-size:11.5px;color:#F0D6D6}
+.sesion-barra button{background:none;border:1px solid rgba(255,255,255,.45);color:#fff;
+  font-family:var(--disp);font-size:11.5px;font-weight:600;padding:3px 11px;
+  border-radius:2px;cursor:pointer}
+.sesion-barra button:hover{background:rgba(255,255,255,.15)}
+.sesion-barra button:focus-visible{outline:2px solid #fff;outline-offset:1px}

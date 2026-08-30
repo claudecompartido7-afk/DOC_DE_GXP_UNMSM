@@ -170,3 +170,44 @@ El endpoint se puede sobrescribir desde la consola del navegador sin editar
 localStorage.setItem('gxp.endpoint', 'https://…/exec');   // apuntar a un despliegue de prueba
 localStorage.removeItem('gxp.decisiones.v1');             // borrar las decisiones locales
 ```
+
+
+## Acceso al área interna
+
+El Centro de Documentación es público. El diagnóstico —hallazgos,
+contradicciones, avance por facultad y recomendaciones— no, y no está en el
+repositorio: vive en `Datos.gs` y sólo se entrega tras validar credenciales.
+
+Es la única forma de que la separación sea real. El sitio es estático: cualquier
+archivo que forme parte de él es legible con «ver código fuente», con contraseña
+o sin ella. Un control de acceso hecho en el navegador escondería un contenido
+que ya viajó.
+
+### Dar de alta a una persona
+
+Desde el editor de Apps Script, en el desplegable de funciones, con la llamada
+escrita en el propio editor:
+
+```js
+altaUsuario('nombre@unmsm.edu.pe', 'una-clave-de-8-o-mas', 'Nombre Apellido');
+```
+
+Borre la línea después de ejecutarla: el editor guarda el historial.
+
+- `bajaUsuario('correo')` retira el acceso.
+- `listarUsuarios()` escribe los correos registrados en el registro de ejecución.
+
+Las contraseñas no se almacenan: se guarda su huella SHA-256 con una sal
+distinta por persona. Quien lea las propiedades del script no puede deducirlas.
+
+### Qué exige sesión
+
+Sólo `ping` y `entrar` responden sin credenciales. Todo lo demás —leer el
+diagnóstico, registrar decisiones, leer o editar los documentos— exige una ficha
+de sesión válida, que dura diez horas.
+
+### Actualizar los datos internos
+
+`Datos.gs` se genera desde el repositorio; no se edita a mano. Cuando cambien los
+hallazgos o los paneles hay que regenerarlo y volver a implementar el Apps
+Script con una versión nueva.

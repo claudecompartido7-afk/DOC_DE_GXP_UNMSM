@@ -1,7 +1,7 @@
 ﻿ID,Inicio,Fin,Dias_habiles_perdidos,Evento,Efecto,Area_afectada
 INC-01,11/05/2026,22/05/2026,10,Toma de la universidad,Paralización total de actividades,Cronograma
 INC-02,12/07/2026,31/07/2026,14,Reorganización del personal de la Oficina de Racionalización,Paralización de actividades,Cronograma
-INC-03,01/07/2026,31/07/2026,0,Hospitalización y descanso médico del Jefe de OGPL y de la Jefa de Racionalización,Las contrataciones acordadas no se hicieron efectivas,Recursos
+INC-03,01/07/2026,31/07/2026,0,Ausencia temporal de la jefatura por causa de fuerza mayor,Las contrataciones acordadas no se hicieron efectivas,Recursos
 INC-04,12/07/2026,31/07/2026,0,Renuncia de personal sin reemplazo durante el mes,Se detuvo la revisión de las encuestas,Recursos
 INC-05,20/04/2026,20/04/2026,0,Visita de pares evaluadores para evaluación externa,Dificultó las reuniones con la OCCAA,Cronograma
 INC-06,19/03/2026,20/03/2026,2,Semana Santa,Feriado institucional,Calendario

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Área interna · Diagnóstico documental UNMSM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#14202E;
+  --tinta-70:#3B4A5C;
+  --acero:#5E6E7E;
+  --niebla:#E4E8EC;
+  --niebla-2:#D5DCE2;
+  --lienzo:#FFFFFF;
+  --granate:#7A1E2E;
+  --granate-cl:#A63347;
+  --ocre:#A2660F;
+  --ocre-cl:#E8D9B8;
+  --verde:#1C5F52;
+  --verde-cl:#CFE0DA;
+  --rojo:#8E2020;
+  --rojo-cl:#F0D6D6;
+  --azul:#22506E;
+  --azul-cl:#D3E0EA;
+  --linea:#C3CCD4;
+  --r:3px;
+  --sans:"Source Sans 3",system-ui,sans-serif;
+  --disp:"Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{
+  margin:0;background:var(--niebla);color:var(--tinta);
+  font-family:var(--sans);font-size:15.5px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--disp);font-weight:700;line-height:1.12;margin:0;letter-spacing:-.015em}
+a{color:var(--granate)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono);font-size:.86em;letter-spacing:-.02em}
+
+/* ---------- ENCABEZADO ---------- */
+.cab{background:var(--tinta);color:#EEF2F5;padding:44px 0 0;position:relative;overflow:hidden}
+.cab::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 68px)}
+.cab .wrap{position:relative;z-index:1}
+.ceja{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#8FA6B8;margin-bottom:18px}
+.cab h1{font-size:clamp(34px,5.6vw,58px);font-weight:800;color:#fff;max-width:15ch}
+.cab .sub{font-size:17px;color:#A9BECD;margin-top:14px;max-width:60ch;font-weight:300}
+.tira{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.14);margin-top:38px;border-top:1px solid rgba(255,255,255,.14)}
+.tira a{background:var(--tinta);padding:16px 16px 18px;text-decoration:none;color:inherit;display:block;transition:background .18s}
+.tira a:hover{background:#1D2E42}
+.tira .n{font-family:var(--mono);font-size:11px;color:#7E97AB;letter-spacing:.1em}
+.tira .t{font-family:var(--disp);font-weight:600;font-size:14.5px;color:#fff;margin:5px 0 7px;line-height:1.25}
+.tira .e{font-size:11.5px;font-family:var(--mono);letter-spacing:.02em}
+.e-ok{color:#7FC0AE}.e-obs{color:#E0B25E}.e-cri{color:#E28B8B}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:40;background:rgba(228,232,236,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--linea)}
+.navin{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.navin::-webkit-scrollbar{display:none}
+.navin button{
+  flex:0 0 auto;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--disp);font-weight:600;font-size:13.5px;color:var(--acero);
+  padding:15px 15px 13px;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.navin button:hover{color:var(--tinta)}
+.navin button[aria-selected="true"]{color:var(--granate);border-bottom-color:var(--granate)}
+.navin button:focus-visible{outline:2px solid var(--granate);outline-offset:-3px}
+
+/* ---------- SECCIONES ---------- */
+.panel{display:none;padding:44px 0 76px}
+.panel.on{display:block;animation:sube .38s ease both}
+@keyframes sube{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.tit{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.tit h2{font-size:clamp(25px,3.4vw,35px)}
+.tit .fuente{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acero)}
+.intro{color:var(--tinta-70);max-width:74ch;margin:0 0 30px;font-size:16px}
+.sep{height:1px;background:var(--linea);margin:38px 0 26px;border:0}
+h3.bloque{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-weight:500}
+.nota{font-size:14px;color:var(--acero);margin:0 0 16px;max-width:80ch}
+
+/* ---------- HERO TESIS ---------- */
+.tesis{background:var(--lienzo);border:1px solid var(--linea);border-top:3px solid var(--granate);padding:30px 30px 8px;margin-bottom:34px}
+.tesis .lead{font-family:var(--disp);font-size:clamp(19px,2.6vw,25px);font-weight:600;line-height:1.28;max-width:34ch;margin:0 0 4px}
+.tesis .lead em{font-style:normal;color:var(--granate)}
+.cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;margin-top:26px;border-top:1px solid var(--linea)}
+.cifra{padding:22px 20px 24px;border-right:1px solid var(--linea)}
+.cifra:last-child{border-right:0}
+.cifra .v{font-family:var(--disp);font-size:52px;font-weight:800;line-height:.9;letter-spacing:-.03em}
+.cifra .l{font-size:13.5px;font-weight:600;margin-top:9px}
+.cifra .d{font-size:12.5px;color:var(--acero);margin-top:3px;line-height:1.45}
+.c-a .v{color:var(--rojo)}.c-b .v{color:var(--ocre)}.c-c .v{color:var(--azul)}
+
+/* ---------- TARJETAS KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-bottom:12px}
+.kpi{background:var(--lienzo);border:1px solid var(--linea);padding:16px 17px}
+.kpi .v{font-family:var(--disp);font-size:30px;font-weight:700;line-height:1}
+.kpi .l{font-size:12.5px;color:var(--acero);margin-top:7px;line-height:1.35}
+
+/* ---------- HALLAZGOS ---------- */
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.chip{background:var(--lienzo);border:1px solid var(--linea);border-radius:100px;padding:6px 14px;
+  font-family:var(--disp);font-size:12.5px;font-weight:600;color:var(--acero);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--acero)}
+.chip[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.chip:focus-visible{outline:2px solid var(--granate);outline-offset:2px}
+.buscador{flex:1;min-width:190px;background:var(--lienzo);border:1px solid var(--linea);padding:7px 12px;font-family:var(--sans);font-size:14px;color:var(--tinta)}
+.buscador:focus{outline:2px solid var(--granate);outline-offset:-1px}
+
+.hall{background:var(--lienzo);border:1px solid var(--linea);border-left:3px solid var(--acero);margin-bottom:10px}
+.hall.sev-critico{border-left-color:var(--rojo)}
+.hall.sev-alto{border-left-color:var(--ocre)}
+.hall.sev-medio{border-left-color:var(--azul)}
+.hall > summary{padding:14px 18px;cursor:pointer;list-style:none;display:flex;gap:14px;align-items:flex-start}
+.hall > summary::-webkit-details-marker{display:none}
+.hall > summary:focus-visible{outline:2px solid var(--granate);outline-offset:-2px}
+.hall .cod{font-family:var(--mono);font-size:11.5px;color:var(--acero);flex:0 0 52px;padding-top:2px}
+.hall .cuerpo{flex:1;min-width:0}
+.hall .h{font-family:var(--disp);font-weight:600;font-size:15.5px;line-height:1.32}
+.hall .meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:2px 7px;border:1px solid var(--linea);color:var(--acero);text-transform:uppercase}
+.tag.sv-critico{background:var(--rojo-cl);border-color:#DCA9A9;color:var(--rojo)}
+.tag.sv-alto{background:var(--ocre-cl);border-color:#D6C08E;color:#7A4C08}
+.tag.sv-medio{background:var(--azul-cl);border-color:#AEC4D3;color:var(--azul)}
+.tag.doc{background:#EDF0F2;color:var(--tinta-70)}
+.hall .det{padding:2px 18px 20px 84px;font-size:14.5px}
+.hall .det dt{font-family:var(--disp);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acero);margin-top:14px}
+.hall .det dd{margin:4px 0 0}
+.hall .det dd.ev{font-family:var(--mono);font-size:12.5px;background:#F4F6F7;border-left:2px solid var(--niebla-2);padding:9px 12px;color:var(--tinta-70);white-space:pre-wrap}
+@media(max-width:640px){.hall .det{padding-left:18px}}
+
+/* ---------- MATRIZ CONTRADICCIONES (firma) ---------- */
+.mtz{border:1px solid var(--linea);background:var(--lienzo);overflow-x:auto}
+.mtz table{border-collapse:collapse;width:100%;min-width:820px}
+.mtz th{font-family:var(--disp);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acero);
+  text-align:left;padding:12px 14px;border-bottom:1px solid var(--linea);background:#F4F6F7;font-weight:600;vertical-align:bottom}
+.mtz th.d{border-left:1px solid var(--linea)}
+.mtz th .dd{display:block;font-family:var(--mono);font-size:10px;color:var(--granate);letter-spacing:.06em;margin-bottom:3px}
+.mtz td{padding:13px 14px;border-bottom:1px solid var(--niebla-2);vertical-align:top;font-size:13.5px;line-height:1.45}
+.mtz td.d{border-left:1px solid var(--linea)}
+.mtz tr:last-child td{border-bottom:0}
+.mtz .asunto{font-family:var(--disp);font-weight:600;font-size:14px;width:190px}
+.mtz .asunto small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--acero);font-weight:400;margin-top:3px;letter-spacing:.03em}
+.val{font-family:var(--mono);font-size:12.5px;display:inline-block;padding:2px 6px;background:#F0F2F3}
+.val.dif{background:var(--rojo-cl);color:var(--rojo);font-weight:600}
+.val.ok{background:var(--verde-cl);color:var(--verde)}
+.vacio{color:#9AA8B4;font-style:italic;font-size:12.5px}
+
+/* ---------- TABLAS ---------- */
+.tabla{border:1px solid var(--linea);background:var(--lienzo);overflow-x:auto}
+.tabla table{border-collapse:collapse;width:100%;min-width:700px;font-size:13.5px}
+.tabla th{font-family:var(--disp);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--acero);
+  text-align:left;padding:11px 13px;border-bottom:1px solid var(--linea);background:#F4F6F7;font-weight:600;position:sticky;top:0}
+.tabla td{padding:10px 13px;border-bottom:1px solid #EAEEF0;vertical-align:top;line-height:1.45}
+.tabla tbody tr:hover{background:#F7F9FA}
+.tabla tbody tr:last-child td{border-bottom:0}
+.num{text-align:right;font-family:var(--mono);font-size:12.5px}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 7px;letter-spacing:.03em;text-transform:uppercase;border:1px solid}
+.p-ok{background:var(--verde-cl);border-color:#A9C7BE;color:var(--verde)}
+.p-proc{background:var(--azul-cl);border-color:#AEC4D3;color:var(--azul)}
+.p-pend{background:#EDF0F2;border-color:var(--linea);color:var(--acero)}
+.p-obs{background:var(--ocre-cl);border-color:#D6C08E;color:#7A4C08}
+.p-cri{background:var(--rojo-cl);border-color:#DCA9A9;color:var(--rojo)}
+.alerta{color:var(--rojo);font-family:var(--mono);font-size:11px;cursor:help;font-weight:600}
+
+/* barra avance en tabla */
+.barra{position:relative;height:16px;background:#EDF0F2;min-width:96px}
+.barra i{position:absolute;inset:0 auto 0 0;display:block}
+.barra span{position:absolute;right:5px;top:-1px;font-family:var(--mono);font-size:11px;color:var(--tinta)}
+
+/* ---------- EDT / árbol cronograma ---------- */
+.edt{background:var(--lienzo);border:1px solid var(--linea)}
+.fase > summary{padding:14px 18px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--linea);background:#F4F6F7}
+.fase > summary::-webkit-details-marker{display:none}
+.fase[open] > summary{background:var(--tinta);color:#fff}
+.fase > summary .fn{font-family:var(--disp);font-weight:700;font-size:15.5px}
+.fase > summary .fc{font-family:var(--mono);font-size:11px;color:var(--acero);margin-left:auto}
+.fase[open] > summary .fc{color:#9DB2C2}
+.etapa{border-bottom:1px solid #EAEEF0}
+.etapa > summary{padding:11px 18px 11px 34px;cursor:pointer;list-style:none;font-family:var(--disp);font-weight:600;font-size:14px}
+.etapa > summary::-webkit-details-marker{display:none}
+.etapa > summary:hover{background:#F7F9FA}
+.act{padding:4px 18px 14px 34px}
+.act .an{font-family:var(--mono);font-size:11.5px;color:var(--granate);margin:12px 0 5px;letter-spacing:.02em}
+.tarea{display:flex;gap:12px;padding:6px 0 6px 16px;border-left:1px solid var(--niebla-2);font-size:13.5px;align-items:flex-start}
+.tarea .tf{font-family:var(--mono);font-size:11.5px;color:var(--acero);flex:0 0 152px}
+.tarea .tt{flex:1;min-width:0}
+.tarea .ts{flex:0 0 78px;text-align:right}
+@media(max-width:700px){.tarea{flex-wrap:wrap}.tarea .tf{flex-basis:100%}.tarea .ts{flex-basis:auto;text-align:left}}
+
+/* ---------- PMBOK ---------- */
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:12px}
+.area{background:var(--lienzo);border:1px solid var(--linea);padding:16px 17px;border-top:3px solid var(--linea)}
+.area.c-si{border-top-color:var(--verde)}
+.area.c-parc{border-top-color:var(--ocre)}
+.area.c-no{border-top-color:var(--rojo)}
+.area .an{font-family:var(--mono);font-size:10.5px;color:var(--acero);letter-spacing:.09em}
+.area h4{font-size:15.5px;margin:5px 0 8px}
+.area .st{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+.c-si .st{color:var(--verde)}.c-parc .st{color:#7A4C08}.c-no .st{color:var(--rojo)}
+.area p{margin:0;font-size:13.5px;color:var(--tinta-70);line-height:1.5}
+.area .fte{font-family:var(--mono);font-size:10.5px;color:var(--acero);margin-top:10px;display:block}
+
+/* ---------- PLAN / acciones ---------- */
+.accion{background:var(--lienzo);border:1px solid var(--linea);padding:18px 20px;margin-bottom:10px;display:flex;gap:18px;align-items:flex-start}
+.accion .ord{font-family:var(--disp);font-size:26px;font-weight:800;color:var(--niebla-2);line-height:1;flex:0 0 40px}
+.accion h4{font-size:16px;margin-bottom:6px}
+.accion p{margin:0 0 8px;font-size:14.5px;color:var(--tinta-70)}
+.accion .ent{font-family:var(--mono);font-size:11.5px;color:var(--granate);letter-spacing:.02em}
+@media(max-width:600px){.accion{flex-direction:column;gap:8px}}
+
+/* diccionario de estados */
+.dicc{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.dcol{background:var(--lienzo);border:1px solid var(--linea);padding:15px 16px}
+.dcol .dt{font-family:var(--disp);font-size:12.5px;font-weight:700;margin-bottom:9px;letter-spacing:.02em}
+.dcol ul{margin:0;padding-left:16px;font-size:13px;color:var(--tinta-70);line-height:1.75}
+.dcol .prop{background:var(--verde-cl);margin:-15px -16px 11px;padding:9px 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--verde)}
+
+/* ---------- DOCUMENTOS V2.0 ---------- */
+.v2grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.v2card{background:var(--lienzo);border:1px solid var(--linea);border-top:3px solid var(--granate);
+  padding:20px 22px 18px;text-decoration:none;color:inherit;display:block;transition:.18s}
+.v2card:hover{border-color:var(--granate);box-shadow:0 2px 14px rgba(20,32,46,.09);transform:translateY(-2px)}
+.v2card:focus-visible{outline:2px solid var(--granate);outline-offset:2px}
+.v2n{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;color:var(--granate);text-transform:uppercase}
+.v2card h3{font-size:18px;margin:7px 0 9px}
+.v2card p{margin:0;font-size:13.5px;color:var(--tinta-70);line-height:1.5}
+.v2m{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px;padding-top:11px;border-top:1px solid #EAEEF0}
+.v2m span{font-family:var(--mono);font-size:10.5px;color:var(--acero);background:#F4F6F7;
+  border:1px solid var(--linea);padding:2px 7px;letter-spacing:.02em}
+.aviso-v2{background:var(--rojo-cl);border:1px solid #DCA9A9;border-left:3px solid var(--rojo);
+  padding:16px 19px;font-size:14.5px;max-width:92ch;line-height:1.55}
+.aviso-v2 strong{color:var(--rojo)}
+
+.pie{background:var(--tinta);color:#93A9BA;padding:30px 0;font-size:13px}
+.pie a{color:#C4D3DE}
+.pie .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+<link rel="stylesheet" href="assets/visor.css?v=6">
+<link rel="stylesheet" href="assets/decisiones.css?v=6">
+</head>
+<body>
+<!-- ============ ACCESO ============ -->
+<div class="puerta" id="puerta">
+  <div class="puerta-caja">
+    <div class="puerta-marca">
+      <span class="puerta-inst">Universidad Nacional Mayor de San Marcos</span>
+      <span class="puerta-ofi">Oficina General de Planificación · Oficina de Racionalización</span>
+    </div>
+    <h1>Área interna del diagnóstico</h1>
+    <p class="puerta-txt">Hallazgos, contradicciones y recomendaciones del diagnóstico
+      documental. El contenido se solicita al servidor una vez verificada su identidad:
+      no forma parte de esta página.</p>
+    <form id="formAcceso" autocomplete="on">
+      <label for="correo">Correo institucional</label>
+      <input type="email" id="correo" name="email" autocomplete="username" required>
+      <label for="clave">Contraseña</label>
+      <input type="password" id="clave" name="password" autocomplete="current-password" required>
+      <button type="submit" id="btAcceso">Ingresar</button>
+      <p class="puerta-aviso" id="avisoAcceso" role="alert"></p>
+    </form>
+    <a class="puerta-volver" href="index.html">← Volver al Centro de Documentación</a>
+  </div>
+</div>
+
+<div class="sesion-barra">
+  <span class="sesion-et">Área interna</span>
+  <span class="sesion-quien" id="quien"></span>
+  <button type="button" id="btSalir">Cerrar sesión</button>
+</div>
+
+
+<header class="cab">
+  <div class="wrap">
+    <div class="ceja">UNMSM · Oficina General de Planificación · Oficina de Racionalización</div>
+    <h1>Centro de documentación del proyecto</h1>
+    <p class="sub">Implementación de la Gestión por Procesos en las 20 Facultades. Los cuatro documentos de trabajo, revisados, interconectados y ordenados según el PMBOK 6.ª edición.</p>
+    <div class="tira" id="tira"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap navin" role="tablist">
+    <button role="tab" aria-selected="true" data-p="tablero">Tablero</button>
+    <button role="tab" aria-selected="false" data-p="diagnostico">Diagnóstico</button>
+    <button role="tab" aria-selected="false" data-p="contradicciones">Contradicciones</button>
+    <button role="tab" aria-selected="false" data-p="alcance">Alcance</button>
+    <button role="tab" aria-selected="false" data-p="cronograma">Cronograma</button>
+    <button role="tab" aria-selected="false" data-p="bitacora">Bitácora</button>
+    <button role="tab" aria-selected="false" data-p="calidad">Avance por facultad</button>
+    <button role="tab" aria-selected="false" data-p="pmbok">Mapa PMBOK</button>
+    <button role="tab" aria-selected="false" data-p="plan">Plan de estandarización</button>
+    <button role="tab" aria-selected="false" data-p="v2">Documentos v2.0</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ TABLERO ============ -->
+<section class="panel on" id="tablero"></section>
+
+<!-- ============ DIAGNÓSTICO ============ -->
+<section class="panel" id="diagnostico"></section>
+
+<!-- ============ CONTRADICCIONES ============ -->
+<section class="panel" id="contradicciones"></section>
+
+<!-- ============ ALCANCE ============ -->
+<section class="panel" id="alcance"></section>
+
+<!-- ============ CRONOGRAMA ============ -->
+<section class="panel" id="cronograma"></section>
+
+<!-- ============ BITÁCORA ============ -->
+<section class="panel" id="bitacora"></section>
+
+<!-- ============ CALIDAD ============ -->
+<section class="panel" id="calidad"></section>
+
+<!-- ============ PMBOK ============ -->
+<section class="panel" id="pmbok"></section>
+
+<!-- ============ PLAN ============ -->
+<section class="panel" id="plan"></section>
+
+<!-- ============ DOCUMENTOS V2.0 ============ -->
+<section class="panel" id="v2"></section>
+
+</main>
+
+<footer class="pie"><div class="wrap">
+  <div>Consolidado de la carpeta <span class="mono">1. DOCUMENTOS DE TRABAJO DE LA GESTIÓN POR PROCESOS</span> · elaborado el 26 de agosto de 2026</div>
+  <div><a href="https://drive.google.com/drive/folders/1rblnuHlVZBJNMwhEN5afhDjPi6GyEn0f" target="_blank" rel="noopener">Abrir la carpeta en Drive ↗</a></div>
+</div></footer>
+
+<!-- Endpoint de la Web App de Apps Script que registra las decisiones en los
+     documentos de Drive. Si se deja vacío, la interfaz sigue funcionando pero
+     las decisiones sólo se guardan en el navegador. Ver apps-script/README.md. -->
+<script>window.GXP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznrWyFZcXbfKKcVuTOy3UkC52iCBupahu381eccspDwpP48x5qtH-2QNxL9ukVzil7/exec';</script>
+<script src="assets/recomendaciones.js?v=6"></script>
+<script src="assets/localizaciones.js?v=6"></script>
+<script src="assets/visor.js?v=6"></script>
+<script src="assets/decisiones.js?v=6"></script>
+<script src="assets/contradicciones.js?v=6"></script>
+
+<script>
+/* ============ NAVEGACIÓN ============ */
+document.querySelectorAll('.navin button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.navin button').forEach(x=>x.setAttribute('aria-selected','false'));
+    b.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    document.getElementById(b.dataset.p).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ============ HALLAZGOS ============ */
+let HALL=[];   // llega del backend tras el acceso
+
+// Número correlativo de hallazgo: H1, H2, … según el orden de la lista.
+window.HALL=HALL;
+
+// Se resuelve al pintar: al cargar la página el panel aún está vacío.
+const cont=()=>document.getElementById('listaHall');
+let fSev='todos',fDoc=null,fQ='',verResueltos=false;
+function pintarHall(){
+  const r=HALL.filter(x=>{
+    if(!verResueltos&&window.GXP_DEC&&window.GXP_DEC.resuelto(x))return false;
+    if(fSev!=='todos'&&x.s!==fSev)return false;
+    if(fDoc&&!x.d.includes(fDoc))return false;
+    if(fQ){const t=(x.h+x.ev+x.im+x.co+x.c).toLowerCase();if(!t.includes(fQ))return false}
+    return true;
+  });
+  document.getElementById('vacioHall').style.display=r.length?'none':'block';
+  // Se recuerda qué hallazgos estaban desplegados: aceptar una recomendación
+  // repinta la lista y, sin esto, el hallazgo se cerraría en las manos del usuario.
+  const abiertos=new Set([...cont().querySelectorAll('details.hall[open]')]
+    .map(d=>d.querySelector('.cod').textContent));
+  const desplaz=window.scrollY;
+  cont().innerHTML=r.map(x=>`
+  <details class="hall sev-${x.s}">
+    <summary>
+      <span class="cod">${x.c}</span>
+      <span class="cuerpo">
+        <span class="h">${x.h}</span>
+        <span class="meta"><span class="tag sv-${x.s}">${x.s}</span>${x.d.map(d=>`<span class="tag doc">${d}</span>`).join('')}</span>
+      </span>
+    </summary>
+    <dl class="det">
+      <dt>Hallazgo</dt><dd class="ev">${x.ev}</dd>
+      ${window.GXP_VISOR ? window.GXP_VISOR.bloqueLoc(x.c) : ''}
+      <dt>Por qué importa</dt><dd>${x.im}</dd>
+      <dt>Corrección en una línea</dt><dd>${x.co}</dd>
+      ${window.GXP_DEC ? window.GXP_DEC.bloque(x) : ''}
+    </dl>
+  </details>`).join('');
+  cont().querySelectorAll('details.hall').forEach(d=>{
+    if(abiertos.has(d.querySelector('.cod').textContent)) d.open=true;
+  });
+  if(desplaz) window.scrollTo({top:desplaz});
+  if (window.GXP_DEC) window.GXP_DEC.enlazar(cont());
+
+  const n = window.GXP_DEC ? window.GXP_DEC.cuentaResueltos(HALL) : 0;
+  const chip = document.getElementById('chipResueltos');
+  chip.hidden = n === 0;
+  chip.textContent = verResueltos ? `Ocultar resueltos (${n})` : `Ver resueltos (${n})`;
+  chip.setAttribute('aria-pressed', verResueltos ? 'true' : 'false');
+}
+document.getElementById('chipResueltos') && 0;
+/* Los controles viven dentro de paneles que llegan del backend, así que los
+   eventos se delegan en el documento: funcionan aparezcan cuando aparezcan. */
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('#chipResueltos'); if(!b) return;
+  (()=>{
+  verResueltos=!verResueltos; pintarHall();
+  })();
+});
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('.chip.fs');
+  if(b){document.querySelectorAll('.chip.fs').forEach(x=>x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');fSev=b.dataset.f;pintarHall();return}
+  const d=ev.target.closest('.chip.fd');
+  if(d){const act=d.getAttribute('aria-pressed')==='true';
+    document.querySelectorAll('.chip.fd').forEach(x=>x.setAttribute('aria-pressed','false'));
+    if(!act){d.setAttribute('aria-pressed','true');fDoc=d.dataset.d}else{fDoc=null}
+    pintarHall()}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='qh'){fQ=e.target.value.toLowerCase().trim();pintarHall()}
+  if(e.target.id==='qf'){fQF=e.target.value.toLowerCase().trim();pintarFac()}
+});
+/* ============ MATRIZ ============ */
+let MTZ=[];    // llega del backend tras el acceso
+window.MTZ=MTZ;
+
+function pintarMtz(){
+document.getElementById('mtzBody').innerHTML=MTZ.map(r=>`
+<tr><td class="asunto">${r.a}<small>${r.k}</small></td>
+${r.v.map((v,ci)=>`<td class="d">${v.t==='—'?'<span class="vacio">no lo declara</span>':`<span class="val ${v.c}">${v.t}</span>`}${window.GXP_VISOR?window.GXP_VISOR.botonMtz(r.a,ci):''}</td>`).join('')}</tr>`).join('');
+}
+
+document.addEventListener('gxp:decision',()=>pintarHall());
+
+/* ============ CRONOGRAMA ============ */
+let CR=[];
+let fEst='todos',soloP=false;
+const PILL={'Culminado':'p-ok','En Proceso':'p-proc','Pendiente':'p-pend'};
+function pintarEdt(){
+  const d=CR.filter(r=>(fEst==='todos'||r[7]===fEst)&&(!soloP||r[8]));
+  const fases=[...new Set(d.map(r=>r[0]))];
+  document.getElementById('edtCont').innerHTML=fases.map((f,i)=>{
+    const rf=d.filter(r=>r[0]===f);
+    const etapas=[...new Set(rf.map(r=>r[1]))];
+    return `<details class="fase" ${i===0?'open':''}>
+      <summary><span class="fn">${f}</span><span class="fc">${rf.length} tarea${rf.length!==1?'s':''}</span></summary>
+      ${etapas.map(e=>{
+        const re=rf.filter(r=>r[1]===e);
+        const acts=[...new Set(re.map(r=>r[2]))];
+        return `<details class="etapa" open><summary>${e}</summary><div class="act">
+          ${acts.map(a=>{
+            const ra=re.filter(r=>r[2]===a);
+            return `<div class="an">${a}</div>${ra.map(r=>`
+              <div class="tarea">
+                <span class="tf">${r[4]} → ${r[5]} · ${r[6]}d</span>
+                <span class="tt">${r[3].replace(/^Tarea [\d.]+:\s*/,'')} ${r[8]?`<span class="alerta" title="${r[8].replace(/"/g,'&quot;')}">◆</span>`:''}</span>
+                <span class="ts"><span class="pill ${PILL[r[7]]}">${r[7]}</span></span>
+              </div>`).join('')}`;
+          }).join('')}
+        </div></details>`;
+      }).join('')}
+    </details>`;
+  }).join('') || '<div style="padding:26px">Ninguna tarea coincide con ese filtro.</div>';
+}
+/* Controles del cronograma y del avance por facultad · eventos delegados */
+document.addEventListener('click', ev => {
+  const fe = ev.target.closest('.chip.fe');
+  if (fe) {
+    document.querySelectorAll('.chip.fe').forEach(x => x.setAttribute('aria-pressed','false'));
+    fe.setAttribute('aria-pressed','true'); fEst = fe.dataset.e; pintarEdt(); return;
+  }
+  const sp = ev.target.closest('#soloProb');
+  if (sp) {
+    soloP = sp.getAttribute('aria-pressed') !== 'true';
+    sp.setAttribute('aria-pressed', soloP ? 'true' : 'false'); pintarEdt(); return;
+  }
+  const fc = ev.target.closest('.chip.fc');
+  if (fc) {
+    document.querySelectorAll('.chip.fc').forEach(x => x.setAttribute('aria-pressed','false'));
+    fc.setAttribute('aria-pressed','true'); fCat = fc.dataset.c; pintarFac(); return;
+  }
+  const th = ev.target.closest('[data-s]');
+  if (th) {
+    const c = th.dataset.s;
+    ordD = (c === ordC) ? -ordD : (c === 'sigla' || c === 'form' ? 1 : -1);
+    ordC = c; pintarFac();
+  }
+});
+
+/* ============ FACULTADES ============ */
+let FAC=[];
+let fCat='todas',fQF='',ordC='av',ordD=1;
+function colorAv(v){return v>=80?'var(--verde)':v>=50?'var(--ocre)':'var(--rojo)'}
+function pintarFac(){
+  let d=FAC.filter(f=>{
+    if(fCat==='critica'&&f.av>=50)return false;
+    if(fCat==='faltan'&&f.falt===0)return false;
+    if(fCat==='incoherente'&&!f.inc)return false;
+    if(fQF&&!(f.sigla+' '+f.nom).toLowerCase().includes(fQF))return false;
+    return true;
+  }).sort((a,b)=>{
+    const x=a[ordC],y=b[ordC];
+    return (typeof x==='string'?x.localeCompare(y):x-y)*ordD;
+  });
+  document.getElementById('tbFac').innerHTML=d.map(f=>`<tr>
+    <td><strong>${f.sigla}</strong><div style="font-size:12px;color:var(--acero)">${f.nom}</div></td>
+    <td class="mono">${f.form}</td>
+    <td class="num">${f.total}</td>
+    <td class="num" style="color:var(--verde)">${f.comp}</td>
+    <td class="num" style="color:var(--ocre)">${f.parc}</td>
+    <td class="num">${f.pend}</td>
+    <td><div class="barra"><i style="width:${f.av}%;background:${colorAv(f.av)}"></i><span>${f.av}%</span></div></td>
+    <td class="num">${f.falt>0?`<strong style="color:var(--rojo)">${f.falt}</strong>`:'—'}</td>
+    <td style="font-size:12.5px;color:var(--tinta-70);max-width:330px">${f.obs}</td>
+  </tr>`).join('')||'<tr><td colspan="9" style="padding:22px">Ninguna facultad coincide con ese filtro.</td></tr>';
+}
+
+/* ============ PMBOK ============ */
+let AREAS=[];
+function pintarAreas(){
+document.getElementById('areasCont').innerHTML=AREAS.map(a=>`
+<div class="area c-${a.c}">
+  <div class="an">PMBOK · CAP. ${a.n}</div>
+  <h4>${a.t}</h4>
+  <div class="st">${a.s}</div>
+  <p>${a.p}</p>
+  <span class="fte">Fuente: ${a.f}</span>
+</div>`).join('');
+}
+
+/* ============ CATÁLOGO DE PROCESOS ============ */
+let PROC=[];
+function pintarProc(){
+document.getElementById('tbProc').innerHTML=PROC.map(p=>`<tr${p[2]?' style="background:var(--ocre-cl)"':''}>
+  <td class="mono"><strong>${p[0]}</strong></td><td>${p[1]}</td>
+  <td style="font-size:12.5px;color:${p[2]?'var(--rojo)':'var(--acero)'}">${p[2]||'—'}</td></tr>`).join('');
+}
+
+/* Los datos internos llegan del backend: hasta entonces no hay nada que pintar. */
+window.GXP_ARRANCAR = function (p) {
+  // Los paneles llegan del backend: hasta aquí el documento sólo tiene su
+  // esqueleto. Se inyectan antes de enlazar los controles que contienen.
+  const pan = p.PANELES || {};
+  Object.keys(pan).forEach(function (id) {
+    if (id === '__tira__') { document.getElementById('tira').outerHTML = pan[id]; return; }
+    const sec = document.getElementById(id);
+    if (sec) sec.innerHTML = pan[id];
+  });
+
+  HALL = p.HALL || [];  HALL.forEach((x,i)=>{x.n=i+1});  window.HALL = HALL;
+  MTZ  = p.MTZ  || [];  window.MTZ = MTZ;
+  window.GXP_DOCS      = p.DOCS;
+  window.GXP_LOC       = p.LOC;
+  window.GXP_LOC_MTZ   = p.LOC_MTZ;
+  window.GXP_RECS      = p.RECS;
+  window.GXP_MTZ_ITEMS = p.MTZ_ITEMS;
+  CR = p.CR || [];  FAC = p.FAC || [];  AREAS = p.AREAS || [];  PROC = p.PROC || [];
+  pintarHall();
+  pintarMtz();
+  pintarEdt();
+  pintarFac();
+  pintarAreas();
+  pintarProc();
+  if (window.GXP_MTZC) window.GXP_MTZC.pintar();
+};
+
+</script>
+<script src="assets/acceso.js"></script>
+</body>
+</html>
