@@ -851,19 +851,24 @@ body.edit-mode .widget-add{display:flex}
           <div class="panel-ana active" id="panel-anexo1" role="tabpanel">
             <div class="section-grid" id="anexo1Cards"></div>
 
-            <article class="anexo3-card" style="margin-top:16px">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-                <div>
-                  <h3>Estados del Anexo 1</h3>
-                  <p style="margin:4px 0 0;font-size:11px;color:var(--muted)">Reparto de los productos inventariados, según la selección de facultades.</p>
+            <div class="anexo3-layout" style="margin-top:16px">
+              <article class="anexo3-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                  <h3>Estados del Anexo 1</h3><span class="entity-tag">ANEXO 1</span>
                 </div>
-                <span class="entity-tag">ANEXO 1</span>
-              </div>
-              <div class="donut-wrap" style="min-height:190px">
-                <div class="chart-holder"><canvas id="chartEstadosA1" role="img" aria-label="Estados del Anexo 1"></canvas></div>
-                <div class="legend" id="legendEstadosA1"></div>
-              </div>
-            </article>
+                <p style="margin:-6px 0 14px;font-size:11px;color:var(--muted)">Reparto de los productos inventariados, según la selección de facultades.</p>
+                <div class="donut-wrap" style="min-height:190px">
+                  <div class="chart-holder"><canvas id="chartEstadosA1" role="img" aria-label="Estados del Anexo 1"></canvas></div>
+                  <div class="legend" id="legendEstadosA1"></div>
+                </div>
+              </article>
+
+              <article class="anexo3-card">
+                <h3>Ranking de productos y procesos completos por facultad</h3>
+                <p style="margin:4px 0 16px;font-size:11px;color:var(--muted)">Porcentaje de productos y procesos en estado conforme sobre el total registrado en cada facultad.</p>
+                <div class="rank-list" id="rankingAnexo1"></div>
+              </article>
+            </div>
 
             <section class="data-panel">
               <div class="data-toolbar">
@@ -2383,6 +2388,24 @@ function renderEstadosA1Donut(){
     </div>`).join('');
 }
 
+/** Productos (Anexo 1) y Procesos combinados, para el ranking de avance
+ *  conjunto que pide la vista Análisis › Anexo 1. */
+function a1ProductsAndProcesses(){
+  return a1().concat(dbAll().filter(d => d.entity === 'Proceso'));
+}
+
+function renderRankingAnexo1(){
+  const el = document.getElementById('rankingAnexo1');
+  if (!el) return;
+  const rank = byFaculty(a1ProductsAndProcesses(), 'CONFORME').sort((a, b) => b.value - a.value).slice(0, 10);
+  el.innerHTML = rank.length ? rank.map(f => {
+    const cls = f.value >= 75 ? 'hi' : (f.value >= 50 ? 'md' : 'lo');
+    return `<div class="rank-row"><span title="${esc(f.name)}">${esc(f.short)}</span>
+      <span class="rank-track"><span class="rank-fill ${cls}" style="width:${f.value}%"></span></span>
+      <strong>${f.value}%</strong></div>`;
+  }).join('') : '<div class="empty-state" style="padding:24px">Sin facultades seleccionadas.</div>';
+}
+
 function renderAnexo1Cards(){
   $('#anexo1Cards').innerHTML = A1_BLOCKS.map(block => {
     const rows = block.rows();
@@ -2729,6 +2752,7 @@ function renderAll(){
   renderWidgets();
   renderAnexo1Cards();
   renderEstadosA1Donut();
+  renderRankingAnexo1();
   renderAnexo3Cards();
   renderAnexo1Table();
   renderAnexo3Table();
