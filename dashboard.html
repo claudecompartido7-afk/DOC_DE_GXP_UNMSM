@@ -320,6 +320,40 @@ button{font-family:inherit;color:inherit}
 .w-tool.grab:active{cursor:grabbing}
 .w-tools .sep{width:1px;background:var(--line);margin:4px 2px}
 
+/* Panel de tamaño: ancho y alto se eligen de un vistazo, sin ciclar */
+.w-size{
+  position:absolute;top:44px;right:8px;z-index:12;min-width:212px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--sh-lg);padding:13px;display:none;
+}
+.w-size.open{display:block;animation:pop .16s var(--ease)}
+.w-size h5{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 7px}
+.w-size .opts{display:flex;gap:5px;margin-bottom:12px}
+.w-size .opts:last-child{margin-bottom:0}
+.w-size .opts button{
+  flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+  font-size:11px;font-weight:700;color:var(--text-2);cursor:pointer;transition:all .15s var(--ease);
+}
+.w-size .opts button:hover{border-color:var(--blue-2);color:var(--blue)}
+.w-size .opts button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* Asa de la esquina: arrastrar para estirar o encoger el cuadro */
+.w-grip{
+  position:absolute;right:2px;bottom:2px;width:24px;height:24px;z-index:6;
+  display:none;align-items:flex-end;justify-content:flex-end;padding:5px;
+  cursor:nwse-resize;color:#b6c9e2;touch-action:none;background:none;border:0;
+}
+.w-grip::after{content:'';width:11px;height:11px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;border-bottom-right-radius:4px}
+.w-grip:hover{color:var(--blue)}
+body.edit-mode .w-grip{display:flex}
+.widget.size-open{overflow:visible;z-index:15}
+.widget.resizing{box-shadow:0 0 0 2px var(--blue),var(--sh-lg);z-index:20}
+.widget.resizing .w-grip{color:var(--blue)}
+body.edit-mode .widget:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+.btn.solid-danger{background:linear-gradient(145deg,#e05252,#c53d3d);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(224,82,82,.3)}
+.btn.solid-danger:hover{color:#fff;box-shadow:0 6px 16px rgba(224,82,82,.4)}
+
 body.edit-mode .w-tools{display:flex}
 /* En edición la cabecera baja para que la barra de herramientas no tape el título */
 body.edit-mode .w-head{padding-top:48px}
@@ -795,7 +829,7 @@ body.edit-mode .widget-add{display:flex}
           <div class="canvas-bar" id="canvasBar" hidden>
             <div class="msg">
               <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-              <span>Modo edición activo — arrastre el cuadro por su <kbd>⠿</kbd>, haga clic en los textos para reescribirlos y use los botones del cuadro para editar, duplicar o eliminar.</span>
+              <span>Modo edición activo — arrastre el cuadro por su <kbd>⠿</kbd>, estire la esquina inferior derecha para cambiar su tamaño, haga clic en los textos para reescribirlos y use la <kbd>papelera</kbd> del cuadro para eliminarlo.</span>
             </div>
             <button class="btn primary" type="button" id="btnAddWidget"><i class="fa-solid fa-plus"></i> Añadir cuadro</button>
             <button class="btn" type="button" id="btnExportLayout" title="Descargar la configuración del panel"><i class="fa-solid fa-download"></i> Exportar</button>
@@ -1000,11 +1034,27 @@ body.edit-mode .widget-add{display:flex}
       <p style="margin-bottom:14px"><b style="color:var(--text)">1 · Active «Modo edición»</b><br>El interruptor de la barra superior habilita todas las herramientas de cada cuadro.</p>
       <p style="margin-bottom:14px"><b style="color:var(--text)">2 · Mover</b><br>Arrastre un cuadro desde el asa <i class="fa-solid fa-grip-vertical"></i>, o use las flechas <i class="fa-solid fa-arrow-left"></i> <i class="fa-solid fa-arrow-right"></i> del cuadro para reordenarlo con el teclado.</p>
       <p style="margin-bottom:14px"><b style="color:var(--text)">3 · Editar</b><br>Haga clic sobre cualquier texto resaltado para reescribirlo en el sitio, o abra <i class="fa-solid fa-pen"></i> para cambiar título, fuente de datos, colores y contenido.</p>
-      <p style="margin-bottom:14px"><b style="color:var(--text)">4 · Redimensionar</b><br>Los botones <i class="fa-solid fa-left-right"></i> y <i class="fa-solid fa-up-down"></i> cambian el ancho (¼, ⅓, ½, ⅔, completo) y el alto del cuadro.</p>
-      <p style="margin-bottom:14px"><b style="color:var(--text)">5 · Añadir y duplicar</b><br>«Añadir cuadro» abre el catálogo de tipos: indicador, gráfico, barras, ranking, tabla y nota. <i class="fa-solid fa-clone"></i> duplica el cuadro seleccionado.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">4 · Cambiar el tamaño</b><br>Arrastre la esquina inferior derecha del cuadro, o abra <i class="fa-solid fa-up-right-and-down-left-from-center"></i> y elija ancho (¼, ⅓, ½, ⅔ o completo) y alto de una lista.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">5 · Añadir, duplicar y eliminar</b><br>«Añadir cuadro» abre el catálogo de tipos: indicador, gráfico, barras, ranking, tabla y nota. <i class="fa-solid fa-clone"></i> duplica el cuadro y <i class="fa-solid fa-trash-can"></i> lo elimina, previa confirmación; con el cuadro enfocado también sirve la tecla <b>Supr</b>.</p>
       <p><b style="color:var(--text)">6 · Guardar y compartir</b><br>La distribución se guarda automáticamente en este navegador. «Exportar» descarga un archivo <code>.json</code> que puede volver a cargar con «Importar» en otro equipo.</p>
     </div>
     <div class="modal-foot"><button class="btn primary" type="button" id="btnCloseHelp2">Entendido</button></div>
+  </div>
+</div>
+
+<!-- ============ DIÁLOGO DE CONFIRMACIÓN ============ -->
+<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal-card" style="width:min(430px,100%)">
+    <div class="modal-head">
+      <div>
+        <h2 id="confirmTitle">¿Confirma la acción?</h2>
+        <p id="confirmText"></p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" type="button" id="confirmNo">Cancelar</button>
+      <button class="btn solid-danger" type="button" id="confirmYes">Eliminar</button>
+    </div>
   </div>
 </div>
 
@@ -1045,6 +1095,29 @@ function mulberry32(seed){
 const rnd = mulberry32(20260828);
 const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
 const between = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+
+/* window.confirm() no está disponible cuando la página se sirve dentro de
+   un marco aislado: devuelve false sin preguntar y la acción se pierde en
+   silencio. El panel usa su propio diálogo, que funciona en ambos casos. */
+let confirmResolve = null;
+
+function askConfirm(title, text, okLabel){
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    $('#confirmTitle').textContent = title;
+    $('#confirmText').textContent = text;
+    $('#confirmYes').textContent = okLabel || 'Eliminar';
+    $('#confirmModal').classList.add('open');
+    setTimeout(() => $('#confirmYes').focus(), 50);
+  });
+}
+
+function closeConfirm(answer){
+  $('#confirmModal').classList.remove('open');
+  const resolve = confirmResolve;
+  confirmResolve = null;
+  if (resolve) resolve(answer);
+}
 
 let toastTimer;
 function toast(msg, kind){
@@ -1406,8 +1479,7 @@ function widgetHTML(w){
       <button class="w-tool" type="button" data-act="left"  data-id="${w.id}" title="Mover a la izquierda" aria-label="Mover a la izquierda"><i class="fa-solid fa-arrow-left"></i></button>
       <button class="w-tool" type="button" data-act="right" data-id="${w.id}" title="Mover a la derecha" aria-label="Mover a la derecha"><i class="fa-solid fa-arrow-right"></i></button>
       <span class="sep"></span>
-      <button class="w-tool" type="button" data-act="width"  data-id="${w.id}" title="Cambiar ancho" aria-label="Cambiar ancho"><i class="fa-solid fa-left-right"></i></button>
-      <button class="w-tool" type="button" data-act="height" data-id="${w.id}" title="Cambiar alto" aria-label="Cambiar alto"><i class="fa-solid fa-up-down"></i></button>
+      <button class="w-tool" type="button" data-act="size" data-id="${w.id}" title="Tamaño del cuadro" aria-label="Tamaño del cuadro" aria-expanded="false"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
       <span class="sep"></span>
       <button class="w-tool" type="button" data-act="edit"  data-id="${w.id}" title="Editar contenido" aria-label="Editar cuadro"><i class="fa-solid fa-pen"></i></button>
       <button class="w-tool" type="button" data-act="clone" data-id="${w.id}" title="Duplicar" aria-label="Duplicar cuadro"><i class="fa-solid fa-clone"></i></button>
@@ -1424,8 +1496,19 @@ function widgetHTML(w){
       </div>
     </div>`;
 
+  const sizePanel = `
+    <div class="w-size">
+      <h5>Ancho del cuadro</h5>
+      <div class="opts" data-dim="w">${WIDTHS.map(x =>
+        `<button type="button" data-v="${x.v}" class="${x.v === w.w ? 'on' : ''}" title="${x.l} del panel">${x.l}</button>`).join('')}</div>
+      <h5>Alto del cuadro</h5>
+      <div class="opts" data-dim="h">${HEIGHTS.map(h =>
+        `<button type="button" data-v="${h}" class="${h === w.h ? 'on' : ''}">${['Bajo','Medio','Alto'][h - 1]}</button>`).join('')}</div>
+    </div>`;
+
   return `<article class="widget" data-id="${w.id}" data-w="${w.w}" data-h="${w.h}" data-type="${w.type}">
-    ${tools}${head}<div class="w-body${w.type === 'kpi' ? ' tight' : ''}">${widgetBody(w)}</div>
+    ${tools}${sizePanel}${head}<div class="w-body${w.type === 'kpi' ? ' tight' : ''}">${widgetBody(w)}</div>
+    <button class="w-grip" type="button" data-act="grip" aria-label="Arrastrar para cambiar el tamaño" title="Arrastrar para cambiar el tamaño"></button>
   </article>`;
 }
 
@@ -1634,6 +1717,10 @@ function applyEditableState(){
     el.spellcheck = false;
     if (editMode) el.setAttribute('role', 'textbox'); else el.removeAttribute('role');
   });
+  $$('#widgetGrid .widget').forEach(card => {
+    if (editMode) card.tabIndex = 0; else card.removeAttribute('tabindex');
+  });
+  if (!editMode) closeSizePanels();
   const cd = $('#cutDate');
   cd.contentEditable = editMode ? 'true' : 'false';
 }
@@ -1670,10 +1757,23 @@ document.addEventListener('keydown', (ev) => {
     ev.preventDefault(); el.blur();
   }
   if (ev.key === 'Escape'){
-    if ($('#widgetModal').classList.contains('open')) closeModal();
+    if ($('#confirmModal').classList.contains('open')) closeConfirm(false);
+    else if ($$('#widgetGrid .w-size.open').length) closeSizePanels();
+    else if ($('#widgetModal').classList.contains('open')) closeModal();
     else if ($('#helpModal').classList.contains('open')) $('#helpModal').classList.remove('open');
     else if (document.body.classList.contains('filters-open')) document.body.classList.remove('filters-open');
   }
+});
+
+/* Con el modo edición activo, Suprimir borra el cuadro que tenga el foco */
+document.addEventListener('keydown', (ev) => {
+  if (!editMode || (ev.key !== 'Delete' && ev.key !== 'Backspace')) return;
+  const card = ev.target.classList && ev.target.classList.contains('widget') ? ev.target : null;
+  if (!card) return;
+  const w = findWidget(card.dataset.id);
+  if (!w) return;
+  ev.preventDefault();
+  deleteWidget(w);
 });
 
 /* ---- Acciones de la barra de herramientas de cada cuadro ---- */
@@ -1693,16 +1793,16 @@ $('#widgetGrid').addEventListener('click', (ev) => {
     case 'right':
       if (idx < layout.widgets.length - 1){ layout.widgets.splice(idx, 1); layout.widgets.splice(idx + 1, 0, w); commit(); }
       break;
-    case 'width': {
-      const i = WIDTHS.findIndex(x => x.v === w.w);
-      w.w = WIDTHS[(i + 1) % WIDTHS.length].v; commit();
-      toast('Ancho: ' + WIDTHS.find(x => x.v === w.w).l + ' del panel');
-      break;
-    }
-    case 'height': {
-      const i = HEIGHTS.indexOf(w.h);
-      w.h = HEIGHTS[(i + 1) % HEIGHTS.length]; commit();
-      toast('Alto: nivel ' + w.h + ' de 3');
+    case 'size': {
+      const card = btn.closest('.widget');
+      const panel = $('.w-size', card);
+      const open = panel.classList.contains('open');
+      closeSizePanels();
+      if (!open){
+        panel.classList.add('open');
+        card.classList.add('size-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
       break;
     }
     case 'edit': openModal(w); break;
@@ -1713,15 +1813,101 @@ $('#widgetGrid').addEventListener('click', (ev) => {
       toast('Cuadro duplicado');
       break;
     }
-    case 'delete':
-      if (confirm('¿Eliminar el cuadro «' + w.title + '»?')){
-        layout.widgets.splice(idx, 1); commit(); toast('Cuadro eliminado');
-      }
-      break;
+    case 'delete': deleteWidget(w); break;
   }
 });
 
 function commit(){ saveLayout(); renderWidgets(); }
+
+function deleteWidget(w){
+  askConfirm('¿Eliminar este cuadro?', 'Se quitará «' + w.title + '» del panel.', 'Eliminar cuadro').then(ok => {
+    if (!ok) return;
+    const i = layout.widgets.indexOf(w);
+    if (i < 0) return;
+    layout.widgets.splice(i, 1);
+    commit();
+    toast('Cuadro eliminado');
+  });
+}
+
+function closeSizePanels(){
+  $$('#widgetGrid .w-size.open').forEach(p => p.classList.remove('open'));
+  $$('#widgetGrid .widget.size-open').forEach(c => c.classList.remove('size-open'));
+  $$('#widgetGrid [data-act="size"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+}
+
+/** Refleja el tamaño del modelo en la tarjeta sin volver a dibujarla:
+ *  así el panel abierto no se cierra a cada clic. */
+function applySize(card, w){
+  card.dataset.w = w.w;
+  card.dataset.h = w.h;
+  const panel = $('.w-size', card);
+  if (panel){
+    $$('.opts[data-dim="w"] button', panel).forEach(b => b.classList.toggle('on', Number(b.dataset.v) === w.w));
+    $$('.opts[data-dim="h"] button', panel).forEach(b => b.classList.toggle('on', Number(b.dataset.v) === w.h));
+  }
+  const chart = charts.get(w.id);
+  if (chart) chart.resize();
+}
+
+$('#widgetGrid').addEventListener('click', (ev) => {
+  const opt = ev.target.closest('.w-size .opts button');
+  if (!opt) return;
+  const card = opt.closest('.widget');
+  const w = findWidget(card.dataset.id);
+  if (!w) return;
+  if (opt.parentElement.dataset.dim === 'w') w.w = Number(opt.dataset.v);
+  else w.h = Number(opt.dataset.v);
+  applySize(card, w);
+  saveLayout();
+});
+
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('.w-size') && !ev.target.closest('[data-act="size"]')) closeSizePanels();
+});
+
+/* ---- Redimensionar arrastrando la esquina ---- */
+let resizing = null;
+
+$('#widgetGrid').addEventListener('pointerdown', (ev) => {
+  const grip = ev.target.closest('.w-grip');
+  if (!grip || !editMode) return;
+  ev.preventDefault();
+  const card = grip.closest('.widget');
+  const w = findWidget(card.dataset.id);
+  if (!w) return;
+  const grid = $('#widgetGrid');
+  const gap = parseFloat(getComputedStyle(grid).columnGap) || 20;
+  resizing = {card, w, gap, col: (grid.clientWidth - gap * 11) / 12,
+              x0: ev.clientX, y0: ev.clientY, w0: w.w, h0: w.h};
+  card.classList.add('resizing');
+  try { grip.setPointerCapture(ev.pointerId); } catch (e) {}
+});
+
+$('#widgetGrid').addEventListener('pointermove', (ev) => {
+  if (!resizing) return;
+  const r = resizing;
+  const target = clamp(r.w0 + Math.round((ev.clientX - r.x0) / (r.col + r.gap)), 3, 12);
+  /* El ancho salta al valor permitido más próximo (¼, ⅓, ½, ⅔, completo). */
+  const nw = WIDTHS.reduce((best, x) =>
+    Math.abs(x.v - target) < Math.abs(best - target) ? x.v : best, r.w0);
+  const nh = clamp(r.h0 + Math.round((ev.clientY - r.y0) / 130), 1, 3);
+  if (nw !== r.w.w || nh !== r.w.h){
+    r.w.w = nw; r.w.h = nh;
+    applySize(r.card, r.w);
+  }
+});
+
+function endResize(){
+  if (!resizing) return;
+  resizing.card.classList.remove('resizing');
+  const label = WIDTHS.find(x => x.v === resizing.w.w);
+  toast('Tamaño: ancho ' + (label ? label.l : resizing.w.w) + ' del panel · alto ' + resizing.w.h + ' de 3');
+  resizing = null;
+  saveLayout();
+}
+$('#widgetGrid').addEventListener('pointerup', endResize);
+$('#widgetGrid').addEventListener('pointercancel', endResize);
 
 /* ---- Arrastrar y soltar para reordenar ---- */
 let draggedId = null;
@@ -2467,13 +2653,21 @@ $('#importFile').addEventListener('change', (ev) => {
 });
 
 $('#btnResetLayout').addEventListener('click', () => {
-  if (!confirm('¿Restablecer el panel a su distribución original? Se perderán los cuadros añadidos y las ediciones.')) return;
-  store.del(LAYOUT_KEY);
-  layout = defaultLayout();
-  $('#cutDate').textContent = layout.meta.cutDate;
-  commit();
-  toast('Panel restablecido');
+  askConfirm('¿Restablecer el panel?',
+             'Volverá a sus diez cuadros originales. Se perderán los cuadros añadidos y los textos editados.',
+             'Restablecer panel').then(ok => {
+    if (!ok) return;
+    store.del(LAYOUT_KEY);
+    layout = defaultLayout();
+    $('#cutDate').textContent = layout.meta.cutDate;
+    commit();
+    toast('Panel restablecido');
+  });
 });
+
+$('#confirmYes').addEventListener('click', () => closeConfirm(true));
+$('#confirmNo').addEventListener('click', () => closeConfirm(false));
+$('#confirmModal').addEventListener('click', (ev) => { if (ev.target.id === 'confirmModal') closeConfirm(false); });
 
 /* =====================================================================
    10. ARRANQUE
