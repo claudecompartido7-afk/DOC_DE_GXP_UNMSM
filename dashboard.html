@@ -851,6 +851,20 @@ body.edit-mode .widget-add{display:flex}
           <div class="panel-ana active" id="panel-anexo1" role="tabpanel">
             <div class="section-grid" id="anexo1Cards"></div>
 
+            <article class="anexo3-card" style="margin-top:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <div>
+                  <h3>Estados del Anexo 1</h3>
+                  <p style="margin:4px 0 0;font-size:11px;color:var(--muted)">Reparto de los productos inventariados, según la selección de facultades.</p>
+                </div>
+                <span class="entity-tag">ANEXO 1</span>
+              </div>
+              <div class="donut-wrap" style="min-height:190px">
+                <div class="chart-holder"><canvas id="chartEstadosA1" role="img" aria-label="Estados del Anexo 1"></canvas></div>
+                <div class="legend" id="legendEstadosA1"></div>
+              </div>
+            </article>
+
             <section class="data-panel">
               <div class="data-toolbar">
                 <div class="title" id="tableTitleA1">Detalle de productos</div>
@@ -1403,19 +1417,13 @@ function defaultLayout(){
       {id:uid(), type:'kpi', w:3, h:1, title:'% Avance Anexo 4 · Indicadores',
        config:{metric:'avance_a4', delta:'5.9', deltaDir:'down', deltaNote:'vs. julio', spark:true}},
 
-      {id:uid(), type:'chart', w:8, h:2, title:'% Avance por facultad · Anexo 1',
+      {id:uid(), type:'chart', w:12, h:2, title:'% Avance por facultad · Anexo 1',
        subtitle:'Productos conformes sobre el total inventariado en cada facultad.',
        config:{source:'avance_a1_facultad', chartType:'bar', color:'#2f6fed', topN:12}},
-      {id:uid(), type:'chart', w:4, h:2, title:'Estados del Anexo 1',
-       subtitle:'Reparto de los productos inventariados.',
-       config:{source:'estados_a1', chartType:'doughnut', color:'#2f6fed', topN:12}},
 
-      {id:uid(), type:'chart', w:8, h:2, title:'% Avance por facultad · Anexo 3',
+      {id:uid(), type:'chart', w:12, h:2, title:'% Avance por facultad · Anexo 3',
        subtitle:'Fichas de caracterización completas sobre el total registrado.',
        config:{source:'avance_a3_facultad', chartType:'bar', color:'#0fb3a1', topN:12}},
-      {id:uid(), type:'ranking', w:4, h:2, title:'Ranking de fichas completas',
-       subtitle:'Ocho facultades con mayor avance.',
-       config:{source:'avance_a3_facultad', topN:8}},
 
       {id:uid(), type:'chart', w:6, h:2, title:'Avance acumulado del proyecto',
        subtitle:'Serie mensual de demostración.',
@@ -2243,6 +2251,10 @@ function switchView(view){
   $$('.rail-btn[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   document.body.classList.remove('filters-open');
   if (view === 'dashboard') charts.forEach(c => c.resize());
+  /* La vista Análisis empieza oculta (display:none): su donut se crea con
+     tamaño cero si la pestaña aún no era visible, así que se redimensiona
+     cada vez que el usuario entra en la vista. */
+  if (view === 'analisis' && chartEstadosA1) chartEstadosA1.resize();
 }
 
 $$('.tab[data-view], .rail-btn[data-view]').forEach(b =>
@@ -2330,6 +2342,46 @@ const A1_BLOCKS = [
   {key:'procesos',    title:'Procesos',    rows: () => dbAll().filter(d => d.entity === 'Proceso'),    labels:['Conformes','Observados','Sin registro'], statuses:A1_STATUSES},
   {key:'subprocesos', title:'Subprocesos', rows: () => dbAll().filter(d => d.entity === 'SubProceso'), labels:['Conformes','Observados','Sin registro'], statuses:A1_STATUSES}
 ];
+
+let chartEstadosA1 = null;
+
+function renderEstadosA1Donut(){
+  const canvas = document.getElementById('chartEstadosA1');
+  if (!canvas) return;
+  const d = DATA_SOURCES.estados_a1.get();
+  const total = d.values.reduce((s, v) => s + v, 0) || 1;
+
+  if (chartEstadosA1){
+    chartEstadosA1.data.labels = d.labels;
+    chartEstadosA1.data.datasets[0].data = d.values;
+    chartEstadosA1.data.datasets[0].backgroundColor = d.colors;
+    chartEstadosA1.update();
+  } else {
+    chartEstadosA1 = new Chart(canvas, {
+      type: 'doughnut',
+      data: {labels: d.labels, datasets: [{
+        data: d.values, backgroundColor: d.colors, borderColor: '#fff', borderWidth: 3, cutout: '62%'
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: {duration: 500},
+        plugins: {
+          legend: {display: false},
+          tooltip: {
+            backgroundColor: '#101d33', padding: 10, cornerRadius: 8,
+            titleFont: {weight: '700', size: 12}, bodyFont: {size: 12},
+            callbacks: {label: (item) => ' ' + item.label + ': ' + item.parsed}
+          }
+        }
+      }
+    });
+  }
+
+  $('#legendEstadosA1').innerHTML = d.labels.map((lb, i) => `<div class="legend-row">
+      <span class="sw" style="background:${d.colors[i]}"></span>
+      <span class="lb" title="${esc(lb)}">${esc(lb)}</span>
+      <b>${d.values[i]} · ${pct(d.values[i], total)}%</b>
+    </div>`).join('');
+}
 
 function renderAnexo1Cards(){
   $('#anexo1Cards').innerHTML = A1_BLOCKS.map(block => {
@@ -2676,6 +2728,7 @@ function renderAll(){
   renderFacultyList();
   renderWidgets();
   renderAnexo1Cards();
+  renderEstadosA1Donut();
   renderAnexo3Cards();
   renderAnexo1Table();
   renderAnexo3Table();
