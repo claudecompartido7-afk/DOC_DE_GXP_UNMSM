@@ -3,135 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Ausentismo - Corporativo</title>
-    <!-- Tailwind CSS -->
+    <title>Dashboard Gestion por Procesos - OGPL UNMSM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        corp: {
-                            bg: '#e8eef3', 
-                            dark: '#0f1a2e', 
-                            blue: '#3b82f6', 
-                            teal: '#14b8a6', 
-                            card: '#ffffff', 
-                            textmain: '#1e293b',
-                            textmuted: '#64748b'
-                        }
+                        corp: { bg: '#e8eef3', dark: '#0f1a2e', blue: '#3b82f6', teal: '#14b8a6', card: '#ffffff', textmain: '#1e293b', textmuted: '#64748b' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
-                    }
+                    fontFamily: { sans: ['Outfit', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'] }
                 }
             }
         }
     </script>
-    
     <style>
-        /* Estilos Neumórficos y 3D */
+        * { font-family: 'Outfit', 'Inter', 'Segoe UI', sans-serif; }
         body { background-color: #e8eef3; }
-        
+
+        /* ===== GLASS & CARDS ===== */
         .glass-card {
             background: linear-gradient(145deg, #ffffff, #f3f7fa);
             border-radius: 1.25rem;
-            /* Sombra 3D: Oscura abajo-derecha, clara arriba-izquierda */
-            box-shadow: 10px 10px 20px rgba(15, 26, 46, 0.1), 
-                        -10px -10px 20px rgba(255, 255, 255, 0.9);
+            box-shadow: 10px 10px 20px rgba(15, 26, 46, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.8);
             transition: all 0.3s ease;
         }
-        
         .glass-card:hover {
             transform: translateY(-5px);
-            /* Sombra más profunda al hacer hover */
-            box-shadow: 15px 15px 30px rgba(15, 26, 46, 0.15), 
-                        -15px -15px 30px rgba(255, 255, 255, 1);
+            box-shadow: 15px 15px 30px rgba(15, 26, 46, 0.15), -15px -15px 30px rgba(255, 255, 255, 1);
         }
-        
         .dark-panel {
-            background: linear-gradient(145deg, #162541, #0c1525); /* Gradiente para dar volumen */
-            /* Sombra 3D invertida para panel oscuro */
-            box-shadow: 12px 12px 24px rgba(10, 15, 25, 0.4), 
-                        -8px -8px 16px rgba(40, 55, 80, 0.2);
+            background: linear-gradient(145deg, #162541, #0c1525);
+            box-shadow: 12px 12px 24px rgba(10, 15, 25, 0.4), -8px -8px 16px rgba(40, 55, 80, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-
         .btn-depth {
             background: linear-gradient(145deg, #ffffff, #e6e6e6);
-            /* Efecto botón pill en relieve */
-            box-shadow: 5px 5px 10px rgba(15, 26, 46, 0.1), 
-                        -5px -5px 10px rgba(255, 255, 255, 0.9);
+            box-shadow: 5px 5px 10px rgba(15, 26, 46, 0.1), -5px -5px 10px rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.5);
             transition: all 0.2s ease;
         }
-        
         .btn-depth:hover {
-            box-shadow: 2px 2px 5px rgba(15, 26, 46, 0.1), 
-                        -2px -2px 5px rgba(255, 255, 255, 0.9);
+            box-shadow: 2px 2px 5px rgba(15, 26, 46, 0.1), -2px -2px 5px rgba(255, 255, 255, 0.9);
             transform: translateY(2px);
         }
-
-        /* Estilo para los botones activos o primarios (azules) */
         .btn-depth-primary {
             background: linear-gradient(145deg, #101c31, #0d1729);
-            box-shadow: 5px 5px 10px rgba(10, 15, 25, 0.3), 
-                        -3px -3px 8px rgba(40, 55, 80, 0.2);
+            box-shadow: 5px 5px 10px rgba(10, 15, 25, 0.3), -3px -3px 8px rgba(40, 55, 80, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.2s ease;
         }
-        
         .btn-depth-primary:hover {
-            box-shadow: 2px 2px 5px rgba(10, 15, 25, 0.3), 
-                        -1px -1px 3px rgba(40, 55, 80, 0.2);
+            box-shadow: 2px 2px 5px rgba(10, 15, 25, 0.3), -1px -1px 3px rgba(40, 55, 80, 0.2);
             transform: translateY(2px);
         }
+        .mini-bar { height: 100%; background-color: #3b82f6; border-radius: 2px; opacity: 0.8; transition: all 0.3s ease; }
+        .mini-bar:hover { opacity: 1; transform: scaleY(1.1); }
+        .mini-bar-container { display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-top: 12px; }
 
-        .mini-bar {
-            height: 100%;
-            background-color: #3b82f6;
-            border-radius: 2px;
-            opacity: 0.8;
-            transition: all 0.3s ease;
-        }
-        .mini-bar:hover {
-            opacity: 1;
-            transform: scaleY(1.1);
-        }
-        .mini-bar-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 24px;
-            margin-top: 12px;
-        }
-        ::-webkit-scrollbar { width: 6px; }
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar { overflow-y: auto; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease; }
+
+        /* ===== ANALISIS ===== */
+        :root{ --navy:#10233f; --navy2:#173355; --blue:#3f86ef; --blue2:#78aaf7; --bg:#eef3f8; --card:#ffffff; --text:#162742; --muted:#71829a; --green:#16a67f; --red:#ee6868; --line:#e8edf3; --shadow:0 8px 24px rgba(26,48,77,.09); }
+        .switcher{margin:0 0 16px;display:flex;gap:8px;align-items:center}
+        .tab-ana{border:0;background:#dce5ef;color:#60738a;font-weight:800;font-size:12px;padding:10px 18px;border-radius:12px;cursor:pointer;transition:all .2s}
+        .tab-ana.active{background:var(--blue);color:#fff;box-shadow:0 6px 14px rgba(63,134,239,.24)}
+        .panel-ana{display:none}.panel-ana.active{display:block; animation: fadeIn 0.3s ease;}
+        .section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+        @media(max-width:1100px){.section-grid{grid-template-columns:1fr}}
+        .entity-card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+        .entity-head{padding:12px 15px;background:linear-gradient(180deg,#f8fbff,#fff);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+        .entity-title{font-size:12px;font-weight:900;color:var(--text)}.entity-tag{font-size:10px;font-weight:800;padding:6px 10px;border-radius:10px;background:#53647a;color:#fff}
+        .entity-body{padding:14px}
+        .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:13px}
+        .metric{border:1px solid var(--line);border-radius:11px;padding:10px 9px;min-width:0; transition: all 0.2s ease; cursor:pointer;}
+        .metric .m-title{font-size:9px;font-weight:800;color:#60738a;line-height:1.2;min-height:24px}
+        .metric .m-num{font-size:20px;color:#2f75ed;font-weight:900;margin-top:4px}
+        .metric .m-den{font-size:9px;font-weight:700;color:#5d6f85}
+        .metric .m-change{font-size:8px;color:var(--green);font-weight:800;margin-top:5px}
+        .chart-box{border:1px solid var(--line);border-radius:11px;padding:10px 10px 8px}
+        .chart-title{font-size:9px;font-weight:900;margin-bottom:8px;color:var(--text)}
+        .bars{display:grid;gap:8px}
+        .bar-row{display:grid;grid-template-columns:72px 1fr 30px;gap:7px;align-items:center;font-size:8px;color:var(--muted)}
+        .track{height:8px;background:#edf1f5;border-radius:999px;overflow:hidden}
+        .fill{height:100%;background:var(--blue);border-radius:999px}
+        .fill.dark{background:#1a2b47}.fill.green{background:#22b89a}
+        .bar-row strong{font-size:8px;text-align:right;color:var(--text)}
+        .data-panel{margin-top:16px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+        .data-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#f8fbff,#fff)}
+        .data-toolbar .title{font-size:12px;font-weight:900;margin-right:auto;color:var(--text)}
+        .select-wrap{position:relative}
+        .select-wrap select{appearance:auto;border:1px solid #d8e1eb;border-radius:9px;background:#fff;padding:8px 10px;color:#536980;font-size:10px;font-weight:750;max-width:210px}
+        .data-meta{padding:10px 16px;font-size:9px;color:#7f90a6;border-bottom:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap}
+        .table-wrap{overflow:auto;max-height:460px}
+        .data-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1280px;font-size:9px}
+        .data-table th{position:sticky;top:0;z-index:3;background:#eff4f8;color:#38506a;text-align:left;padding:10px 9px;border-bottom:1px solid #dbe3eb;white-space:nowrap;font-size:8px;letter-spacing:.1px}
+        .data-table td{padding:9px;border-bottom:1px solid #edf1f5;vertical-align:top;color:#41566d;line-height:1.3}
+        .data-table tbody tr:nth-child(even){background:#fbfcfd}
+        .data-table tbody tr:hover{background:#f1f7ff}
+        .status-ok{font-weight:900;color:#118363}.cumplimiento{font-weight:900;color:#2f75ed}.criterios{font-weight:800;color:#4f6075;white-space:nowrap}.obs{min-width:230px}
+        .data-footer{padding:10px 16px;font-size:9px;color:#7d8fa4;background:#fafcff}
+        .rank-list{display:grid;gap:8px}
+        .rank-row{display:grid;grid-template-columns:62px 1fr 40px;gap:8px;align-items:center;font-size:8px}
+        .rank-row strong{text-align:right;font-size:8px}
+        .rank-track{height:9px;background:#eff2f5;border-radius:999px;overflow:hidden}
+        .rank-fill{height:100%;background:var(--blue2)}.rank-fill.dark{background:#16273f}.rank-fill.green{background:#23b89b}
+        .anexo3-layout{display:grid;grid-template-columns:1.1fr 1.4fr;gap:16px}
+        @media(max-width:1100px){.anexo3-layout{grid-template-columns:1fr}}
+        .anexo3-card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+        .anexo3-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+        .big-metric{border:1px solid var(--line);border-radius:12px;padding:15px; transition: all 0.2s ease; cursor:pointer;}
+        .big-metric h4{margin:0;font-size:10px;color:#64778e;font-weight:700}
+        .big-metric .n{margin-top:8px;font-size:29px;color:#2f75ed;font-weight:900}
+        .big-metric .den{font-size:9px;font-weight:750;color:#5d6f85}
+        .big-metric .chg{margin-top:7px;font-size:9px;color:var(--green);font-weight:800}
+        .status-filter{cursor:pointer;transition:all .18s ease;user-select:none}
+        .status-filter:hover{transform:translateY(-1px);border-color:#9bbff6}
+        .status-filter.active-status{background:#eaf3ff;border-color:#6fa3f2;box-shadow:inset 0 0 0 1px rgba(63,134,239,.14)}
+        .status-filter.active-status .m-title,.status-filter.active-status .m-change{color:#2f75ed}
+        .status-filter.inactive-status{opacity:.48}
+        .status-filter.inactive-status:hover{opacity:.7}
+        .big-metric.status-filter.active-status{background:#eaf3ff;border-color:#6fa3f2;box-shadow:inset 0 0 0 1px rgba(63,134,239,.14)}
+        .big-metric.status-filter.active-status h4,.big-metric.status-filter.active-status .chg{color:#2f75ed}
+        .big-metric.status-filter.inactive-status{opacity:.48}
+        .big-metric.status-filter.inactive-status:hover{opacity:.7}
+        .notice{font-size:9px;color:#7f90a6;margin-top:12px}
+
+        /* ===== BASE DE DATOS ===== */
+        .db-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .db-search-wrap { position: relative; flex: 1; min-width: 280px; max-width: 480px; }
+        .db-search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+        .db-search-wrap input { width: 100%; padding: 10px 14px 10px 38px; border: 1px solid #d8e1eb; border-radius: 12px; background: #fff; color: #334155; font-size: 12px; font-weight: 600; outline: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(26,48,77,.04); }
+        .db-search-wrap input:focus { border-color: #3f86ef; box-shadow: 0 0 0 3px rgba(63,134,239,.12); }
+        .db-search-wrap input::placeholder { color: #94a3b8; font-weight: 500; }
+        .db-actions { display: flex; gap: 8px; align-items: center; }
+        .db-btn { padding: 9px 16px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; cursor: pointer; border: 1px solid #d8e1eb; background: #fff; color: #536980; transition: all 0.18s ease; display: flex; align-items: center; gap: 6px; }
+        .db-btn:hover { border-color: #9bbff6; background: #f8fbff; transform: translateY(-1px); }
+        .db-btn.primary { background: linear-gradient(145deg, #3f86ef, #2563eb); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(63,134,239,.28); }
+        .db-btn.primary:hover { box-shadow: 0 6px 16px rgba(63,134,239,.36); transform: translateY(-1px); }
+        .db-filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .db-filter-chip { padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--line); background: #fff; color: #60738a; transition: all 0.18s ease; user-select: none; }
+        .db-filter-chip:hover { border-color: #9bbff6; transform: translateY(-1px); }
+        .db-filter-chip.active { background: linear-gradient(145deg, #3f86ef, #2563eb); color: #fff; border-color: transparent; box-shadow: 0 4px 10px rgba(63,134,239,.24); }
+        .db-table-card { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+        .db-table-card .data-toolbar { background: linear-gradient(180deg,#f8fbff,#fff); }
+        .db-table-card .data-table { font-size: 11px; }
+        .db-table-card .data-table th { font-size: 10px; padding: 12px 10px; background: #eff4f8; font-weight: 800; letter-spacing: 0.04em; }
+        .db-table-card .data-table td { padding: 10px; font-size: 11px; font-weight: 500; }
+        .db-pagination { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fafcff; border-top: 1px solid var(--line); }
+        .db-page-info { font-size: 11px; color: #7d8fa4; font-weight: 600; }
+        .db-page-buttons { display: flex; gap: 4px; }
+        .db-page-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #d8e1eb; background: #fff; color: #536980; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; }
+        .db-page-btn:hover:not(:disabled) { border-color: #3f86ef; color: #3f86ef; background: #f0f7ff; }
+        .db-page-btn.active { background: linear-gradient(145deg, #3f86ef, #2563eb); color: #fff; border-color: transparent; box-shadow: 0 2px 8px rgba(63,134,239,.28); }
+        .db-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .db-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; letter-spacing: 0.02em; }
+        .db-badge.ok { background: #dcfce7; color: #15803d; }
+        .db-badge.warn { background: #fef3c7; color: #b45309; }
+        .db-badge.danger { background: #fee2e2; color: #b91c1c; }
+        .db-badge.info { background: #dbeafe; color: #1d4ed8; }
+        .db-badge.gray { background: #f1f5f9; color: #475569; }
+        .db-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        @media(max-width:900px){.db-summary{grid-template-columns:repeat(2,1fr)}}
+        .db-summary-card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; display: flex; align-items: center; gap: 14px; transition: all 0.2s ease; }
+        .db-summary-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(26,48,77,.12); }
+        .db-summary-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .db-summary-info h4 { font-size: 11px; color: #71829a; font-weight: 700; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.04em; }
+        .db-summary-info .val { font-size: 24px; font-weight: 900; color: #162742; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+        .db-empty { padding: 40px; text-align: center; color: #7f90a6; font-size: 13px; }
+
+        /* ===== SIDEBAR ACTIVE STATE ===== */
+        .nav-btn { position: relative; }
+        .nav-btn.active { background: linear-gradient(145deg, #101c31, #0d1729); color: #fff; box-shadow: 5px 5px 10px rgba(10,15,25,0.3), -3px -3px 8px rgba(40,55,80,0.2); }
+        .nav-btn.active::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 3px; height: 20px; background: #3b82f6; border-radius: 2px; }
+
+        /* ===== VIEW TOGGLE ===== */
+        .view-section { display: none; }
+        .view-section.active { display: flex; animation: fadeIn 0.35s ease; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state { padding: 40px; text-align: center; color: var(--muted); }
+        .empty-state i { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
     </style>
+<base target="_blank">
 </head>
+<body class="text-corp-textmain h-screen flex overflow-hidden selection:bg-corp-blue selection:text-white">
 
-<body class="text-corp-textmain font-sans h-screen flex overflow-hidden selection:bg-corp-blue selection:text-white">
-
-    <!-- Mini Sidebar Izquierdo -->
-    <aside class="w-20 bg-white/30 flex flex-col items-center py-8 gap-10 border-r border-white/60 z-10 backdrop-blur-sm">
+    <!-- SIDEBAR -->
+    <aside class="w-20 bg-white/30 flex flex-col items-center py-8 gap-10 border-r border-white/60 z-10 backdrop-blur-sm shrink-0">
         <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-corp-dark text-2xl btn-depth">
             <i class="fa-solid fa-layer-group"></i>
         </div>
         <div class="flex flex-col gap-6 mt-4">
-            <button class="w-12 h-12 bg-corp-dark rounded-full flex items-center justify-center text-white ring-2 ring-corp-dark/20 transition btn-depth-primary" title="Dashboard">
+            <button id="nav-dashboard" class="nav-btn w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-blue transition btn-depth" title="Dashboard" onclick="switchTab('dashboard')">
                 <i class="fa-solid fa-gauge-high"></i>
             </button>
-            <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-blue transition btn-depth" title="Base de Datos">
+            <button id="nav-database" class="nav-btn w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-blue transition btn-depth" title="Base de Datos" onclick="switchTab('database')">
                 <i class="fa-solid fa-database"></i>
             </button>
-            <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-blue transition btn-depth" title="Análisis">
+            <button id="nav-analisis" class="nav-btn w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-blue transition btn-depth" title="Analisis" onclick="switchTab('analisis')">
                 <i class="fa-solid fa-chart-line"></i>
             </button>
         </div>
@@ -140,27 +227,21 @@
         </div>
     </aside>
 
-    <!-- Contenido Principal -->
-    <main class="flex-1 flex flex-col h-full overflow-y-auto px-8 pt-8 pb-8 relative">
-        
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <header class="flex justify-between items-center px-8 pt-8 pb-6 shrink-0">
             <div class="flex items-center gap-4">
-                <div class="p-3 bg-white rounded-xl btn-depth">
-                    <i class="fa-solid fa-users text-2xl text-corp-dark"></i>
-                </div>
+                <div class="p-3 bg-white rounded-xl btn-depth"><i class="fa-solid fa-users text-2xl text-corp-dark"></i></div>
                 <div>
-                    <h1 class="text-3xl font-extrabold text-corp-dark tracking-tight">Gestión por Procesos <span class="font-light text-corp-textmuted">Panel de Control</span></h1>
-                    <p class="text-corp-textmuted text-sm mt-1 font-medium">Oficina de Racionalización OGPL UNMSM | Fecha de Corte: 28/08/2026</p>
+                    <h1 class="text-3xl font-extrabold text-corp-dark tracking-tight">Gestion por Procesos <span class="font-light text-corp-textmuted">Panel de Control</span></h1>
+                    <p class="text-corp-textmuted text-sm mt-1 font-medium">Oficina de Racionalizacion OGPL UNMSM | Fecha de Corte: 28/08/2026</p>
                 </div>
             </div>
-
-            <!-- Navegación Superior -->
             <div class="flex items-center gap-6">
                 <div class="bg-white/50 p-1.5 rounded-full flex gap-1 btn-depth backdrop-blur-sm">
-                    <button class="px-8 py-2.5 bg-corp-dark text-white rounded-full text-sm font-bold shadow-lg shadow-corp-dark/30 btn-depth-primary">Dashboard</button>
-                    <button class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition btn-depth">Análisis</button>
-                    <button class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition btn-depth">Base de datos</button>
+                    <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="px-8 py-2.5 bg-corp-dark text-white rounded-full text-sm font-bold shadow-lg shadow-corp-dark/30 btn-depth-primary transition-all">Dashboard</button>
+                    <button id="btn-tab-analisis" onclick="switchTab('analisis')" class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition-all btn-depth">Analisis</button>
+                    <button id="btn-tab-database" onclick="switchTab('database')" class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition-all btn-depth">Base de datos</button>
                 </div>
                 <div class="flex gap-4">
                     <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-dark transition btn-depth"><i class="fa-regular fa-bell text-lg"></i></button>
@@ -169,358 +250,802 @@
             </div>
         </header>
 
-        <!-- Grid Principal del Dashboard -->
-        <div class="flex gap-8 h-full pb-2">
-            
-            <aside class="w-72 rounded-[2rem] p-6 text-white flex flex-col dark-panel z-10">
+        <div class="flex gap-8 flex-1 px-8 pb-8 min-h-0">
+            <!-- FILTERS SIDEBAR -->
+            <aside class="w-72 rounded-[2rem] p-6 text-white flex flex-col dark-panel z-10 sticky top-0 shrink-0 overflow-hidden">
                 <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-filter text-xl text-blue-400"></i>
-                        <span class="font-bold tracking-wide">Filtros</span>
-                    </div>
-                    <button class="text-white/50 hover:text-white transition"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-filter text-xl text-blue-400"></i><span class="font-bold tracking-wide">Filtros</span></div>
+                    <button class="text-white/50 hover:text-white transition" onclick="resetAllFilters()"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
-
-                <div class="mb-8 flex-1 overflow-y-auto pr-2">
-                    <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#162541] pt-2 pb-2 z-10">
+                <div class="mb-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                    <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#14223c] pt-2 pb-2 z-10 backdrop-blur-md">
                         <h3 class="text-xs font-bold text-white/60 uppercase tracking-widest">FACULTADES</h3>
-                        <div class="flex gap-2 text-white/40">
-                            <i class="fa-solid fa-sort text-xs"></i>
-                        </div>
+                        <div class="flex gap-2 text-white/40"><i class="fa-solid fa-sort text-xs"></i></div>
                     </div>
-                    <ul class="flex flex-col gap-2.5">
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F01_FM</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F02_FDCP</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F03_FLCH</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F04_FFB</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F05_FO</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F06_FE</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-corp-blue px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-corp-blue/40 border border-blue-400/50 cursor-pointer transition flex items-center justify-between">
-                            <span>F07_FQIQ</span> <i class="fa-solid fa-check text-xs"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F08_FMV</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F09_FCA</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F10_FCB</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F11_FCC</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F12_FCE</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F13_FCF</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F14_FCM</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F15_FCCSS</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F16_FIGMMG</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F17_FPSIC</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F18_FIEE</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F19_FISI</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                        <li class="bg-white/5 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/5 hover:bg-white/10 hover:border-white/20 cursor-pointer transition flex items-center justify-between group">
-                            <span>F20_FII</span> <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </li>
-                    </ul>
+                    <ul id="faculty-list" class="flex flex-col gap-2.5"></ul>
+                </div>
+                <div class="border-t border-white/10 pt-4">
+                    <div class="text-xs text-white/40 mb-2">Resumen seleccion</div>
+                    <div class="flex justify-between text-sm"><span class="text-white/70">Facultades:</span><span id="fac-count" class="font-bold">20</span></div>
+                    <div class="flex justify-between text-sm mt-1"><span class="text-white/70">Procesos:</span><span id="proc-count" class="font-bold">16</span></div>
                 </div>
             </aside>
 
-            <!-- Área de Contenido Derecho (Tarjetas y Gráficos) -->
-            <div class="flex-1 flex flex-col gap-6">
-                
+            <!-- ===== VISTA 1: DASHBOARD ===== -->
+            <div id="view-dashboard" class="view-section active flex-1 flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
                 <div class="grid grid-cols-4 gap-6">
-                    <!-- Card 1 -->
                     <div class="glass-card p-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance Fase 1</h3>
                         <div class="flex items-end gap-3">
-                            <span class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">68.2%</span>
-                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100"><i class="fa-solid fa-caret-up"></i> 10.3% vs. Jul.</span>
+                            <span id="kpi1-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">68.2%</span>
+                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                <i class="fa-solid fa-caret-up"></i> 10.3% vs. Jul.
+                            </span>
                         </div>
-                        <div class="mini-bar-container mt-4">
-                            <!-- Barras de ejemplo -->
-                            <div class="mini-bar w-1/12" style="height: 30%"></div>
-                            <div class="mini-bar w-1/12" style="height: 40%"></div>
-                            <div class="mini-bar w-1/12" style="height: 35%"></div>
-                            <div class="mini-bar w-1/12" style="height: 50%"></div>
-                            <div class="mini-bar w-1/12" style="height: 45%"></div>
-                            <div class="mini-bar w-1/12" style="height: 60%"></div>
-                            <div class="mini-bar w-1/12" style="height: 55%"></div>
-                            <div class="mini-bar w-1/12" style="height: 70%"></div>
-                            <div class="mini-bar w-1/12" style="height: 80%"></div>
-                            <div class="mini-bar w-1/12" style="height: 75%"></div>
-                            <div class="mini-bar w-1/12 bg-corp-dark opacity-100" style="height: 90%"></div>
-                            <div class="mini-bar w-1/12" style="height: 100%"></div>
-                        </div>
+                        <div class="mini-bar-container mt-4" id="mini-bar-1"></div>
                     </div>
-
-                    <!-- Card 2 -->
                     <div class="glass-card p-6 relative overflow-hidden group">
-                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance del Anexo 1 (Inventario)</h3>
                         <div class="flex items-end gap-3">
-                            <span class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">58.3%</span>
-                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100"><i class="fa-solid fa-caret-up"></i> 10.3% vs. Jul.</span>
+                            <span id="kpi2-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">58.3%</span>
+                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                <i class="fa-solid fa-caret-up"></i> 10.3% vs. Jul.
+                            </span>
                         </div>
-                        <div class="mini-bar-container mt-4">
-                             <div class="mini-bar w-1/12" style="height: 80%"></div>
-                             <div class="mini-bar w-1/12" style="height: 85%"></div>
-                             <div class="mini-bar w-1/12" style="height: 82%"></div>
-                             <div class="mini-bar w-1/12" style="height: 90%"></div>
-                             <div class="mini-bar w-1/12 bg-corp-teal opacity-100" style="height: 85%"></div>
-                             <div class="mini-bar w-1/12 bg-corp-teal opacity-100" style="height: 88%"></div>
-                             <div class="mini-bar w-1/12 bg-corp-teal opacity-100" style="height: 80%"></div>
-                             <div class="mini-bar w-1/12" style="height: 82%"></div>
-                             <div class="mini-bar w-1/12" style="height: 75%"></div>
-                             <div class="mini-bar w-1/12" style="height: 78%"></div>
-                             <div class="mini-bar w-1/12 bg-corp-dark opacity-100" style="height: 70%"></div>
-                             <div class="mini-bar w-1/12" style="height: 68%"></div>
-                        </div>
+                        <div class="mini-bar-container mt-4" id="mini-bar-2"></div>
                     </div>
-
-                    <!-- Card 3 -->
                     <div class="glass-card p-6 relative overflow-hidden group">
-                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance del Anexo 3 (F. Caracterización)</h3>
+                        <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance del Anexo 3 (F. Caract.)</h3>
                         <div class="flex items-end gap-3">
-                            <span class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">89,6%</span>
-                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100"><i class="fa-solid fa-caret-up"></i> 1.7% vs. Jul.</span>
+                            <span id="kpi3-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">89.6%</span>
+                            <span class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                <i class="fa-solid fa-caret-up"></i> 1.7% vs. Jul.
+                            </span>
                         </div>
-                        <div class="mini-bar-container mt-4">
-                            <div class="mini-bar w-1/12" style="height: 60%"></div>
-                            <div class="mini-bar w-1/12" style="height: 65%"></div>
-                            <div class="mini-bar w-1/12" style="height: 70%"></div>
-                            <div class="mini-bar w-1/12" style="height: 75%"></div>
-                            <div class="mini-bar w-1/12" style="height: 72%"></div>
-                            <div class="mini-bar w-1/12" style="height: 80%"></div>
-                            <div class="mini-bar w-1/12" style="height: 85%"></div>
-                            <div class="mini-bar w-1/12 bg-corp-teal opacity-100" style="height: 88%"></div>
-                            <div class="mini-bar w-1/12 bg-corp-teal opacity-100" style="height: 90%"></div>
-                            <div class="mini-bar w-1/12" style="height: 92%"></div>
-                            <div class="mini-bar w-1/12 bg-corp-dark opacity-100" style="height: 85%"></div>
-                            <div class="mini-bar w-1/12" style="height: 89%"></div>
-                        </div>
+                        <div class="mini-bar-container mt-4" id="mini-bar-3"></div>
                     </div>
-
-                    <!-- Card 4 -->
                     <div class="glass-card p-6 relative overflow-hidden group">
-                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance de Anexo 4 (Indicadores)</h3>
                         <div class="flex items-end gap-3">
-                            <span class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">6,4h</span>
-                            <span class="text-sm font-bold text-rose-500 flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100"><i class="fa-solid fa-caret-down"></i> 5.9% vs. Jul.</span>
+                            <span id="kpi4-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">42.1%</span>
+                            <span class="text-sm font-bold text-rose-500 flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">
+                                <i class="fa-solid fa-caret-down"></i> 5.9% vs. Jul.
+                            </span>
                         </div>
-                        <div class="mini-bar-container mt-4">
-                            <div class="mini-bar w-1/12" style="height: 90%"></div>
-                            <div class="mini-bar w-1/12" style="height: 85%"></div>
-                            <div class="mini-bar w-1/12" style="height: 88%"></div>
-                            <div class="mini-bar w-1/12" style="height: 80%"></div>
-                            <div class="mini-bar w-1/12" style="height: 75%"></div>
-                            <div class="mini-bar w-1/12" style="height: 70%"></div>
-                            <div class="mini-bar w-1/12" style="height: 65%"></div>
-                            <div class="mini-bar w-1/12" style="height: 60%"></div>
-                            <div class="mini-bar w-1/12" style="height: 55%"></div>
-                            <div class="mini-bar w-1/12" style="height: 50%"></div>
-                            <div class="mini-bar w-1/12 bg-corp-dark opacity-100" style="height: 60%"></div>
-                            <div class="mini-bar w-1/12" style="height: 45%"></div>
-                        </div>
+                        <div class="mini-bar-container mt-4" id="mini-bar-4"></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 gap-6">
-                    <!-- Gráfico Anexo 1 -->
-                    <div class="glass-card p-6 flex flex-col relative h-[300px]">
+                    <div class="glass-card p-6 flex flex-col relative" style="height:320px">
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm">
-                                    <i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 1
-                                </h2>
-                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Procesos | 18 Columnas de B-1</p>
+                                <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 1</h2>
+                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Procesos | 231 Productos registrados</p>
                             </div>
                         </div>
-                        <div class="flex-1 relative w-full h-full">
-                            <canvas id="chartAnexo1"></canvas>
-                        </div>
+                        <div class="flex-1 relative w-full"><canvas id="chartAnexo1"></canvas></div>
                     </div>
-                    
-                    <!-- Gráfico Anexo 3 -->
-                    <div class="glass-card p-6 flex flex-col relative h-[300px]">
+                    <div class="glass-card p-6 flex flex-col relative" style="height:320px">
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm">
-                                    <i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 3
-                                </h2>
-                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Fichas | 27 Celdas llenadas</p>
+                                <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 3</h2>
+                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Fichas | 27 Celdas llenadas promedio</p>
                             </div>
                         </div>
-                        <div class="flex-1 relative w-full h-full">
-                            <canvas id="chartAnexo3"></canvas>
+                        <div class="flex-1 relative w-full"><canvas id="chartAnexo3"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== VISTA 2: ANALISIS ===== -->
+            <div id="view-analisis" class="view-section flex-1 flex-col overflow-y-auto pr-2 custom-scrollbar">
+                <div class="switcher" role="tablist" aria-label="Anexos">
+                    <button class="tab-ana active" data-target="anexo1" role="tab" onclick="switchAnexoTab('anexo1')">ANEXO 1</button>
+                    <button class="tab-ana" data-target="anexo3" role="tab" onclick="switchAnexoTab('anexo3')">ANEXO 3</button>
+                </div>
+
+                <section class="panel-ana active" id="panel-anexo1" role="tabpanel">
+                    <div class="section-grid">
+                        <article class="entity-card">
+                            <div class="entity-head"><div class="entity-title">Producto</div><div class="entity-tag">ANEXO 1</div></div>
+                            <div class="entity-body">
+                                <div class="metrics">
+                                    <div class="metric status-filter active-status" data-status="CONFORME" data-block="producto" onclick="filterByStatus('producto','CONFORME')" role="button" tabindex="0"><div class="m-title">Conformes</div><div class="m-num" id="prod-conf">175</div><div class="m-den">/ de 231</div><div class="m-change">75.8% del total</div></div>
+                                    <div class="metric status-filter inactive-status" data-status="OBSERVADO" data-block="producto" onclick="filterByStatus('producto','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="prod-obs">26</div><div class="m-den">/ de 231</div><div class="m-change">11.3% del total</div></div>
+                                    <div class="metric status-filter inactive-status" data-status="SIN REGISTRO" data-block="producto" onclick="filterByStatus('producto','SIN REGISTRO')" role="button" tabindex="0"><div class="m-title">Sin Registro</div><div class="m-num" id="prod-sin">30</div><div class="m-den">/ de 231</div><div class="m-change">13.0% del total</div></div>
+                                </div>
+                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
+                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:76%"></div></div><strong>175</strong></div>
+                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:11%"></div></div><strong>26</strong></div>
+                                    <div class="bar-row"><span>Sin registro</span><div class="track"><div class="fill green" style="width:13%"></div></div><strong>30</strong></div>
+                                </div></div>
+                            </div>
+                        </article>
+
+                        <article class="entity-card">
+                            <div class="entity-head"><div class="entity-title">Procesos</div><div class="entity-tag">ANEXO 1</div></div>
+                            <div class="entity-body">
+                                <div class="metrics">
+                                    <div class="metric status-filter" data-status="CONFORME" data-block="procesos" onclick="filterByStatus('procesos','CONFORME')" role="button" tabindex="0"><div class="m-title">Conformes</div><div class="m-num" id="proc-conf">12</div><div class="m-den">/ de 16</div><div class="m-change">75.0% del total</div></div>
+                                    <div class="metric status-filter" data-status="OBSERVADO" data-block="procesos" onclick="filterByStatus('procesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="proc-obs">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
+                                    <div class="metric status-filter" data-status="SIN REGISTRO" data-block="procesos" onclick="filterByStatus('procesos','SIN REGISTRO')" role="button" tabindex="0"><div class="m-title">Sin Registro</div><div class="m-num" id="proc-sin">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
+                                </div>
+                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
+                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:75%"></div></div><strong>12</strong></div>
+                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:12%"></div></div><strong>2</strong></div>
+                                    <div class="bar-row"><span>Sin registro</span><div class="track"><div class="fill green" style="width:12%"></div></div><strong>2</strong></div>
+                                </div></div>
+                            </div>
+                        </article>
+
+                        <article class="entity-card">
+                            <div class="entity-head"><div class="entity-title">SubProcesos</div><div class="entity-tag">ANEXO 1</div></div>
+                            <div class="entity-body">
+                                <div class="metrics">
+                                    <div class="metric status-filter" data-status="CONFORME" data-block="subprocesos" onclick="filterByStatus('subprocesos','CONFORME')" role="button" tabindex="0"><div class="m-title">Conformes</div><div class="m-num" id="sub-conf">10</div><div class="m-den">/ de 14</div><div class="m-change">71.4% del total</div></div>
+                                    <div class="metric status-filter" data-status="OBSERVADO" data-block="subprocesos" onclick="filterByStatus('subprocesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="sub-obs">3</div><div class="m-den">/ de 14</div><div class="m-change">21.4% del total</div></div>
+                                    <div class="metric status-filter" data-status="SIN REGISTRO" data-block="subprocesos" onclick="filterByStatus('subprocesos','SIN REGISTRO')" role="button" tabindex="0"><div class="m-title">Sin Registro</div><div class="m-num" id="sub-sin">1</div><div class="m-den">/ de 14</div><div class="m-change">7.1% del total</div></div>
+                                </div>
+                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
+                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:71%"></div></div><strong>10</strong></div>
+                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:21%"></div></div><strong>3</strong></div>
+                                    <div class="bar-row"><span>Sin registro</span><div class="track"><div class="fill green" style="width:7%"></div></div><strong>1</strong></div>
+                                </div></div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <section class="data-panel" id="dataPanelAnexo1">
+                        <div class="data-toolbar">
+                            <div class="title" id="tableTitleA1">Detalle de Productos · Conformes</div>
+                            <div class="select-wrap"><select id="filterFacultyA1" onchange="renderAnexo1Table()"><option value="">Todas las facultades</option></select></div>
+                            <div class="select-wrap"><select id="filterProcessA1" onchange="renderAnexo1Table()"><option value="">Todos los procesos nivel 0</option></select></div>
+                            <div class="select-wrap"><select id="filterTypeA1" onchange="renderAnexo1Table()"><option value="">Todos los tipos</option></select></div>
                         </div>
+                        <div class="data-meta">
+                            <span><strong>Vista:</strong> <span id="statusViewA1">Productos CONFORME</span></span>
+                            <span><strong>Registros:</strong> <span id="visibleCountA1">0</span></span>
+                            <span>Los filtros funcionan como desplegables de Excel.</span>
+                        </div>
+                        <div class="table-wrap custom-scrollbar">
+                            <table class="data-table" id="dataTableA1">
+                                <thead><tr><th>FACULTAD</th><th>FILA</th><th>PROCESO NIVEL 0</th><th>CODIGO</th><th>NOMBRE</th><th>TIPO</th><th>ESTADO</th><th>CUMPLIMIENTO</th><th>CRITERIOS</th><th>OBSERVACIONES Y CORRECCIONES</th></tr></thead>
+                                <tbody id="productRowsA1"></tbody>
+                            </table>
+                        </div>
+                        <div class="data-footer" id="dataFooterA1">Se muestran unicamente los Productos con estado <strong>CONFORME</strong>. Usa los desplegables para filtrar la informacion. Haz clic en las tarjetas de estado para cambiar la vista.</div>
+                    </section>
+                </section>
+
+                <section class="panel-ana" id="panel-anexo3" role="tabpanel">
+                    <div class="anexo3-layout">
+                        <article class="anexo3-card">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Fichas</h3><span class="entity-tag">ANEXO 3</span></div>
+                            <div class="anexo3-metrics">
+                                <div class="big-metric status-filter" data-status="COMPLETA" data-block="fichas" onclick="filterByStatusA3('COMPLETA')"><h4>Completas</h4><div class="n" id="fich-comp">12</div><div class="den">/ de 16</div><div class="chg">75.0% del total</div></div>
+                                <div class="big-metric status-filter" data-status="INCOMPLETA" data-block="fichas" onclick="filterByStatusA3('INCOMPLETA')"><h4>Incompletas</h4><div class="n" id="fich-incomp">2</div><div class="den">/ de 16</div><div class="chg">12.5% del total</div></div>
+                                <div class="big-metric status-filter" data-status="SIN PRODUCTO" data-block="fichas" onclick="filterByStatusA3('SIN PRODUCTO')"><h4>Sin Producto</h4><div class="n" id="fich-sin">2</div><div class="den">/ de 16</div><div class="chg">12.5% del total</div></div>
+                            </div>
+                            <div class="chart-box" style="margin-top:14px"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
+                                <div class="bar-row"><span>Completas</span><div class="track"><div class="fill dark" style="width:75%"></div></div><strong>12</strong></div>
+                                <div class="bar-row"><span>Incompletas</span><div class="track"><div class="fill" style="width:12%"></div></div><strong>2</strong></div>
+                                <div class="bar-row"><span>Sin producto</span><div class="track"><div class="fill green" style="width:12%"></div></div><strong>2</strong></div>
+                            </div></div>
+                        </article>
+
+                        <article class="anexo3-card">
+                            <h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Ranking de F. Completas por Facultad - Anexo 3</h3>
+                            <p style="margin:4px 0 18px;font-size:9px;color:#8797aa">Porcentaje de Fichas Completas | Facultades</p>
+                            <div class="rank-list" id="ranking-anexo3">
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F01_FM</span><div class="rank-track" style="height:12px"><div class="rank-fill dark" style="width:92%"></div></div><strong>92%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F05_FQIQ</span><div class="rank-track" style="height:12px"><div class="rank-fill" style="width:88%"></div></div><strong>88%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F03_FLCH</span><div class="rank-track" style="height:12px"><div class="rank-fill" style="width:85%"></div></div><strong>85%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F08_FIEE</span><div class="rank-track" style="height:12px"><div class="rank-fill green" style="width:80%"></div></div><strong>80%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F06_FCI</span><div class="rank-track" style="height:12px"><div class="rank-fill" style="width:72%"></div></div><strong>72%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F02_FDCP</span><div class="rank-track" style="height:12px"><div class="rank-fill" style="width:65%"></div></div><strong>65%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F04_FFB</span><div class="rank-track" style="height:12px"><div class="rank-fill green" style="width:58%"></div></div><strong>58%</strong></div>
+                                <div class="rank-row" style="grid-template-columns:70px 1fr 52px"><span>F07_FC</span><div class="rank-track" style="height:12px"><div class="rank-fill" style="width:45%"></div></div><strong>45%</strong></div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <section class="data-panel" id="dataPanelAnexo3" style="margin-top:16px;">
+                        <div class="data-toolbar">
+                            <div class="title" id="tableTitleA3">Detalle de Fichas · Completas</div>
+                            <div class="select-wrap"><select id="filterFacultyA3" onchange="renderAnexo3Table()"><option value="">Todas las facultades</option></select></div>
+                            <div class="select-wrap"><select id="filterProcessA3" onchange="renderAnexo3Table()"><option value="">Todos los procesos</option></select></div>
+                            <div class="select-wrap"><select id="filterTypeA3" onchange="renderAnexo3Table()"><option value="">Todos los tipos</option></select></div>
+                        </div>
+                        <div class="data-meta">
+                            <span><strong>Vista:</strong> <span id="statusViewA3">Fichas COMPLETA</span></span>
+                            <span><strong>Registros:</strong> <span id="visibleCountA3">0</span></span>
+                            <span>Los filtros funcionan como desplegables de Excel.</span>
+                        </div>
+                        <div class="table-wrap custom-scrollbar">
+                            <table class="data-table" id="dataTableA3">
+                                <thead><tr><th>FACULTAD</th><th>FILA</th><th>PROCESO</th><th>CODIGO FICHA</th><th>NOMBRE FICHA</th><th>TIPO</th><th>ESTADO</th><th>CUMPLIMIENTO</th><th>CRITERIOS</th><th>OBSERVACIONES Y CORRECCIONES</th></tr></thead>
+                                <tbody id="productRowsA3"></tbody>
+                            </table>
+                        </div>
+                        <div class="data-footer" id="dataFooterA3">Se muestran unicamente las Fichas con estado <strong>COMPLETA</strong>. Usa los desplegables para filtrar la informacion. Haz clic en las tarjetas de estado para cambiar la vista.</div>
+                    </section>
+                    <div class="notice">El cambio de pestaña oculta completamente la informacion del otro anexo para evitar sobrecarga visual.</div>
+                </section>
+            </div>
+
+            <!-- ===== VISTA 3: BASE DE DATOS ===== -->
+            <div id="view-database" class="view-section flex-1 flex-col overflow-y-auto pr-2 custom-scrollbar">
+                <div class="db-header">
+                    <div class="db-search-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="dbSearchInput" placeholder="Buscar por facultad, proceso, codigo, nombre..." oninput="renderDatabase()">
+                    </div>
+                    <div class="db-actions">
+                        <button class="db-btn" onclick="resetDbFilters()"><i class="fa-solid fa-rotate-right"></i> Limpiar</button>
+                        <button class="db-btn primary" onclick="exportDbToCSV()"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
                     </div>
                 </div>
 
+                <div class="db-summary">
+                    <div class="db-summary-card">
+                        <div class="db-summary-icon" style="background: linear-gradient(145deg, #dbeafe, #bfdbfe); color: #1d4ed8;"><i class="fa-solid fa-database"></i></div>
+                        <div class="db-summary-info"><h4>Total Registros</h4><div class="val" id="dbTotalCount">0</div></div>
+                    </div>
+                    <div class="db-summary-card">
+                        <div class="db-summary-icon" style="background: linear-gradient(145deg, #dcfce7, #bbf7d0); color: #15803d;"><i class="fa-solid fa-check-circle"></i></div>
+                        <div class="db-summary-info"><h4>Conformes / Completas</h4><div class="val" id="dbOkCount">0</div></div>
+                    </div>
+                    <div class="db-summary-card">
+                        <div class="db-summary-icon" style="background: linear-gradient(145deg, #fef3c7, #fde68a); color: #b45309;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="db-summary-info"><h4>Observados / Incompletas</h4><div class="val" id="dbWarnCount">0</div></div>
+                    </div>
+                    <div class="db-summary-card">
+                        <div class="db-summary-icon" style="background: linear-gradient(145deg, #fee2e2, #fecaca); color: #b91c1c;"><i class="fa-solid fa-circle-xmark"></i></div>
+                        <div class="db-summary-info"><h4>Sin Registro / Sin Producto</h4><div class="val" id="dbDangerCount">0</div></div>
+                    </div>
+                </div>
+
+                <div class="db-filters-bar">
+                    <span style="font-size:11px; font-weight:800; color:#71829a; text-transform:uppercase; letter-spacing:0.04em; margin-right:4px;">Entidad:</span>
+                    <button class="db-filter-chip active" data-filter="all" onclick="setDbEntityFilter('all')">Todos</button>
+                    <button class="db-filter-chip" data-filter="Producto" onclick="setDbEntityFilter('Producto')">Productos</button>
+                    <button class="db-filter-chip" data-filter="Proceso" onclick="setDbEntityFilter('Proceso')">Procesos</button>
+                    <button class="db-filter-chip" data-filter="SubProceso" onclick="setDbEntityFilter('SubProceso')">SubProcesos</button>
+                    <button class="db-filter-chip" data-filter="Ficha" onclick="setDbEntityFilter('Ficha')">Fichas</button>
+
+                    <span style="font-size:11px; font-weight:800; color:#71829a; text-transform:uppercase; letter-spacing:0.04em; margin:0 4px 0 16px;">Estado:</span>
+                    <button class="db-filter-chip active" data-status="all" onclick="setDbStatusFilter('all')">Todos</button>
+                    <button class="db-filter-chip" data-status="CONFORME" onclick="setDbStatusFilter('CONFORME')">Conforme</button>
+                    <button class="db-filter-chip" data-status="COMPLETA" onclick="setDbStatusFilter('COMPLETA')">Completa</button>
+                    <button class="db-filter-chip" data-status="OBSERVADO" onclick="setDbStatusFilter('OBSERVADO')">Observado</button>
+                    <button class="db-filter-chip" data-status="INCOMPLETA" onclick="setDbStatusFilter('INCOMPLETA')">Incompleta</button>
+                    <button class="db-filter-chip" data-status="SIN REGISTRO" onclick="setDbStatusFilter('SIN REGISTRO')">Sin Registro</button>
+                    <button class="db-filter-chip" data-status="SIN PRODUCTO" onclick="setDbStatusFilter('SIN PRODUCTO')">Sin Producto</button>
+                </div>
+
+                <div class="db-table-card">
+                    <div class="data-toolbar">
+                        <div class="title" id="dbTableTitle">Registros consolidados · Todos</div>
+                        <div class="select-wrap">
+                            <select id="dbFilterFaculty" onchange="renderDatabase()"><option value="">Todas las facultades</option></select>
+                        </div>
+                        <div class="select-wrap">
+                            <select id="dbFilterProcess" onchange="renderDatabase()"><option value="">Todos los procesos</option></select>
+                        </div>
+                        <div class="select-wrap">
+                            <select id="dbFilterAnexo" onchange="renderDatabase()"><option value="">Todos los anexos</option><option value="Anexo 1">Anexo 1</option><option value="Anexo 3">Anexo 3</option></select>
+                        </div>
+                    </div>
+                    <div class="data-meta">
+                        <span><strong>Mostrando:</strong> <span id="dbShowingCount">0</span> de <span id="dbTotalMeta">0</span> registros</span>
+                        <span><strong>Pagina:</strong> <span id="dbPageMeta">1</span> de <span id="dbTotalPages">1</span></span>
+                        <span>Use la busqueda o los filtros para refinar resultados.</span>
+                    </div>
+                    <div class="table-wrap custom-scrollbar">
+                        <table class="data-table" id="dbTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">#</th>
+                                    <th>ENTIDAD</th>
+                                    <th>ANEXO</th>
+                                    <th>FACULTAD</th>
+                                    <th>PROCESO NIVEL 0</th>
+                                    <th>CODIGO</th>
+                                    <th>NOMBRE</th>
+                                    <th>TIPO</th>
+                                    <th>ESTADO</th>
+                                    <th>CUMPLIMIENTO</th>
+                                    <th>CRITERIOS</th>
+                                    <th>OBSERVACIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dbRows"></tbody>
+                        </table>
+                    </div>
+                    <div class="db-pagination">
+                        <div class="db-page-info" id="dbPageInfo">Mostrando 1-15 de 0 registros</div>
+                        <div class="db-page-buttons" id="dbPageButtons"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <script>
-        // Configuración Global Chart.js
-        Chart.defaults.font.family = "'Inter', 'Segoe UI', 'Roboto', sans-serif";
-        Chart.defaults.color = '#64748b';
-        Chart.defaults.scale.grid.color = 'rgba(0,0,0,0.03)';
-        
-        const blueMain = '#3b82f6';
-        const blueDark = '#0f1a2e';
-        const tealAccent = '#14b8a6';
-        
-        const facultadesLabels = ['F01_FM', 'F02_FDCP', 'F03_FLCH', 'F04_FFB', 'F05_FO', 'F06_FE', 'F07_FQIQ', 'F08_FMV', 'F09_FCA', 'F10_FCB', 'F11_FCC', 'F12_FCE', 'F13_FCF', 'F14_FCM', 'F15_FCCSS', 'F16_FIGMMG', 'F17_FPSIC', 'F18_FIEE', 'F19_FISI', 'F20_FII'];
+<script>
+// ============================================================
+// DATOS REALISTAS UNMSM
+// ============================================================
+const faculties = [
+    {code:"F01_FM", name:"Facultad de Medicina", processes:12},
+    {code:"F02_FDCP", name:"Facultad de Derecho y Ciencia Politica", processes:10},
+    {code:"F03_FLCH", name:"Facultad de Letras y Ciencias Humanas", processes:11},
+    {code:"F04_FFB", name:"Facultad de Farmacia y Bioquimica", processes:9},
+    {code:"F05_FQIQ", name:"Facultad de Quimica e Ing. Quimica", processes:10},
+    {code:"F06_FCI", name:"Facultad de Ingenieria de Construccion", processes:8},
+    {code:"F07_FC", name:"Facultad de Contabilidad", processes:9},
+    {code:"F08_FIEE", name:"Facultad de Ing. Electrica y Electronica", processes:10},
+    {code:"F09_FIIA", name:"Facultad de Ing. Industrial", processes:8},
+    {code:"F10_FMV", name:"Facultad de Medicina Veterinaria", processes:9},
+    {code:"F11_FOdont", name:"Facultad de Odontologia", processes:7},
+    {code:"F12_FPSI", name:"Facultad de Psicologia", processes:8},
+    {code:"F13_FCS", name:"Facultad de Ciencias Sociales", processes:9},
+    {code:"F14_FCE", name:"Facultad de Ciencias Economicas", processes:10},
+    {code:"F15_FAC", name:"Facultad de Administracion", processes:9},
+    {code:"F16_FAG", name:"Facultad de Agronomia", processes:7},
+    {code:"F17_FCBC", name:"Facultad de Ciencias Biologicas", processes:8},
+    {code:"F18_FCF", name:"Facultad de Ciencias Fisicas", processes:9},
+    {code:"F19_FCM", name:"Facultad de Ciencias Matematicas", processes:8},
+    {code:"F20_FCSAR", name:"Facultad de Ciencias de la Salud", processes:7}
+];
 
-        // 1. Gráfico: Anexo 1
-        const ctxAnexo1 = document.getElementById('chartAnexo1').getContext('2d');
-        
-        // Crear gradiente para las barras
-        let gradientA1 = ctxAnexo1.createLinearGradient(0, 0, 0, 400);
-        gradientA1.addColorStop(0, '#60a5fa');
-        gradientA1.addColorStop(1, '#2563eb');
+const processTypes = ["Gestion academica", "Investigacion", "Extension", "Gestion administrativa"];
+const productTypes = ["Producto academico", "Producto de investigacion", "Producto de extension", "Producto de gestion"];
+const fichaTypes = ["Ficha de proceso", "Ficha de subproceso"];
 
-        new Chart(ctxAnexo1, {
-            type: 'bar',
-            data: {
-                labels: facultadesLabels,
-                datasets: [{
-                    label: 'Avance',
-                    data: [550, 388, 417, 373, 444, 432, 461, 434, 425, 474, 493, 440, 460, 430, 480, 500, 420, 490, 520, 560], // Datos simulados basados en la imagen
-                    backgroundColor: function(context) {
-                        const index = context.dataIndex;
-                        return index === 6 ? blueDark : gradientA1; // Highlight seleccionado (F07_FQIQ)
-                    },
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 26, 46, 0.9)',
-                        padding: 12,
-                        titleFont: { size: 14, family: 'Inter' },
-                        bodyFont: { size: 14, family: 'Inter', weight: 'bold' },
-                        cornerRadius: 8,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' pts';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 600,
-                        border: { display: false },
-                        ticks: { font: { weight: '600' } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        border: { display: false },
-                        ticks: { font: { size: 10, weight: 'bold' }, maxRotation: 45, minRotation: 45 }
-                    }
-                }
-            }
+// Generar datos de Anexo 1
+let anexo1Data = [];
+let rowCounter = 1;
+faculties.forEach((fac, fi) => {
+    const baseStatus = fi < 8 ? "CONFORME" : (fi < 14 ? "OBSERVADO" : "SIN REGISTRO");
+    const nProducts = 8 + Math.floor(Math.random() * 8);
+    for (let i = 0; i < nProducts; i++) {
+        const statuses = ["CONFORME","CONFORME","CONFORME","OBSERVADO","SIN REGISTRO"];
+        const st = statuses[Math.floor(Math.random() * statuses.length)];
+        anexo1Data.push({
+            id: rowCounter++, faculty: fac.code, process: processTypes[i % 4],
+            code: `P-${String(rowCounter).padStart(3,'0')}`,
+            name: `${fac.name.split(' ').slice(2).join(' ')} - Producto ${i+1}`,
+            type: productTypes[i % 4], status: st,
+            compliance: st === "CONFORME" ? "100%" : (st === "OBSERVADO" ? `${60 + Math.floor(Math.random()*25)}%` : "0%"),
+            criteria: st === "SIN REGISTRO" ? "-" : `C${1+Math.floor(Math.random()*5)},C${1+Math.floor(Math.random()*5)}`,
+            observations: st === "CONFORME" ? "Documento validado y aprobado" : (st === "OBSERVADO" ? "Requiere revision de criterios" : "No se ha presentado el documento")
         });
+    }
+});
 
-        // 2. Gráfico: Anexo 3
-        const ctxAnexo3 = document.getElementById('chartAnexo3').getContext('2d');
-        
-        // Crear gradiente para las barras
-        let gradientA3 = ctxAnexo3.createLinearGradient(0, 0, 0, 400);
-        gradientA3.addColorStop(0, '#60a5fa');
-        gradientA3.addColorStop(1, '#2563eb');
-
-        new Chart(ctxAnexo3, {
-            type: 'bar',
-            data: {
-                labels: facultadesLabels,
-                datasets: [{
-                    label: 'Avance',
-                    data: [540, 390, 410, 360, 450, 440, 470, 440, 420, 480, 500, 410, 440, 410, 400, 450, 470, 510, 430, 550], // Datos simulados basados en la imagen
-                    backgroundColor: function(context) {
-                        const index = context.dataIndex;
-                        return index === 6 ? blueDark : gradientA3; // Highlight seleccionado (F07_FQIQ)
-                    },
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 26, 46, 0.9)',
-                        padding: 12,
-                        titleFont: { size: 14, family: 'Inter' },
-                        bodyFont: { size: 14, family: 'Inter', weight: 'bold' },
-                        cornerRadius: 8,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' pts';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 600,
-                        border: { display: false },
-                        ticks: { font: { weight: '600' } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        border: { display: false },
-                        ticks: { font: { size: 10, weight: 'bold' }, maxRotation: 45, minRotation: 45 }
-                    }
-                }
-            }
+// Generar datos de Anexo 3
+let anexo3Data = [];
+rowCounter = 1;
+faculties.forEach((fac, fi) => {
+    const statuses = ["COMPLETA","COMPLETA","COMPLETA","INCOMPLETA","SIN PRODUCTO"];
+    const nFichas = 4 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < nFichas; i++) {
+        const st = statuses[Math.floor(Math.random() * statuses.length)];
+        anexo3Data.push({
+            id: rowCounter++, faculty: fac.code, process: processTypes[i % 4],
+            code: `F-${String(rowCounter).padStart(3,'0')}`,
+            name: `Ficha de caracterizacion ${fac.code}`,
+            type: fichaTypes[i % 2], status: st,
+            compliance: st === "COMPLETA" ? "100%" : (st === "INCOMPLETA" ? `${60 + Math.floor(Math.random()*30)}%` : "0%"),
+            criteria: st === "SIN PRODUCTO" ? "-" : `C1-C${6+Math.floor(Math.random()*5)}`,
+            observations: st === "COMPLETA" ? "Ficha validada sin observaciones" : (st === "INCOMPLETA" ? "Faltan secciones por completar" : "No existe producto asociado")
         });
+    }
+});
 
-    </script>
+// Datos consolidados para Base de Datos
+const allData = [];
+anexo1Data.forEach(d => allData.push({...d, entity: "Producto", anexo: "Anexo 1"}));
+anexo3Data.forEach(d => allData.push({...d, entity: "Ficha", anexo: "Anexo 3"}));
+// Agregar procesos y subprocesos
+faculties.forEach((fac, fi) => {
+    allData.push({entity:"Proceso", anexo:"Anexo 1", faculty:fac.code, process:"Gestion academica", code:`PR-${fi+1}`, name:`Gestion de matricula ${fac.code}`, type:"Proceso misional", status: fi<12?"CONFORME":"OBSERVADO", compliance: fi<12?"100%":"65%", criteria:"C1,C2,C3", observations: fi<12?"Operativo":"Falta documentacion"});
+    allData.push({entity:"SubProceso", anexo:"Anexo 1", faculty:fac.code, process:"Gestion academica", code:`SP-${fi+1}`, name:`Registro de notas ${fac.code}`, type:"Subproceso academico", status: fi<10?"CONFORME":(fi<16?"OBSERVADO":"SIN REGISTRO"), compliance: fi<10?"100%":(fi<16?"70%":"0%"), criteria:"C1,C2", observations: fi<10?"Funcionando":"Pendiente"});
+});
+
+// ============================================================
+// NAVEGACION ENTRE VISTAS
+// ============================================================
+let currentView = 'dashboard';
+function switchTab(tab) {
+    currentView = tab;
+    // Ocultar todas las vistas
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('view-' + tab).classList.add('active');
+
+    // Actualizar botones del header
+    ['dashboard','analisis','database'].forEach(t => {
+        const btn = document.getElementById('btn-tab-' + t);
+        if (t === tab) {
+            btn.classList.remove('bg-white','text-corp-textmuted');
+            btn.classList.add('bg-corp-dark','text-white','shadow-lg','shadow-corp-dark/30','btn-depth-primary');
+        } else {
+            btn.classList.add('bg-white','text-corp-textmuted');
+            btn.classList.remove('bg-corp-dark','text-white','shadow-lg','shadow-corp-dark/30','btn-depth-primary');
+        }
+    });
+
+    // Actualizar sidebar
+    ['dashboard','database','analisis'].forEach(t => {
+        const btn = document.getElementById('nav-' + t);
+        if (t === tab) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+}
+
+function switchAnexoTab(target) {
+    document.querySelectorAll('.tab-ana').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+    document.querySelectorAll('.panel-ana').forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+}
+
+// ============================================================
+// SIDEBAR FACULTADES
+// ============================================================
+function renderFacultyList() {
+    const list = document.getElementById('faculty-list');
+    list.innerHTML = faculties.map(f => `
+        <li class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition group" onclick="toggleFaculty('${f.code}')">
+            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold text-blue-300 group-hover:bg-blue-500/20 transition">${f.code.split('_')[1]}</div>
+            <div class="flex-1 min-w-0">
+                <div class="text-xs font-semibold truncate">${f.name}</div>
+                <div class="text-[10px] text-white/40">${f.processes} procesos</div>
+            </div>
+            <div class="w-2 h-2 rounded-full ${f.processes > 9 ? 'bg-emerald-400' : (f.processes > 6 ? 'bg-amber-400' : 'bg-rose-400')}"></div>
+        </li>
+    `).join('');
+}
+
+function toggleFaculty(code) {
+    // Funcionalidad de filtro por facultad - puede expandirse
+    console.log('Filtrar por facultad:', code);
+}
+
+function resetAllFilters() {
+    resetDbFilters();
+    document.getElementById('filterFacultyA1').value = '';
+    document.getElementById('filterProcessA1').value = '';
+    document.getElementById('filterTypeA1').value = '';
+    document.getElementById('filterFacultyA3').value = '';
+    document.getElementById('filterProcessA3').value = '';
+    document.getElementById('filterTypeA3').value = '';
+    renderAnexo1Table();
+    renderAnexo3Table();
+    renderDatabase();
+}
+
+// ============================================================
+// MINI BARS DINAMICAS
+// ============================================================
+function renderMiniBars() {
+    const datasets = [
+        [30,40,35,50,45,60,55,70,80,75,90,100],
+        [80,85,82,90,85,88,80,82,75,78,70,68],
+        [60,65,70,75,72,80,85,88,90,92,85,89],
+        [90,85,88,80,75,70,65,60,55,50,60,45]
+    ];
+    datasets.forEach((data, idx) => {
+        const container = document.getElementById('mini-bar-' + (idx+1));
+        if (!container) return;
+        container.innerHTML = data.map((h, i) => {
+            const isLast = i === data.length - 1;
+            const color = isLast ? 'bg-corp-dark opacity-100' : (idx === 1 && i > 3 && i < 7 ? 'bg-corp-teal opacity-100' : '');
+            return `<div class="mini-bar w-1/12 ${color}" style="height:${h}%"></div>`;
+        }).join('');
+    });
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+let chart1, chart3;
+function initCharts() {
+    const ctx1 = document.getElementById('chartAnexo1');
+    const ctx3 = document.getElementById('chartAnexo3');
+    if (!ctx1 || !ctx3) return;
+
+    const labels = faculties.slice(0,12).map(f => f.code);
+    const data1 = faculties.slice(0,12).map(() => 40 + Math.floor(Math.random() * 55));
+    const data3 = faculties.slice(0,12).map(() => 50 + Math.floor(Math.random() * 45));
+
+    const commonOptions = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Outfit' }, callback: v => v + '%' } },
+            x: { grid: { display: false }, ticks: { font: { family: 'Outfit', size: 10 } } }
+        }
+    };
+
+    chart1 = new Chart(ctx1, {
+        type: 'bar',
+        data: { labels, datasets: [{ data: data1, backgroundColor: '#3b82f6', borderRadius: 6, barThickness: 22 }] },
+        options: commonOptions
+    });
+
+    chart3 = new Chart(ctx3, {
+        type: 'bar',
+        data: { labels, datasets: [{ data: data3, backgroundColor: '#14b8a6', borderRadius: 6, barThickness: 22 }] },
+        options: commonOptions
+    });
+}
+
+// ============================================================
+// ANALISIS - ANEXO 1
+// ============================================================
+let a1StatusFilter = 'CONFORME';
+let a1EntityFilter = 'producto';
+
+function populateAnexo1Filters() {
+    const facs = [...new Set(anexo1Data.map(d => d.faculty))].sort();
+    const procs = [...new Set(anexo1Data.map(d => d.process))].sort();
+    const types = [...new Set(anexo1Data.map(d => d.type))].sort();
+    const f1 = document.getElementById('filterFacultyA1');
+    const p1 = document.getElementById('filterProcessA1');
+    const t1 = document.getElementById('filterTypeA1');
+    facs.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; f1.appendChild(o); });
+    procs.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; p1.appendChild(o); });
+    types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; t1.appendChild(o); });
+}
+
+function filterByStatus(block, status) {
+    a1EntityFilter = block;
+    a1StatusFilter = status;
+    // Actualizar clases activas
+    document.querySelectorAll('.metric[data-block="' + block + '"]').forEach(m => {
+        m.classList.toggle('active-status', m.dataset.status === status);
+        m.classList.toggle('inactive-status', m.dataset.status !== status);
+    });
+    renderAnexo1Table();
+}
+
+function renderAnexo1Table() {
+    const fac = document.getElementById('filterFacultyA1').value;
+    const proc = document.getElementById('filterProcessA1').value;
+    const type = document.getElementById('filterTypeA1').value;
+
+    let filtered = anexo1Data.filter(d => d.status === a1StatusFilter);
+    if (fac) filtered = filtered.filter(d => d.faculty === fac);
+    if (proc) filtered = filtered.filter(d => d.process === proc);
+    if (type) filtered = filtered.filter(d => d.type === type);
+
+    document.getElementById('statusViewA1').textContent = `Productos ${a1StatusFilter}`;
+    document.getElementById('visibleCountA1').textContent = filtered.length;
+    document.getElementById('tableTitleA1').textContent = `Detalle de Productos · ${a1StatusFilter}`;
+    document.getElementById('dataFooterA1').innerHTML = `Se muestran unicamente los Productos con estado <strong>${a1StatusFilter}</strong>. Total filtrado: ${filtered.length} registros.`;
+
+    const tbody = document.getElementById('productRowsA1');
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i><br>No hay registros para los filtros seleccionados</div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = filtered.slice(0, 50).map(d => `
+        <tr><td>${d.faculty}</td><td>${d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
+        <td>${d.name}</td><td>${d.type}</td>
+        <td><span class="db-badge ${d.status==='CONFORME'?'ok':(d.status==='OBSERVADO'?'warn':'danger')}">${d.status}</span></td>
+        <td class="cumplimiento">${d.compliance}</td><td class="criterios">${d.criteria}</td><td class="obs">${d.observations}</td></tr>
+    `).join('');
+}
+
+// ============================================================
+// ANALISIS - ANEXO 3
+// ============================================================
+let a3StatusFilter = 'COMPLETA';
+
+function populateAnexo3Filters() {
+    const facs = [...new Set(anexo3Data.map(d => d.faculty))].sort();
+    const procs = [...new Set(anexo3Data.map(d => d.process))].sort();
+    const types = [...new Set(anexo3Data.map(d => d.type))].sort();
+    const f3 = document.getElementById('filterFacultyA3');
+    const p3 = document.getElementById('filterProcessA3');
+    const t3 = document.getElementById('filterTypeA3');
+    facs.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; f3.appendChild(o); });
+    procs.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; p3.appendChild(o); });
+    types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; t3.appendChild(o); });
+}
+
+function filterByStatusA3(status) {
+    a3StatusFilter = status;
+    document.querySelectorAll('.big-metric[data-block="fichas"]').forEach(m => {
+        m.classList.toggle('active-status', m.dataset.status === status);
+        m.classList.toggle('inactive-status', m.dataset.status !== status);
+    });
+    renderAnexo3Table();
+}
+
+function renderAnexo3Table() {
+    const fac = document.getElementById('filterFacultyA3').value;
+    const proc = document.getElementById('filterProcessA3').value;
+    const type = document.getElementById('filterTypeA3').value;
+
+    let filtered = anexo3Data.filter(d => d.status === a3StatusFilter);
+    if (fac) filtered = filtered.filter(d => d.faculty === fac);
+    if (proc) filtered = filtered.filter(d => d.process === proc);
+    if (type) filtered = filtered.filter(d => d.type === type);
+
+    document.getElementById('statusViewA3').textContent = `Fichas ${a3StatusFilter}`;
+    document.getElementById('visibleCountA3').textContent = filtered.length;
+    document.getElementById('tableTitleA3').textContent = `Detalle de Fichas · ${a3StatusFilter}`;
+    document.getElementById('dataFooterA3').innerHTML = `Se muestran unicamente las Fichas con estado <strong>${a3StatusFilter}</strong>. Total filtrado: ${filtered.length} registros.`;
+
+    const tbody = document.getElementById('productRowsA3');
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i><br>No hay registros para los filtros seleccionados</div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = filtered.slice(0, 50).map(d => `
+        <tr><td>${d.faculty}</td><td>${d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
+        <td>${d.name}</td><td>${d.type}</td>
+        <td><span class="db-badge ${d.status==='COMPLETA'?'ok':(d.status==='INCOMPLETA'?'warn':'danger')}">${d.status}</span></td>
+        <td class="cumplimiento">${d.compliance}</td><td class="criterios">${d.criteria}</td><td class="obs">${d.observations}</td></tr>
+    `).join('');
+}
+
+// ============================================================
+// BASE DE DATOS
+// ============================================================
+let dbPage = 1;
+const dbPageSize = 12;
+let dbEntityFilter = 'all';
+let dbStatusFilter = 'all';
+
+function populateDbFilters() {
+    const facs = [...new Set(allData.map(d => d.faculty))].sort();
+    const procs = [...new Set(allData.map(d => d.process))].sort();
+    const f = document.getElementById('dbFilterFaculty');
+    const p = document.getElementById('dbFilterProcess');
+    facs.forEach(fc => { const o = document.createElement('option'); o.value = fc; o.textContent = fc; f.appendChild(o); });
+    procs.forEach(pr => { const o = document.createElement('option'); o.value = pr; o.textContent = pr; p.appendChild(o); });
+}
+
+function getDbFilteredData() {
+    const search = document.getElementById('dbSearchInput').value.toLowerCase();
+    const fac = document.getElementById('dbFilterFaculty').value;
+    const proc = document.getElementById('dbFilterProcess').value;
+    const anexo = document.getElementById('dbFilterAnexo').value;
+
+    return allData.filter(d => {
+        if (dbEntityFilter !== 'all' && d.entity !== dbEntityFilter) return false;
+        if (dbStatusFilter !== 'all' && d.status !== dbStatusFilter) return false;
+        if (fac && d.faculty !== fac) return false;
+        if (proc && d.process !== proc) return false;
+        if (anexo && d.anexo !== anexo) return false;
+        if (search) {
+            const hay = `${d.faculty} ${d.process} ${d.code} ${d.name} ${d.type} ${d.status} ${d.observations}`.toLowerCase();
+            if (!hay.includes(search)) return false;
+        }
+        return true;
+    });
+}
+
+function getDbBadgeClass(status) {
+    if (status === 'CONFORME' || status === 'COMPLETA') return 'ok';
+    if (status === 'OBSERVADO' || status === 'INCOMPLETA') return 'warn';
+    if (status === 'SIN REGISTRO' || status === 'SIN PRODUCTO') return 'danger';
+    return 'gray';
+}
+
+function renderDatabase() {
+    const data = getDbFilteredData();
+    const total = data.length;
+    const totalPages = Math.max(1, Math.ceil(total / dbPageSize));
+    if (dbPage > totalPages) dbPage = totalPages;
+    if (dbPage < 1) dbPage = 1;
+    const start = (dbPage - 1) * dbPageSize;
+    const pageData = data.slice(start, start + dbPageSize);
+
+    // Summary
+    const ok = allData.filter(d => d.status === 'CONFORME' || d.status === 'COMPLETA').length;
+    const warn = allData.filter(d => d.status === 'OBSERVADO' || d.status === 'INCOMPLETA').length;
+    const danger = allData.filter(d => d.status === 'SIN REGISTRO' || d.status === 'SIN PRODUCTO').length;
+    document.getElementById('dbTotalCount').textContent = allData.length;
+    document.getElementById('dbOkCount').textContent = ok;
+    document.getElementById('dbWarnCount').textContent = warn;
+    document.getElementById('dbDangerCount').textContent = danger;
+
+    // Meta
+    document.getElementById('dbShowingCount').textContent = total;
+    document.getElementById('dbTotalMeta').textContent = allData.length;
+    document.getElementById('dbPageMeta').textContent = dbPage;
+    document.getElementById('dbTotalPages').textContent = totalPages;
+    document.getElementById('dbPageInfo').textContent = total === 0 ? 'No hay registros para mostrar' : `Mostrando ${start+1}-${Math.min(start+dbPageSize,total)} de ${total} registros`;
+
+    const entityLabel = dbEntityFilter === 'all' ? 'Todos' : dbEntityFilter + 's';
+    const statusLabel = dbStatusFilter === 'all' ? '' : ' · ' + dbStatusFilter;
+    document.getElementById('dbTableTitle').textContent = `Registros consolidados · ${entityLabel}${statusLabel}`;
+
+    // Rows
+    const tbody = document.getElementById('dbRows');
+    if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12"><div class="db-empty"><i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;opacity:.4;display:block;"></i>No se encontraron registros con los filtros aplicados.</div></td></tr>`;
+    } else {
+        tbody.innerHTML = pageData.map((d, i) => `
+            <tr><td>${start+i+1}</td><td>${d.entity}</td><td>${d.anexo}</td><td>${d.faculty}</td><td>${d.process}</td>
+            <td><code style="font-family:monospace;font-size:11px;color:#71829a;">${d.code}</code></td>
+            <td>${d.name}</td><td>${d.type}</td>
+            <td><span class="db-badge ${getDbBadgeClass(d.status)}">${d.status}</span></td>
+            <td style="font-variant-numeric:tabular-nums;font-weight:700;">${d.compliance}</td>
+            <td>${d.criteria}</td><td style="max-width:280px;">${d.observations}</td></tr>
+        `).join('');
+    }
+
+    // Pagination
+    const pg = document.getElementById('dbPageButtons');
+    let html = `<button class="db-page-btn" onclick="goDbPage(${dbPage-1})" ${dbPage===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= dbPage - 1 && i <= dbPage + 1)) {
+            html += `<button class="db-page-btn ${i===dbPage?'active':''}" onclick="goDbPage(${i})">${i}</button>`;
+        } else if (i === dbPage - 2 || i === dbPage + 2) {
+            html += `<span style="padding:0 4px;color:#94a3b8;font-size:12px;">...</span>`;
+        }
+    }
+    html += `<button class="db-page-btn" onclick="goDbPage(${dbPage+1})" ${dbPage===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button>`;
+    pg.innerHTML = html;
+}
+
+function goDbPage(p) { dbPage = p; renderDatabase(); }
+
+function setDbEntityFilter(val) {
+    dbEntityFilter = val; dbPage = 1;
+    document.querySelectorAll('.db-filter-chip[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === val));
+    renderDatabase();
+}
+
+function setDbStatusFilter(val) {
+    dbStatusFilter = val; dbPage = 1;
+    document.querySelectorAll('.db-filter-chip[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === val));
+    renderDatabase();
+}
+
+function resetDbFilters() {
+    document.getElementById('dbSearchInput').value = '';
+    document.getElementById('dbFilterFaculty').value = '';
+    document.getElementById('dbFilterProcess').value = '';
+    document.getElementById('dbFilterAnexo').value = '';
+    setDbEntityFilter('all');
+    setDbStatusFilter('all');
+    dbPage = 1;
+}
+
+function exportDbToCSV() {
+    const data = getDbFilteredData();
+    const headers = ['#','Entidad','Anexo','Facultad','Proceso','Codigo','Nombre','Tipo','Estado','Cumplimiento','Criterios','Observaciones'];
+    const rows = data.map((d,i) => [i+1,d.entity,d.anexo,d.faculty,d.process,d.code,d.name,d.type,d.status,d.compliance,d.criteria,d.observations]);
+    const csv = [headers,...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'base_datos_unmsm.csv'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// INICIALIZACION
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    renderFacultyList();
+    renderMiniBars();
+    initCharts();
+    populateAnexo1Filters();
+    populateAnexo3Filters();
+    populateDbFilters();
+    renderAnexo1Table();
+    renderAnexo3Table();
+    renderDatabase();
+    switchTab('dashboard');
+});
+</script>
 </body>
 </html>
