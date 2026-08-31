@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Gestión por Procesos · OGPL UNMSM</title>
+<meta name="description" content="Panel de control editable del proyecto de Gestión por Procesos — Oficina de Racionalización, OGPL UNMSM. Datos de demostración.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+/* =====================================================================
+   1. TOKENS DE DISEÑO
+   ===================================================================== */
+:root{
+  --bg:#e9eef4;
+  --surface:#ffffff;
+  --surface-2:#f6f9fc;
+  --surface-3:#eff4f9;
+
+  --navy:#101d33;
+  --navy-2:#17294a;
+  --navy-3:#0c1728;
+
+  --blue:#2f6fed;
+  --blue-2:#5b93f5;
+  --blue-soft:#e4edff;
+  --teal:#0fb3a1;
+  --green:#12a37c;
+  --green-soft:#dcf7ee;
+  --amber:#d97706;
+  --amber-soft:#fef3c7;
+  --red:#dc5b5b;
+  --red-soft:#fde8e8;
+
+  --text:#14213a;
+  --text-2:#3f5573;
+  --muted:#7b8ca6;
+  --line:#e2e9f1;
+  --line-2:#eef3f8;
+
+  --r-sm:10px; --r:14px; --r-lg:20px; --r-xl:26px;
+
+  --sh-xs:0 1px 2px rgba(16,29,51,.06);
+  --sh-sm:0 2px 6px rgba(16,29,51,.06), 0 1px 2px rgba(16,29,51,.04);
+  --sh:0 8px 24px rgba(16,29,51,.08), 0 2px 6px rgba(16,29,51,.04);
+  --sh-lg:0 20px 48px rgba(16,29,51,.14);
+  --sh-navy:0 12px 30px rgba(12,23,40,.28);
+
+  --rail-w:72px;
+  --filters-w:272px;
+  --gap:20px;
+
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Outfit','Inter','Segoe UI',Roboto,system-ui,sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+h1,h2,h3,h4,p{margin:0}
+button{font-family:inherit;color:inherit}
+::selection{background:var(--blue);color:#fff}
+
+/* Scrollbars */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c6d2e0;border-radius:99px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:#a7b8cc;background-clip:content-box}
+.scroll-dark::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);background-clip:content-box}
+
+/* Foco visible y accesible en todo el panel */
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+/* =====================================================================
+   2. ESTRUCTURA
+   ===================================================================== */
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden}
+
+.rail{
+  width:var(--rail-w);flex-shrink:0;
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(10px);
+  border-right:1px solid rgba(255,255,255,.8);
+  display:flex;flex-direction:column;align-items:center;
+  padding:22px 0;gap:26px;z-index:30;
+}
+.rail-logo{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(145deg,var(--navy),var(--navy-3));
+  color:#fff;display:grid;place-items:center;font-size:19px;
+  box-shadow:var(--sh-navy);
+}
+.rail-nav{display:flex;flex-direction:column;gap:12px}
+.rail-btn{
+  width:44px;height:44px;border-radius:14px;border:1px solid var(--line);
+  background:var(--surface);color:var(--muted);font-size:16px;
+  display:grid;place-items:center;cursor:pointer;
+  transition:all .18s var(--ease);box-shadow:var(--sh-xs);position:relative;
+}
+.rail-btn:hover{color:var(--blue);border-color:var(--blue-2);transform:translateY(-2px)}
+.rail-btn.active{
+  background:linear-gradient(145deg,var(--navy-2),var(--navy-3));
+  color:#fff;border-color:transparent;box-shadow:var(--sh-navy);
+}
+.rail-btn.active::after{
+  content:'';position:absolute;right:-13px;top:50%;transform:translateY(-50%);
+  width:4px;height:22px;border-radius:99px;background:var(--blue);
+}
+.rail-spacer{margin-top:auto}
+
+.shell{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+
+/* ---------- Barra superior ---------- */
+.topbar{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:22px 28px 16px;flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand-icon{
+  width:48px;height:48px;border-radius:15px;flex-shrink:0;
+  background:var(--surface);display:grid;place-items:center;
+  font-size:20px;color:var(--navy);box-shadow:var(--sh-sm);border:1px solid var(--line)
+}
+.brand h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.brand h1 span{font-weight:300;color:var(--muted)}
+.brand p{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:3px}
+.brand p b{color:var(--text-2);font-weight:700}
+
+.topbar-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
+
+.tabs{display:flex;gap:4px;padding:5px;background:rgba(255,255,255,.7);border-radius:99px;box-shadow:var(--sh-xs);border:1px solid var(--line)}
+.tab{
+  border:0;background:transparent;color:var(--text-2);
+  padding:9px 22px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .18s var(--ease);white-space:nowrap;
+}
+.tab:hover{color:var(--navy);background:var(--surface-3)}
+.tab.active{background:linear-gradient(145deg,var(--navy-2),var(--navy-3));color:#fff;box-shadow:var(--sh-navy)}
+
+/* Botones genéricos */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:all .18s var(--ease);box-shadow:var(--sh-xs);
+}
+.btn:hover{border-color:var(--blue-2);color:var(--blue);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:linear-gradient(145deg,var(--blue),#1f5bd4);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(47,111,237,.3)}
+.btn.primary:hover{color:#fff;box-shadow:0 6px 18px rgba(47,111,237,.4)}
+.btn.dark{background:linear-gradient(145deg,var(--navy-2),var(--navy-3));color:#fff;border-color:transparent;box-shadow:var(--sh-navy)}
+.btn.dark:hover{color:#fff}
+.btn.ghost{background:transparent;box-shadow:none}
+.btn.danger:hover{border-color:var(--red);color:var(--red)}
+.btn.icon{padding:9px 11px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none!important}
+.filters-toggle{display:none}
+
+/* Interruptor de modo edición */
+.edit-toggle{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:8px 15px 8px 12px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);
+  font-size:12.5px;font-weight:700;color:var(--text-2);
+  transition:all .2s var(--ease);box-shadow:var(--sh-xs);
+}
+.edit-toggle .switch{
+  width:34px;height:19px;border-radius:99px;background:#cfdae7;position:relative;transition:background .2s var(--ease);flex-shrink:0;
+}
+.edit-toggle .switch::after{
+  content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+  background:#fff;box-shadow:var(--sh-xs);transition:transform .2s var(--ease);
+}
+.edit-toggle[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue-2);color:var(--blue)}
+.edit-toggle[aria-pressed="true"] .switch{background:var(--blue)}
+.edit-toggle[aria-pressed="true"] .switch::after{transform:translateX(15px)}
+
+/* ---------- Zona de trabajo ---------- */
+.workspace{flex:1;display:flex;gap:var(--gap);padding:0 28px 24px;min-height:0}
+
+.filters{
+  width:var(--filters-w);flex-shrink:0;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,var(--navy-2),var(--navy-3));
+  color:#fff;padding:22px 20px;display:flex;flex-direction:column;
+  box-shadow:var(--sh-navy);overflow:hidden;
+}
+.filters-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:14px}
+.filters-head .t{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;letter-spacing:.01em}
+.filters-head i.lead{color:var(--blue-2)}
+.icon-ghost{background:transparent;border:0;color:rgba(255,255,255,.5);cursor:pointer;padding:6px;border-radius:8px;transition:all .18s var(--ease)}
+.icon-ghost:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+.filters-search{position:relative;margin-bottom:12px}
+.filters-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(255,255,255,.4)}
+.filters-search input{
+  width:100%;padding:9px 12px 9px 32px;border-radius:var(--r-sm);
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);
+  color:#fff;font-size:12px;font-weight:500;font-family:inherit;outline:none;transition:all .18s var(--ease);
+}
+.filters-search input::placeholder{color:rgba(255,255,255,.38)}
+.filters-search input:focus{border-color:var(--blue-2);background:rgba(255,255,255,.12)}
+
+.filters-subhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.filters-subhead h3{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.link-mini{background:none;border:0;color:var(--blue-2);font-size:11px;font-weight:700;cursor:pointer;padding:2px 4px;border-radius:5px}
+.link-mini:hover{color:#fff;text-decoration:underline}
+
+.faculty-list{list-style:none;margin:0;padding:0 6px 0 0;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.faculty-item{
+  display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:11px;cursor:pointer;
+  transition:background .15s var(--ease);border:1px solid transparent;
+}
+.faculty-item:hover{background:rgba(255,255,255,.07)}
+.faculty-item.selected{background:rgba(47,111,237,.18);border-color:rgba(91,147,245,.4)}
+.faculty-item .chip{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;
+  font-size:9.5px;font-weight:800;background:rgba(255,255,255,.09);color:var(--blue-2);
+  transition:all .15s var(--ease);
+}
+.faculty-item.selected .chip{background:var(--blue);color:#fff}
+.faculty-item .info{flex:1;min-width:0;display:block}
+.faculty-item .nm{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.faculty-item .sub{display:block;font-size:10px;color:rgba(255,255,255,.42);margin-top:1px}
+.faculty-item .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-hi{background:#34d399}.dot-md{background:#fbbf24}.dot-lo{background:#fb7185}
+
+.filters-foot{border-top:1px solid rgba(255,255,255,.1);padding-top:14px;margin-top:12px;font-size:12px;flex-shrink:0}
+.filters-foot .row{display:flex;justify-content:space-between;margin-top:6px}
+.filters-foot .row span:first-child{color:rgba(255,255,255,.6)}
+.filters-foot .row b{font-weight:700;font-variant-numeric:tabular-nums}
+.filters-foot .cap{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase}
+
+.views{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.view{display:none;flex:1;min-height:0;overflow-y:auto;padding-right:6px}
+.view.active{display:block;animation:fadeIn .3s var(--ease)}
+
+/* =====================================================================
+   3. LIENZO DE CUADROS (widgets) — mover / editar / añadir
+   ===================================================================== */
+.canvas-bar[hidden]{display:none}
+.canvas-bar{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 16px;margin-bottom:16px;border-radius:var(--r-lg);
+  background:linear-gradient(120deg,var(--blue-soft),#eef4ff);
+  border:1px dashed var(--blue-2);
+}
+.canvas-bar .msg{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:#1e4fb0;margin-right:auto}
+.canvas-bar .msg i{font-size:15px}
+.canvas-bar .msg kbd{
+  background:#fff;border:1px solid #c3d7ff;border-bottom-width:2px;border-radius:5px;
+  padding:1px 6px;font-size:11px;font-family:inherit;font-weight:700;color:#1e4fb0;
+}
+
+.widget-grid{
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:var(--gap);align-content:start;padding-bottom:8px;
+}
+.widget{
+  grid-column:span 3;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh-sm);position:relative;display:flex;flex-direction:column;
+  transition:box-shadow .2s var(--ease),transform .2s var(--ease),border-color .2s var(--ease);
+  min-width:0;overflow:hidden;animation:pop .25s var(--ease);
+}
+.widget:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.widget[data-w="3"]{grid-column:span 3}
+.widget[data-w="4"]{grid-column:span 4}
+.widget[data-w="6"]{grid-column:span 6}
+.widget[data-w="8"]{grid-column:span 8}
+.widget[data-w="12"]{grid-column:span 12}
+.widget[data-h="1"]{min-height:158px}
+.widget[data-h="2"]{min-height:290px}
+.widget[data-h="3"]{min-height:400px}
+
+.w-head{display:flex;align-items:flex-start;gap:10px;padding:16px 18px 0}
+.w-title{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--text);min-width:0}
+.w-sub{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}
+.w-head .lead{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;
+  background:var(--blue-soft);color:var(--blue);font-size:12px;
+}
+.w-body{padding:14px 18px 18px;flex:1;min-height:0;display:flex;flex-direction:column}
+.w-body.tight{padding-top:10px}
+
+/* --- Herramientas del cuadro (solo en modo edición) --- */
+.w-tools{
+  position:absolute;top:8px;right:8px;left:8px;display:none;gap:3px;z-index:5;justify-content:flex-end;flex-wrap:wrap;
+  background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+  border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--sh-sm);
+}
+.w-tool{
+  width:26px;height:26px;border:0;border-radius:7px;background:transparent;color:var(--muted);
+  font-size:11px;display:grid;place-items:center;cursor:pointer;transition:all .15s var(--ease);
+}
+.w-tool:hover{background:var(--surface-3);color:var(--blue)}
+.w-tool.del:hover{background:var(--red-soft);color:var(--red)}
+.w-tool.grab{cursor:grab}
+.w-tool.grab:active{cursor:grabbing}
+.w-tools .sep{width:1px;background:var(--line);margin:4px 2px}
+
+body.edit-mode .w-tools{display:flex}
+/* En edición la cabecera baja para que la barra de herramientas no tape el título */
+body.edit-mode .w-head{padding-top:48px}
+body.edit-mode .widget[data-h="1"]{min-height:200px}
+body.edit-mode .widget{border-style:dashed;border-color:#bcd0ea}
+body.edit-mode .widget:hover{border-color:var(--blue-2)}
+body.edit-mode .widget::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(47,111,237,.04),transparent 60%);
+}
+body.edit-mode [data-editable]{
+  cursor:text;border-radius:5px;transition:background .15s var(--ease);
+  outline:1px dashed transparent;outline-offset:2px;
+}
+body.edit-mode [data-editable]:hover{background:var(--blue-soft);outline-color:var(--blue-2)}
+body.edit-mode [data-editable]:focus{background:#fff;outline:2px solid var(--blue);outline-offset:2px}
+
+.widget.dragging{opacity:.4;transform:scale(.98);box-shadow:var(--sh-lg)}
+.widget.drop-before{box-shadow:-4px 0 0 0 var(--blue),var(--sh)}
+.widget.drop-after{box-shadow:4px 0 0 0 var(--blue),var(--sh)}
+
+/* Marcador para añadir cuadro */
+.widget-add{
+  grid-column:span 3;min-height:158px;border:2px dashed #c2d3e8;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.5);color:var(--muted);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font-size:12.5px;font-weight:700;cursor:pointer;transition:all .18s var(--ease);
+}
+.widget-add i{font-size:22px}
+.widget-add:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+body.edit-mode .widget-add{display:flex}
+
+.canvas-empty{
+  grid-column:span 12;padding:56px 24px;text-align:center;color:var(--muted);
+  border:2px dashed #ccdaea;border-radius:var(--r-xl);background:rgba(255,255,255,.5);
+}
+.canvas-empty i{font-size:34px;opacity:.35;display:block;margin-bottom:12px}
+.canvas-empty b{display:block;color:var(--text-2);font-size:14px;margin-bottom:4px}
+
+/* =====================================================================
+   4. CONTENIDO INTERNO DE LOS CUADROS
+   ===================================================================== */
+/* KPI */
+.kpi-val{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:auto}
+.kpi-num{font-size:34px;font-weight:900;letter-spacing:-.03em;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1}
+.kpi-delta{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;
+  padding:3px 8px;border-radius:7px;border:1px solid;
+}
+.kpi-delta.up{color:var(--green);background:var(--green-soft);border-color:#b6ecda}
+.kpi-delta.down{color:var(--red);background:var(--red-soft);border-color:#f8cdcd}
+.kpi-delta.flat{color:var(--muted);background:var(--surface-3);border-color:var(--line)}
+.kpi-foot{font-size:11px;color:var(--muted);margin-top:10px;font-weight:500}
+.spark{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:12px}
+.spark span{flex:1;background:var(--blue);border-radius:2px;opacity:.35;transition:opacity .2s var(--ease),transform .2s var(--ease);min-height:2px}
+.spark span:last-child{opacity:1;background:var(--navy)}
+.widget:hover .spark span{opacity:.6}
+.widget:hover .spark span:last-child{opacity:1;transform:scaleY(1.06)}
+.kpi-track{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:14px}
+.kpi-track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--blue-2))}
+
+/* Gráficos */
+.chart-holder{position:relative;flex:1;min-height:120px;width:100%}
+
+/* Barras de progreso etiquetadas */
+.prog-list{display:flex;flex-direction:column;gap:11px;flex:1;justify-content:center}
+.prog-row{display:grid;grid-template-columns:minmax(72px,1fr) 2.4fr 46px;gap:10px;align-items:center;font-size:11px}
+.prog-row .lb{color:var(--text-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-row .tk{display:block;height:9px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.prog-row .fl{display:block;height:100%;border-radius:99px;background:var(--blue);transition:width .5s var(--ease)}
+.prog-row .fl.green{background:var(--green)}
+.prog-row .fl.amber{background:var(--amber)}
+.prog-row .fl.red{background:var(--red)}
+.prog-row .fl.navy{background:var(--navy-2)}
+.prog-row b{text-align:right;font-size:11.5px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Tabla compacta dentro de un cuadro */
+.mini-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.mini-table th{
+  text-align:left;padding:7px 8px;color:var(--muted);font-weight:800;font-size:10px;
+  text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);
+}
+.mini-table td{padding:8px;border-bottom:1px solid var(--line-2);color:var(--text-2)}
+.mini-table tbody tr:last-child td{border-bottom:0}
+.mini-table tbody tr:hover{background:var(--surface-2)}
+.mini-scroll{overflow:auto;flex:1;min-height:0;margin:0 -4px}
+
+/* Nota / texto libre */
+.note-body{
+  flex:1;font-size:12.5px;line-height:1.6;color:var(--text-2);
+  white-space:pre-wrap;overflow-y:auto;min-height:40px;
+}
+.note-body:empty::before{content:'Escriba aquí…';color:var(--muted);font-style:italic}
+
+/* Distribución tipo donut + leyenda */
+.donut-wrap{display:flex;align-items:center;gap:16px;flex:1;min-height:0}
+.donut-wrap .chart-holder{flex:1 1 0;min-width:0}
+.legend{display:flex;flex-direction:column;gap:9px;flex:0 1 auto;min-width:0;max-width:48%}
+/* En cuadros estrechos la leyenda pasa debajo del anillo para no recortar las etiquetas */
+.widget[data-w="3"] .donut-wrap,.widget[data-w="4"] .donut-wrap{flex-direction:column;gap:12px}
+.widget[data-w="3"] .legend,.widget[data-w="4"] .legend{max-width:100%;width:100%;flex-direction:row;flex-wrap:wrap;gap:6px 16px;justify-content:center}
+.widget[data-w="3"] .legend-row,.widget[data-w="4"] .legend-row{flex:0 0 auto}
+.widget[data-w="3"] .legend-row .lb,.widget[data-w="4"] .legend-row .lb{flex:0 0 auto}
+.legend-row{display:flex;align-items:center;gap:8px;font-size:11.5px;min-width:0}
+.legend-row .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.legend-row .lb{color:var(--text-2);font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend-row b{font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Insignias de estado */
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.badge.ok{background:var(--green-soft);color:#0d7a5c}
+.badge.warn{background:var(--amber-soft);color:#a35b06}
+.badge.danger{background:var(--red-soft);color:#b53b3b}
+.badge.info{background:var(--blue-soft);color:#1e4fb0}
+.badge.gray{background:var(--surface-3);color:var(--text-2)}
+
+/* =====================================================================
+   5. MODAL DE EDICIÓN / ALTA DE CUADROS
+   ===================================================================== */
+.modal{
+  position:fixed;inset:0;z-index:100;display:none;
+  align-items:center;justify-content:center;padding:24px;
+  background:rgba(16,29,51,.5);backdrop-filter:blur(4px);
+}
+.modal.open{display:flex;animation:fadeIn .18s var(--ease)}
+.modal-card{
+  background:var(--surface);border-radius:var(--r-xl);width:min(680px,100%);
+  max-height:min(88vh,780px);display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:var(--sh-lg);animation:pop .2s var(--ease);
+}
+.modal-head{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.modal-head h2{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.modal-head p{font-size:12px;color:var(--muted);margin-top:2px}
+.modal-head .btn{margin-left:auto}
+.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--line);background:var(--surface-2)}
+
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.type-card{
+  border:1.5px solid var(--line);border-radius:var(--r);padding:16px 14px;cursor:pointer;
+  background:var(--surface);text-align:left;transition:all .18s var(--ease);
+}
+.type-card:hover{border-color:var(--blue-2);transform:translateY(-2px);box-shadow:var(--sh-sm)}
+.type-card.selected{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.type-card i{font-size:18px;color:var(--blue);display:block;margin-bottom:9px}
+.type-card .nm{font-size:12.5px;font-weight:800;color:var(--text)}
+.type-card .ds{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.field .hint{font-size:11px;color:var(--muted);font-weight:500;margin-top:5px;text-transform:none;letter-spacing:0}
+.field input[type=text],.field input[type=number],.field select,.field textarea{
+  width:100%;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line);
+  background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;font-weight:500;
+  outline:none;transition:all .16s var(--ease);
+}
+.field textarea{resize:vertical;min-height:92px;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.field-row{grid-template-columns:1fr}}
+
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{
+  flex:1;min-width:60px;padding:9px 10px;border-radius:var(--r-sm);border:1px solid var(--line);
+  background:var(--surface);color:var(--text-2);font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .16s var(--ease);
+}
+.seg button:hover{border-color:var(--blue-2);color:var(--blue)}
+.seg button.on{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(47,111,237,.28)}
+
+.rows-editor{display:flex;flex-direction:column;gap:8px}
+.rows-editor .re{display:grid;grid-template-columns:1fr 92px 108px 34px;gap:8px;align-items:center}
+.rows-editor .re input,.rows-editor .re select{padding:8px 10px;font-size:12px}
+.rows-editor .rm{
+  width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+  color:var(--muted);cursor:pointer;font-size:11px;transition:all .16s var(--ease);
+}
+.rows-editor .rm:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+@media(max-width:560px){.rows-editor .re{grid-template-columns:1fr 1fr;grid-auto-rows:auto}}
+
+/* Aviso flotante */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:200;
+  background:var(--navy-3);color:#fff;padding:12px 20px;border-radius:14px;
+  font-size:12.5px;font-weight:600;box-shadow:var(--sh-lg);
+  display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;
+  max-width:calc(100vw - 32px);line-height:1.35;
+  transition:opacity .22s var(--ease),transform .22s var(--ease);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast i{color:#4ade80;flex-shrink:0}
+.toast.warn i{color:#fbbf24}
+
+/* =====================================================================
+   6. VISTA ANÁLISIS
+   ===================================================================== */
+.switcher{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.tab-ana{
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  font-weight:800;font-size:12px;padding:10px 20px;border-radius:var(--r-sm);cursor:pointer;
+  transition:all .18s var(--ease);box-shadow:var(--sh-xs);
+}
+.tab-ana:hover{border-color:var(--blue-2);color:var(--blue)}
+.tab-ana.active{background:var(--blue);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(47,111,237,.26)}
+.panel-ana{display:none}
+.panel-ana.active{display:block;animation:fadeIn .28s var(--ease)}
+
+.section-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.entity-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.entity-head{
+  padding:13px 16px;background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.entity-title{font-size:13px;font-weight:800;color:var(--text)}
+.entity-tag{font-size:9.5px;font-weight:800;padding:5px 10px;border-radius:99px;background:var(--surface-3);color:var(--text-2);letter-spacing:.06em}
+.entity-body{padding:16px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.metric{border:1px solid var(--line);border-radius:var(--r);padding:11px 10px;min-width:0;background:var(--surface)}
+.metric .m-title{font-size:10px;font-weight:800;color:var(--muted);line-height:1.25;min-height:25px}
+.metric .m-num{font-size:22px;color:var(--blue);font-weight:900;margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric .m-den{font-size:9.5px;font-weight:700;color:var(--muted)}
+.metric .m-change{font-size:9.5px;color:var(--green);font-weight:800;margin-top:5px}
+
+.status-filter{cursor:pointer;transition:all .18s var(--ease);user-select:none}
+.status-filter:hover{transform:translateY(-2px);border-color:var(--blue-2)}
+.status-filter.active-status{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 0 0 2px rgba(47,111,237,.12)}
+.status-filter.active-status .m-title,.status-filter.active-status .m-change,
+.status-filter.active-status h4,.status-filter.active-status .chg{color:var(--blue)}
+.status-filter.inactive-status{opacity:.5}
+.status-filter.inactive-status:hover{opacity:.8}
+
+.chart-box{border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.chart-title{font-size:10px;font-weight:800;margin-bottom:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em}
+
+.anexo3-layout{display:grid;grid-template-columns:1.05fr 1.35fr;gap:16px}
+.anexo3-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);padding:18px}
+.anexo3-card > h3{font-size:13px;font-weight:800;color:var(--text)}
+.anexo3-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.big-metric{border:1px solid var(--line);border-radius:var(--r);padding:15px;background:var(--surface)}
+.big-metric h4{font-size:10.5px;color:var(--muted);font-weight:800}
+.big-metric .n{margin-top:8px;font-size:28px;color:var(--blue);font-weight:900;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.big-metric .den{font-size:9.5px;font-weight:700;color:var(--muted)}
+.big-metric .chg{margin-top:7px;font-size:10px;color:var(--green);font-weight:800}
+
+.rank-list{display:flex;flex-direction:column;gap:9px}
+.rank-row{display:grid;grid-template-columns:78px 1fr 46px;gap:10px;align-items:center;font-size:11px;color:var(--text-2);font-weight:600}
+.rank-track{display:block;height:11px;background:var(--surface-3);border-radius:99px;overflow:hidden}
+.rank-fill{display:block;height:100%;border-radius:99px;background:var(--blue-2)}
+.rank-fill.hi{background:var(--green)}.rank-fill.md{background:var(--blue)}.rank-fill.lo{background:var(--amber)}
+.rank-row strong{text-align:right;font-size:11.5px;color:var(--text);font-variant-numeric:tabular-nums}
+.notice{font-size:11px;color:var(--muted);margin-top:14px}
+
+/* =====================================================================
+   7. TABLAS DE DATOS (Análisis + Base de datos)
+   ===================================================================== */
+.data-panel{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.data-toolbar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px;
+  border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface-2),var(--surface));
+}
+.data-toolbar .title{font-size:13px;font-weight:800;margin-right:auto;color:var(--text)}
+.select-wrap select{
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);
+  padding:8px 11px;color:var(--text-2);font-size:11.5px;font-weight:700;font-family:inherit;
+  max-width:220px;cursor:pointer;outline:none;transition:all .16s var(--ease);
+}
+.select-wrap select:hover{border-color:var(--blue-2)}
+.select-wrap select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.data-meta{padding:10px 16px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap}
+.data-meta b{color:var(--text-2)}
+.table-wrap{overflow:auto;max-height:480px}
+.data-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px;font-size:11.5px}
+.data-table th{
+  position:sticky;top:0;z-index:3;background:var(--surface-3);color:var(--text-2);
+  text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+}
+.data-table td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:top;color:var(--text-2);line-height:1.4}
+.data-table tbody tr:nth-child(even){background:var(--surface-2)}
+.data-table tbody tr:hover{background:var(--blue-soft)}
+.data-table code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted)}
+.cumplimiento{font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
+.criterios{font-weight:700;color:var(--text-2);white-space:nowrap}
+.obs{min-width:220px;max-width:300px}
+.data-footer{padding:11px 16px;font-size:11px;color:var(--muted);background:var(--surface-2)}
+.empty-state{padding:44px 20px;text-align:center;color:var(--muted);font-size:13px}
+.empty-state i{font-size:30px;opacity:.35;display:block;margin-bottom:12px}
+
+/* =====================================================================
+   8. VISTA BASE DE DATOS
+   ===================================================================== */
+.db-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.db-search-wrap{position:relative;flex:1;min-width:260px;max-width:460px}
+.db-search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+.db-search-wrap input{
+  width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;font-family:inherit;
+  outline:none;transition:all .18s var(--ease);box-shadow:var(--sh-xs);
+}
+.db-search-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.db-search-wrap input::placeholder{color:var(--muted);font-weight:500}
+.db-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.db-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.db-summary-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh-sm);padding:16px 18px;display:flex;align-items:center;gap:14px;
+  transition:all .2s var(--ease);
+}
+.db-summary-card:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.db-summary-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:17px;flex-shrink:0}
+.db-summary-info h4{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.db-summary-info .val{font-size:24px;font-weight:900;color:var(--navy);letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:2px}
+
+.db-filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.db-filters-bar .grp-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.db-filter-chip{
+  padding:7px 14px;border-radius:99px;font-size:11.5px;font-weight:700;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  transition:all .18s var(--ease);user-select:none;
+}
+.db-filter-chip:hover{border-color:var(--blue-2);color:var(--blue)}
+.db-filter-chip.active{background:linear-gradient(145deg,var(--blue),#1f5bd4);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(47,111,237,.26)}
+.db-table-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden}
+.db-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:var(--surface-2);border-top:1px solid var(--line);flex-wrap:wrap}
+.db-page-info{font-size:11.5px;color:var(--muted);font-weight:600}
+.db-page-buttons{display:flex;gap:4px;align-items:center}
+.db-page-btn{
+  min-width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+  color:var(--text-2);font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s var(--ease);
+  display:grid;place-items:center;
+}
+.db-page-btn:hover:not(:disabled){border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.db-page-btn.active{background:linear-gradient(145deg,var(--blue),#1f5bd4);color:#fff;border-color:transparent}
+.db-page-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* =====================================================================
+   9. RESPONSIVE
+   ===================================================================== */
+@media(max-width:1400px){
+  .widget[data-w="3"]{grid-column:span 4}
+}
+@media(max-width:1200px){
+  .section-grid{grid-template-columns:1fr}
+  .anexo3-layout{grid-template-columns:1fr}
+  .widget[data-w="3"],.widget[data-w="4"]{grid-column:span 6}
+  .widget[data-w="8"]{grid-column:span 12}
+  .widget-add{grid-column:span 6}
+  .db-summary{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:1024px){
+  .filters{
+    position:fixed;left:0;top:0;bottom:0;width:min(300px,86vw);border-radius:0 var(--r-xl) var(--r-xl) 0;
+    transform:translateX(-102%);transition:transform .28s var(--ease);z-index:60;
+  }
+  body.filters-open .filters{transform:none}
+  body.filters-open::after{content:'';position:fixed;inset:0;background:rgba(16,29,51,.45);z-index:55}
+  .filters-toggle{display:inline-flex!important}
+  .workspace{padding:0 20px 20px}
+  .topbar{padding:18px 20px 14px}
+}
+@media(max-width:760px){
+  .rail{
+    width:100%;height:60px;flex-direction:row;padding:0 14px;gap:14px;
+    border-right:0;border-bottom:1px solid rgba(255,255,255,.8);
+  }
+  .rail-nav{flex-direction:row}
+  .rail-btn.active::after{right:auto;left:50%;top:auto;bottom:-11px;transform:translateX(-50%);width:22px;height:4px}
+  .rail-spacer{margin-top:0;margin-left:auto}
+  .app{flex-direction:column}
+  .brand h1{font-size:18px;line-height:1.2}
+  .brand h1 span{display:block}
+  .brand-icon{width:42px;height:42px;font-size:17px}
+  .topbar{padding:14px 16px 10px;gap:12px}
+  .topbar-actions{width:100%;margin-left:0}
+  .tabs{width:100%;justify-content:space-between}
+  .tab{flex:1;padding:9px 8px;font-size:12px;text-align:center}
+  .workspace{padding:0 14px 16px}
+  .widget[data-w]{grid-column:span 12!important}
+  .widget-add{grid-column:span 12}
+  .db-summary{grid-template-columns:1fr}
+  .donut-wrap{flex-direction:column}
+}
+@media print{
+  .rail,.filters,.topbar-actions,.w-tools,.canvas-bar,.widget-add{display:none!important}
+  body,.app,.view{overflow:visible!important;height:auto!important}
+  .widget{break-inside:avoid;box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ RIEL DE NAVEGACIÓN ============ -->
+  <nav class="rail" aria-label="Navegación principal">
+    <div class="rail-logo" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></div>
+    <div class="rail-nav">
+      <button id="rail-dashboard" class="rail-btn active" type="button" title="Dashboard" aria-label="Dashboard" data-view="dashboard"><i class="fa-solid fa-gauge-high"></i></button>
+      <button id="rail-analisis" class="rail-btn" type="button" title="Análisis" aria-label="Análisis" data-view="analisis"><i class="fa-solid fa-chart-line"></i></button>
+      <button id="rail-database" class="rail-btn" type="button" title="Base de datos" aria-label="Base de datos" data-view="database"><i class="fa-solid fa-database"></i></button>
+    </div>
+    <div class="rail-spacer"></div>
+    <button class="rail-btn" type="button" title="Ayuda del modo edición" aria-label="Ayuda" id="btnHelp"><i class="fa-solid fa-circle-question"></i></button>
+  </nav>
+
+  <div class="shell">
+
+    <!-- ============ BARRA SUPERIOR ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <button class="btn icon filters-toggle" type="button" id="btnFiltersToggle" aria-label="Mostrar filtros"><i class="fa-solid fa-sliders"></i></button>
+        <div class="brand-icon" aria-hidden="true"><i class="fa-solid fa-diagram-project"></i></div>
+        <div>
+          <h1>Gestión por Procesos <span>· Panel de control</span></h1>
+          <p>Oficina de Racionalización · OGPL UNMSM &nbsp;|&nbsp; Fecha de corte: <b data-editable id="cutDate">28/08/2026</b></p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="tabs" role="tablist" aria-label="Vistas del panel">
+          <button class="tab active" type="button" role="tab" aria-selected="true" data-view="dashboard">Dashboard</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-view="analisis">Análisis</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-view="database">Base de datos</button>
+        </div>
+        <button class="edit-toggle" type="button" id="btnEditMode" aria-pressed="false">
+          <span class="switch" aria-hidden="true"></span>
+          <i class="fa-solid fa-pen-ruler" aria-hidden="true"></i>
+          <span>Modo edición</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ ZONA DE TRABAJO ============ -->
+    <div class="workspace">
+
+      <!-- ---- Panel de filtros ---- -->
+      <aside class="filters" aria-label="Filtros por facultad">
+        <div class="filters-head">
+          <div class="t"><i class="fa-solid fa-filter lead" aria-hidden="true"></i><span>Filtros</span></div>
+          <button class="icon-ghost" type="button" id="btnResetFilters" title="Restablecer filtros" aria-label="Restablecer filtros"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+
+        <div class="filters-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" id="facultySearch" placeholder="Buscar facultad…" aria-label="Buscar facultad">
+        </div>
+
+        <div class="filters-subhead">
+          <h3>Facultades</h3>
+          <button class="link-mini" type="button" id="btnToggleAllFaculties">Seleccionar todas</button>
+        </div>
+
+        <ul class="faculty-list scroll-dark" id="facultyList"></ul>
+
+        <div class="filters-foot">
+          <div class="cap">Resumen de selección</div>
+          <div class="row"><span>Facultades:</span><b id="facCount">20</b></div>
+          <div class="row"><span>Procesos:</span><b id="procCount">16</b></div>
+          <div class="row"><span>Registros:</span><b id="recCount">0</b></div>
+        </div>
+      </aside>
+
+      <div class="views">
+
+        <!-- ================= VISTA 1 · DASHBOARD ================= -->
+        <section class="view active" id="view-dashboard" role="tabpanel" aria-label="Dashboard">
+
+          <div class="canvas-bar" id="canvasBar" hidden>
+            <div class="msg">
+              <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+              <span>Modo edición activo — arrastre el cuadro por su <kbd>⠿</kbd>, haga clic en los textos para reescribirlos y use los botones del cuadro para editar, duplicar o eliminar.</span>
+            </div>
+            <button class="btn primary" type="button" id="btnAddWidget"><i class="fa-solid fa-plus"></i> Añadir cuadro</button>
+            <button class="btn" type="button" id="btnExportLayout" title="Descargar la configuración del panel"><i class="fa-solid fa-download"></i> Exportar</button>
+            <button class="btn" type="button" id="btnImportLayout" title="Cargar una configuración guardada"><i class="fa-solid fa-upload"></i> Importar</button>
+            <button class="btn danger" type="button" id="btnResetLayout"><i class="fa-solid fa-rotate-left"></i> Restablecer</button>
+            <input type="file" id="importFile" accept="application/json,.json" hidden>
+          </div>
+
+          <div class="widget-grid" id="widgetGrid"></div>
+        </section>
+
+        <!-- ================= VISTA 2 · ANÁLISIS ================= -->
+        <section class="view" id="view-analisis" role="tabpanel" aria-label="Análisis">
+          <div class="switcher" role="tablist" aria-label="Anexos">
+            <button class="tab-ana active" type="button" role="tab" aria-selected="true" data-target="anexo1">Anexo 1 · Inventario</button>
+            <button class="tab-ana" type="button" role="tab" aria-selected="false" data-target="anexo3">Anexo 3 · Fichas</button>
+          </div>
+
+          <div class="panel-ana active" id="panel-anexo1" role="tabpanel">
+            <div class="section-grid" id="anexo1Cards"></div>
+
+            <section class="data-panel">
+              <div class="data-toolbar">
+                <div class="title" id="tableTitleA1">Detalle de productos</div>
+                <div class="select-wrap"><select id="filterFacultyA1" aria-label="Filtrar por facultad"><option value="">Todas las facultades</option></select></div>
+                <div class="select-wrap"><select id="filterProcessA1" aria-label="Filtrar por proceso"><option value="">Todos los procesos nivel 0</option></select></div>
+                <div class="select-wrap"><select id="filterTypeA1" aria-label="Filtrar por tipo"><option value="">Todos los tipos</option></select></div>
+              </div>
+              <div class="data-meta">
+                <span><b>Vista:</b> <span id="statusViewA1">Productos conformes</span></span>
+                <span><b>Registros:</b> <span id="visibleCountA1">0</span></span>
+                <span>Los desplegables funcionan como los filtros de Excel.</span>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table" id="dataTableA1">
+                  <thead><tr><th>Facultad</th><th>Fila</th><th>Proceso nivel 0</th><th>Código</th><th>Nombre</th><th>Tipo</th><th>Estado</th><th>Cumplimiento</th><th>Criterios</th><th>Observaciones y correcciones</th></tr></thead>
+                  <tbody id="productRowsA1"></tbody>
+                </table>
+              </div>
+              <div class="data-footer" id="dataFooterA1"></div>
+            </section>
+          </div>
+
+          <div class="panel-ana" id="panel-anexo3" role="tabpanel">
+            <div class="anexo3-layout">
+              <article class="anexo3-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                  <h3>Fichas de caracterización</h3><span class="entity-tag">ANEXO 3</span>
+                </div>
+                <div class="anexo3-metrics" id="anexo3Metrics"></div>
+                <div class="chart-box" style="margin-top:14px">
+                  <div class="chart-title">Gráfico de cuantificación</div>
+                  <div class="prog-list" id="anexo3Bars"></div>
+                </div>
+              </article>
+
+              <article class="anexo3-card">
+                <h3>Ranking de fichas completas por facultad</h3>
+                <p style="margin:4px 0 16px;font-size:11px;color:var(--muted)">Porcentaje de fichas completas sobre el total registrado en cada facultad.</p>
+                <div class="rank-list" id="rankingAnexo3"></div>
+              </article>
+            </div>
+
+            <section class="data-panel">
+              <div class="data-toolbar">
+                <div class="title" id="tableTitleA3">Detalle de fichas</div>
+                <div class="select-wrap"><select id="filterFacultyA3" aria-label="Filtrar por facultad"><option value="">Todas las facultades</option></select></div>
+                <div class="select-wrap"><select id="filterProcessA3" aria-label="Filtrar por proceso"><option value="">Todos los procesos</option></select></div>
+                <div class="select-wrap"><select id="filterTypeA3" aria-label="Filtrar por tipo"><option value="">Todos los tipos</option></select></div>
+              </div>
+              <div class="data-meta">
+                <span><b>Vista:</b> <span id="statusViewA3">Fichas completas</span></span>
+                <span><b>Registros:</b> <span id="visibleCountA3">0</span></span>
+                <span>Los desplegables funcionan como los filtros de Excel.</span>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table" id="dataTableA3">
+                  <thead><tr><th>Facultad</th><th>Fila</th><th>Proceso</th><th>Código ficha</th><th>Nombre de la ficha</th><th>Tipo</th><th>Estado</th><th>Cumplimiento</th><th>Criterios</th><th>Observaciones y correcciones</th></tr></thead>
+                  <tbody id="productRowsA3"></tbody>
+                </table>
+              </div>
+              <div class="data-footer" id="dataFooterA3"></div>
+            </section>
+            <p class="notice">El cambio de pestaña oculta la información del otro anexo para evitar sobrecarga visual.</p>
+          </div>
+        </section>
+
+        <!-- ================= VISTA 3 · BASE DE DATOS ================= -->
+        <section class="view" id="view-database" role="tabpanel" aria-label="Base de datos">
+          <div class="db-header">
+            <div class="db-search-wrap">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input type="text" id="dbSearchInput" placeholder="Buscar por facultad, proceso, código, nombre…" aria-label="Buscar en la base de datos">
+            </div>
+            <div class="db-actions">
+              <button class="btn" type="button" id="btnDbReset"><i class="fa-solid fa-rotate-right"></i> Limpiar</button>
+              <button class="btn primary" type="button" id="btnDbExport"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+            </div>
+          </div>
+
+          <div class="db-summary">
+            <div class="db-summary-card">
+              <div class="db-summary-icon" style="background:var(--blue-soft);color:var(--blue)"><i class="fa-solid fa-database"></i></div>
+              <div class="db-summary-info"><h4>Total de registros</h4><div class="val" id="dbTotalCount">0</div></div>
+            </div>
+            <div class="db-summary-card">
+              <div class="db-summary-icon" style="background:var(--green-soft);color:var(--green)"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="db-summary-info"><h4>Conformes / completas</h4><div class="val" id="dbOkCount">0</div></div>
+            </div>
+            <div class="db-summary-card">
+              <div class="db-summary-icon" style="background:var(--amber-soft);color:var(--amber)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="db-summary-info"><h4>Observados / incompletas</h4><div class="val" id="dbWarnCount">0</div></div>
+            </div>
+            <div class="db-summary-card">
+              <div class="db-summary-icon" style="background:var(--red-soft);color:var(--red)"><i class="fa-solid fa-circle-xmark"></i></div>
+              <div class="db-summary-info"><h4>Sin registro / sin producto</h4><div class="val" id="dbDangerCount">0</div></div>
+            </div>
+          </div>
+
+          <div class="db-filters-bar">
+            <span class="grp-label">Entidad:</span>
+            <button class="db-filter-chip active" type="button" data-filter="all">Todos</button>
+            <button class="db-filter-chip" type="button" data-filter="Producto">Productos</button>
+            <button class="db-filter-chip" type="button" data-filter="Proceso">Procesos</button>
+            <button class="db-filter-chip" type="button" data-filter="SubProceso">Subprocesos</button>
+            <button class="db-filter-chip" type="button" data-filter="Ficha">Fichas</button>
+            <span class="grp-label" style="margin-left:12px">Estado:</span>
+            <button class="db-filter-chip active" type="button" data-status="all">Todos</button>
+            <button class="db-filter-chip" type="button" data-status="CONFORME">Conforme</button>
+            <button class="db-filter-chip" type="button" data-status="COMPLETA">Completa</button>
+            <button class="db-filter-chip" type="button" data-status="OBSERVADO">Observado</button>
+            <button class="db-filter-chip" type="button" data-status="INCOMPLETA">Incompleta</button>
+            <button class="db-filter-chip" type="button" data-status="SIN REGISTRO">Sin registro</button>
+            <button class="db-filter-chip" type="button" data-status="SIN PRODUCTO">Sin producto</button>
+          </div>
+
+          <div class="db-table-card">
+            <div class="data-toolbar">
+              <div class="title" id="dbTableTitle">Registros consolidados</div>
+              <div class="select-wrap"><select id="dbFilterFaculty" aria-label="Filtrar por facultad"><option value="">Todas las facultades</option></select></div>
+              <div class="select-wrap"><select id="dbFilterProcess" aria-label="Filtrar por proceso"><option value="">Todos los procesos</option></select></div>
+              <div class="select-wrap"><select id="dbFilterAnexo" aria-label="Filtrar por anexo"><option value="">Todos los anexos</option><option value="Anexo 1">Anexo 1</option><option value="Anexo 3">Anexo 3</option></select></div>
+            </div>
+            <div class="data-meta">
+              <span><b>Mostrando:</b> <span id="dbShowingCount">0</span> de <span id="dbTotalMeta">0</span> registros</span>
+              <span><b>Página:</b> <span id="dbPageMeta">1</span> de <span id="dbTotalPages">1</span></span>
+              <span>Use la búsqueda o los filtros para refinar los resultados.</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="dbTable">
+                <thead><tr>
+                  <th style="width:44px">#</th><th>Entidad</th><th>Anexo</th><th>Facultad</th><th>Proceso nivel 0</th>
+                  <th>Código</th><th>Nombre</th><th>Tipo</th><th>Estado</th><th>Cumplimiento</th><th>Criterios</th><th>Observaciones</th>
+                </tr></thead>
+                <tbody id="dbRows"></tbody>
+              </table>
+            </div>
+            <div class="db-pagination">
+              <div class="db-page-info" id="dbPageInfo">Sin registros</div>
+              <div class="db-page-buttons" id="dbPageButtons"></div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: AÑADIR / EDITAR CUADRO ============ -->
+<div class="modal" id="widgetModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2 id="modalTitle">Añadir cuadro</h2>
+        <p id="modalSubtitle">Elija el tipo de cuadro y complete su contenido.</p>
+      </div>
+      <button class="btn icon ghost" type="button" id="btnCloseModal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field" id="typePickerField">
+        <label>Tipo de cuadro</label>
+        <div class="type-grid" id="typeGrid"></div>
+      </div>
+      <div id="modalFields"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" type="button" id="btnCancelModal">Cancelar</button>
+      <button class="btn primary" type="button" id="btnSaveWidget"><i class="fa-solid fa-check"></i> Guardar cuadro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: AYUDA ============ -->
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="modal-card" style="width:min(560px,100%)">
+    <div class="modal-head">
+      <div><h2 id="helpTitle">Cómo personalizar el panel</h2><p>Todo se guarda en este navegador.</p></div>
+      <button class="btn icon ghost" type="button" id="btnCloseHelp" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="font-size:13px;line-height:1.65;color:var(--text-2)">
+      <p style="margin-bottom:14px"><b style="color:var(--text)">1 · Active «Modo edición»</b><br>El interruptor de la barra superior habilita todas las herramientas de cada cuadro.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">2 · Mover</b><br>Arrastre un cuadro desde el asa <i class="fa-solid fa-grip-vertical"></i>, o use las flechas <i class="fa-solid fa-arrow-left"></i> <i class="fa-solid fa-arrow-right"></i> del cuadro para reordenarlo con el teclado.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">3 · Editar</b><br>Haga clic sobre cualquier texto resaltado para reescribirlo en el sitio, o abra <i class="fa-solid fa-pen"></i> para cambiar título, fuente de datos, colores y contenido.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">4 · Redimensionar</b><br>Los botones <i class="fa-solid fa-left-right"></i> y <i class="fa-solid fa-up-down"></i> cambian el ancho (¼, ⅓, ½, ⅔, completo) y el alto del cuadro.</p>
+      <p style="margin-bottom:14px"><b style="color:var(--text)">5 · Añadir y duplicar</b><br>«Añadir cuadro» abre el catálogo de tipos: indicador, gráfico, barras, ranking, tabla y nota. <i class="fa-solid fa-clone"></i> duplica el cuadro seleccionado.</p>
+      <p><b style="color:var(--text)">6 · Guardar y compartir</b><br>La distribución se guarda automáticamente en este navegador. «Exportar» descarga un archivo <code>.json</code> que puede volver a cargar con «Importar» en otro equipo.</p>
+    </div>
+    <div class="modal-foot"><button class="btn primary" type="button" id="btnCloseHelp2">Entendido</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   DASHBOARD GESTIÓN POR PROCESOS · OGPL UNMSM
+   ---------------------------------------------------------------------
+   AVISO: todos los datos de este archivo son FICTICIOS y se generan de
+   forma determinista en el navegador. No hay ninguna fuente externa
+   conectada todavía; para enlazar datos reales basta con sustituir el
+   bloque «1. DATOS DE DEMOSTRACIÓN» por la carga real y volver a llamar
+   a renderAll().
+   ===================================================================== */
+
+/* ---------- utilidades ---------- */
+const $  = (s, c) => (c || document).querySelector(s);
+const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+const pct = (part, total) => (total ? Math.round((part / total) * 1000) / 10 : 0);
+const esc = (v) => String(v == null ? '' : v)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+/** Generador pseudoaleatorio con semilla: los datos ficticios son
+ *  siempre los mismos entre recargas, de modo que las cifras de las
+ *  tarjetas, los gráficos y las tablas nunca se contradicen. */
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(20260828);
+const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
+const between = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+
+let toastTimer;
+function toast(msg, kind){
+  const el = $('#toast');
+  $('#toastMsg').textContent = msg;
+  el.classList.toggle('warn', kind === 'warn');
+  $('#toast i').className = kind === 'warn' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+const store = {
+  get(key, fallback){
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  },
+  set(key, value){
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  },
+  del(key){ try { localStorage.removeItem(key); } catch (e) {} }
+};
+
+/* =====================================================================
+   1. DATOS DE DEMOSTRACIÓN (ficticios · deterministas)
+   ===================================================================== */
+const faculties = [
+  {code:'F01_FM',    short:'FM',    name:'Facultad de Medicina',                        processes:12},
+  {code:'F02_FDCP',  short:'FDCP',  name:'Facultad de Derecho y Ciencia Política',      processes:10},
+  {code:'F03_FLCH',  short:'FLCH',  name:'Facultad de Letras y Ciencias Humanas',       processes:11},
+  {code:'F04_FFB',   short:'FFB',   name:'Facultad de Farmacia y Bioquímica',           processes:9},
+  {code:'F05_FQIQ',  short:'FQIQ',  name:'Facultad de Química e Ing. Química',          processes:10},
+  {code:'F06_FCI',   short:'FCI',   name:'Facultad de Ingeniería Civil',                processes:8},
+  {code:'F07_FC',    short:'FC',    name:'Facultad de Ciencias Contables',              processes:9},
+  {code:'F08_FIEE',  short:'FIEE',  name:'Facultad de Ing. Eléctrica y Electrónica',    processes:10},
+  {code:'F09_FIIA',  short:'FIIA',  name:'Facultad de Ingeniería Industrial',           processes:8},
+  {code:'F10_FMV',   short:'FMV',   name:'Facultad de Medicina Veterinaria',            processes:9},
+  {code:'F11_FO',    short:'FO',    name:'Facultad de Odontología',                     processes:7},
+  {code:'F12_FPSI',  short:'FPSI',  name:'Facultad de Psicología',                      processes:8},
+  {code:'F13_FCCSS', short:'FCCSS', name:'Facultad de Ciencias Sociales',               processes:9},
+  {code:'F14_FCE',   short:'FCE',   name:'Facultad de Ciencias Económicas',             processes:10},
+  {code:'F15_FCA',   short:'FCA',   name:'Facultad de Ciencias Administrativas',        processes:9},
+  {code:'F16_FIGMMG',short:'FIGMMG',name:'Facultad de Ing. Geológica y Minera',         processes:7},
+  {code:'F17_FCB',   short:'FCB',   name:'Facultad de Ciencias Biológicas',             processes:8},
+  {code:'F18_FCF',   short:'FCF',   name:'Facultad de Ciencias Físicas',                processes:9},
+  {code:'F19_FCM',   short:'FCM',   name:'Facultad de Ciencias Matemáticas',            processes:8},
+  {code:'F20_FISI',  short:'FISI',  name:'Facultad de Ing. de Sistemas e Informática',  processes:7}
+];
+
+const processTypes = ['Gestión académica','Investigación','Extensión y proyección','Gestión administrativa'];
+const productTypes = ['Producto académico','Producto de investigación','Producto de extensión','Producto de gestión'];
+const fichaTypes   = ['Ficha de proceso','Ficha de subproceso'];
+
+const A1_STATUSES = ['CONFORME','OBSERVADO','SIN REGISTRO'];
+const A3_STATUSES = ['COMPLETA','INCOMPLETA','SIN PRODUCTO'];
+
+const anexo1Data = [];
+const anexo3Data = [];
+let seq = 0;
+
+faculties.forEach((fac, fi) => {
+  /* Facultades con más procesos van algo más avanzadas: la muestra
+     ficticia mantiene una tendencia creíble en lugar de puro ruido. */
+  const bias = clamp(0.42 + fac.processes * 0.035 - fi * 0.006, 0.3, 0.86);
+  const nProducts = between(9, 15);
+  for (let i = 0; i < nProducts; i++){
+    const r = rnd();
+    const status = r < bias ? 'CONFORME' : (r < bias + (1 - bias) * 0.55 ? 'OBSERVADO' : 'SIN REGISTRO');
+    anexo1Data.push({
+      id: ++seq,
+      faculty: fac.code,
+      facultyName: fac.name,
+      process: processTypes[i % processTypes.length],
+      code: 'P-' + String(seq).padStart(3, '0'),
+      name: fac.short + ' · Producto ' + String(i + 1).padStart(2, '0'),
+      type: productTypes[i % productTypes.length],
+      status,
+      compliance: status === 'CONFORME' ? 100 : (status === 'OBSERVADO' ? between(55, 85) : 0),
+      criteria: status === 'SIN REGISTRO' ? '—' : 'C' + between(1,3) + ', C' + between(4,6),
+      observations: status === 'CONFORME' ? 'Documento validado y aprobado.'
+                  : status === 'OBSERVADO' ? 'Requiere revisión de los criterios observados.'
+                  : 'No se ha presentado el documento.'
+    });
+  }
+});
+
+seq = 0;
+faculties.forEach((fac, fi) => {
+  const bias = clamp(0.4 + fac.processes * 0.038 - fi * 0.005, 0.28, 0.88);
+  const nFichas = between(5, 9);
+  for (let i = 0; i < nFichas; i++){
+    const r = rnd();
+    const status = r < bias ? 'COMPLETA' : (r < bias + (1 - bias) * 0.6 ? 'INCOMPLETA' : 'SIN PRODUCTO');
+    anexo3Data.push({
+      id: ++seq,
+      faculty: fac.code,
+      facultyName: fac.name,
+      process: processTypes[i % processTypes.length],
+      code: 'F-' + String(seq).padStart(3, '0'),
+      name: 'Ficha de caracterización ' + fac.short + '-' + String(i + 1).padStart(2, '0'),
+      type: fichaTypes[i % fichaTypes.length],
+      status,
+      compliance: status === 'COMPLETA' ? 100 : (status === 'INCOMPLETA' ? between(55, 90) : 0),
+      criteria: status === 'SIN PRODUCTO' ? '—' : 'C1–C' + between(6, 11),
+      observations: status === 'COMPLETA' ? 'Ficha validada sin observaciones.'
+                  : status === 'INCOMPLETA' ? 'Faltan secciones por completar.'
+                  : 'No existe producto asociado.'
+    });
+  }
+});
+
+/* Registro consolidado que alimenta la vista «Base de datos» */
+const allData = [];
+anexo1Data.forEach(d => allData.push(Object.assign({}, d, {entity:'Producto', anexo:'Anexo 1'})));
+anexo3Data.forEach(d => allData.push(Object.assign({}, d, {entity:'Ficha',    anexo:'Anexo 3'})));
+faculties.forEach((fac, fi) => {
+  const okP = fi < 13, okS = fi < 11;
+  allData.push({entity:'Proceso', anexo:'Anexo 1', faculty:fac.code, facultyName:fac.name, process:'Gestión académica',
+    code:'PR-' + String(fi + 1).padStart(2,'0'), name:'Gestión de matrícula · ' + fac.short, type:'Proceso misional',
+    status: okP ? 'CONFORME' : 'OBSERVADO', compliance: okP ? 100 : between(60, 80),
+    criteria:'C1, C2, C3', observations: okP ? 'Proceso operativo y documentado.' : 'Falta documentación de soporte.'});
+  allData.push({entity:'SubProceso', anexo:'Anexo 1', faculty:fac.code, facultyName:fac.name, process:'Gestión académica',
+    code:'SP-' + String(fi + 1).padStart(2,'0'), name:'Registro de notas · ' + fac.short, type:'Subproceso académico',
+    status: okS ? 'CONFORME' : (fi < 17 ? 'OBSERVADO' : 'SIN REGISTRO'),
+    compliance: okS ? 100 : (fi < 17 ? between(60, 78) : 0),
+    criteria:'C1, C2', observations: okS ? 'Funcionando con normalidad.' : 'Pendiente de regularización.'});
+});
+
+/* Serie mensual ficticia de avance acumulado */
+const monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];
+const monthlySeries = (() => {
+  let v = 18; const out = [];
+  for (let i = 0; i < monthLabels.length; i++){ v += between(4, 11); out.push(Math.min(v, 96)); }
+  return out;
+})();
+
+/* =====================================================================
+   2. ESTADO GLOBAL Y MÉTRICAS DERIVADAS
+   ===================================================================== */
+const LAYOUT_KEY = 'ogpl.dashboard.layout.v1';
+const selectedFaculties = new Set(faculties.map(f => f.code));
+
+const inSel = (row) => selectedFaculties.has(row.faculty);
+const a1 = () => anexo1Data.filter(inSel);
+const a3 = () => anexo3Data.filter(inSel);
+const dbAll = () => allData.filter(inSel);
+
+const countBy = (rows, status) => rows.filter(r => r.status === status).length;
+
+/** Métricas agregadas: todas las cifras del panel salen de aquí, así
+ *  que tarjetas, gráficos y tablas siempre concuerdan entre sí. */
+function metrics(){
+  const r1 = a1(), r3 = a3(), rd = dbAll();
+  const conf = countBy(r1, 'CONFORME'), obs = countBy(r1, 'OBSERVADO'), sin = countBy(r1, 'SIN REGISTRO');
+  const comp = countBy(r3, 'COMPLETA'), inc = countBy(r3, 'INCOMPLETA'), sinp = countBy(r3, 'SIN PRODUCTO');
+  const okAll = rd.filter(d => d.status === 'CONFORME' || d.status === 'COMPLETA').length;
+  const avA1 = pct(conf, r1.length), avA3 = pct(comp, r3.length);
+  return {
+    r1, r3, rd, conf, obs, sin, comp, inc, sinp, okAll,
+    warnAll: rd.filter(d => d.status === 'OBSERVADO' || d.status === 'INCOMPLETA').length,
+    dangerAll: rd.filter(d => d.status === 'SIN REGISTRO' || d.status === 'SIN PRODUCTO').length,
+    avanceA1: avA1,
+    avanceA3: avA3,
+    avanceFase1: Math.round(((avA1 + avA3) / 2) * 10) / 10,
+    avanceA4: Math.round((avA1 * 0.62) * 10) / 10,
+    facultades: selectedFaculties.size,
+    procesos: faculties.filter(f => selectedFaculties.has(f.code)).reduce((s, f) => s + f.processes, 0)
+  };
+}
+
+/** Avance por facultad (% de filas en estado «ok» sobre el total). */
+function byFaculty(rows, okStatus){
+  return faculties
+    .filter(f => selectedFaculties.has(f.code))
+    .map(f => {
+      const own = rows.filter(r => r.faculty === f.code);
+      return {code: f.code, short: f.short, name: f.name, total: own.length,
+              value: pct(own.filter(r => r.status === okStatus).length, own.length)};
+    })
+    .filter(f => f.total > 0);
+}
+
+const PALETTE = ['#2f6fed','#0fb3a1','#12a37c','#d97706','#dc5b5b','#7c5cf0','#0ea5e9','#e879a6'];
+const STATUS_COLORS = {
+  'CONFORME':'#12a37c','COMPLETA':'#12a37c',
+  'OBSERVADO':'#d97706','INCOMPLETA':'#d97706',
+  'SIN REGISTRO':'#dc5b5b','SIN PRODUCTO':'#dc5b5b'
+};
+
+/** Catálogo de fuentes de datos disponibles para los cuadros. */
+const DATA_SOURCES = {
+  avance_a1_facultad: {
+    label: '% Avance Anexo 1 por facultad',
+    get(topN){ const d = byFaculty(a1(), 'CONFORME').sort((a,b) => b.value - a.value).slice(0, topN || 12);
+      return {labels: d.map(x => x.short), values: d.map(x => x.value), suffix:'%', full: d.map(x => x.name)}; }
+  },
+  avance_a3_facultad: {
+    label: '% Avance Anexo 3 por facultad',
+    get(topN){ const d = byFaculty(a3(), 'COMPLETA').sort((a,b) => b.value - a.value).slice(0, topN || 12);
+      return {labels: d.map(x => x.short), values: d.map(x => x.value), suffix:'%', full: d.map(x => x.name)}; }
+  },
+  estados_a1: {
+    label: 'Distribución de estados · Anexo 1',
+    get(){ const m = metrics(); return {labels: A1_STATUSES, values: [m.conf, m.obs, m.sin],
+      colors: A1_STATUSES.map(s => STATUS_COLORS[s])}; }
+  },
+  estados_a3: {
+    label: 'Distribución de estados · Anexo 3',
+    get(){ const m = metrics(); return {labels: A3_STATUSES, values: [m.comp, m.inc, m.sinp],
+      colors: A3_STATUSES.map(s => STATUS_COLORS[s])}; }
+  },
+  productos_por_tipo: {
+    label: 'Productos por tipo (Anexo 1)',
+    get(){ const rows = a1();
+      return {labels: productTypes, values: productTypes.map(t => rows.filter(r => r.type === t).length)}; }
+  },
+  registros_por_proceso: {
+    label: 'Registros por proceso nivel 0',
+    get(){ const rows = dbAll();
+      return {labels: processTypes, values: processTypes.map(p => rows.filter(r => r.process === p).length)}; }
+  },
+  avance_mensual: {
+    label: 'Avance acumulado mensual (demo)',
+    get(){ return {labels: monthLabels, values: monthlySeries, suffix:'%'}; }
+  },
+  cumplimiento_promedio: {
+    label: '% Cumplimiento promedio por facultad',
+    get(topN){
+      const rows = dbAll();
+      const d = faculties.filter(f => selectedFaculties.has(f.code)).map(f => {
+        const own = rows.filter(r => r.faculty === f.code);
+        const avg = own.length ? Math.round(own.reduce((s, r) => s + r.compliance, 0) / own.length) : 0;
+        return {short: f.short, name: f.name, value: avg, total: own.length};
+      }).filter(x => x.total > 0).sort((a,b) => b.value - a.value).slice(0, topN || 12);
+      return {labels: d.map(x => x.short), values: d.map(x => x.value), suffix:'%', full: d.map(x => x.name)};
+    }
+  }
+};
+
+/** Catálogo de métricas para los cuadros de indicador. */
+const KPI_METRICS = {
+  manual:        {label:'Valor escrito a mano', get: () => null},
+  avance_fase1:  {label:'% Avance Fase 1',              get: m => ({value: m.avanceFase1, unit:'%', foot:'Promedio de los anexos 1 y 3'})},
+  avance_a1:     {label:'% Avance Anexo 1 (inventario)',get: m => ({value: m.avanceA1, unit:'%', foot: m.conf + ' de ' + m.r1.length + ' productos conformes'})},
+  avance_a3:     {label:'% Avance Anexo 3 (fichas)',    get: m => ({value: m.avanceA3, unit:'%', foot: m.comp + ' de ' + m.r3.length + ' fichas completas'})},
+  avance_a4:     {label:'% Avance Anexo 4 (indicadores)',get: m => ({value: m.avanceA4, unit:'%', foot:'Estimación sobre el avance del Anexo 1'})},
+  total_registros:{label:'Total de registros',          get: m => ({value: m.rd.length, unit:'', foot:'Productos, procesos, subprocesos y fichas'})},
+  conformes:     {label:'Conformes / completas',        get: m => ({value: m.okAll, unit:'', foot: pct(m.okAll, m.rd.length) + '% del total consolidado'})},
+  observados:    {label:'Observados / incompletas',     get: m => ({value: m.warnAll, unit:'', foot: pct(m.warnAll, m.rd.length) + '% del total consolidado'})},
+  sin_registro:  {label:'Sin registro / sin producto',  get: m => ({value: m.dangerAll, unit:'', foot: pct(m.dangerAll, m.rd.length) + '% del total consolidado'})},
+  facultades:    {label:'Facultades seleccionadas',     get: m => ({value: m.facultades, unit:'', foot:'de ' + faculties.length + ' facultades'})},
+  procesos:      {label:'Procesos alcanzados',          get: m => ({value: m.procesos, unit:'', foot:'Suma de procesos de las facultades activas'})}
+};
+
+/* =====================================================================
+   3. SISTEMA DE CUADROS: mover · editar · añadir
+   ===================================================================== */
+const WIDGET_TYPES = {
+  kpi:      {name:'Indicador',   icon:'fa-gauge-high',   desc:'Cifra grande con variación y minigráfico.'},
+  chart:    {name:'Gráfico',     icon:'fa-chart-column', desc:'Barras, líneas, área o anillo sobre una fuente.'},
+  progress: {name:'Barras',      icon:'fa-bars-progress',desc:'Lista de barras con etiqueta y porcentaje.'},
+  ranking:  {name:'Ranking',     icon:'fa-ranking-star', desc:'Facultades ordenadas por una métrica.'},
+  table:    {name:'Tabla',       icon:'fa-table-list',   desc:'Últimos registros filtrados por estado.'},
+  note:     {name:'Nota',        icon:'fa-note-sticky',  desc:'Texto libre para acuerdos o pendientes.'}
+};
+
+const WIDTHS  = [{v:3,l:'¼'},{v:4,l:'⅓'},{v:6,l:'½'},{v:8,l:'⅔'},{v:12,l:'1'}];
+const HEIGHTS = [1, 2, 3];
+
+const uid = () => 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function defaultLayout(){
+  return {
+    version: 1,
+    meta: {cutDate: '28/08/2026'},
+    widgets: [
+      {id:uid(), type:'kpi', w:3, h:1, title:'% Avance Fase 1',
+       config:{metric:'avance_fase1', delta:'10.3', deltaDir:'up', deltaNote:'vs. julio', spark:true}},
+      {id:uid(), type:'kpi', w:3, h:1, title:'% Avance Anexo 1 · Inventario',
+       config:{metric:'avance_a1', delta:'8.4', deltaDir:'up', deltaNote:'vs. julio', spark:true}},
+      {id:uid(), type:'kpi', w:3, h:1, title:'% Avance Anexo 3 · Fichas',
+       config:{metric:'avance_a3', delta:'1.7', deltaDir:'up', deltaNote:'vs. julio', spark:true}},
+      {id:uid(), type:'kpi', w:3, h:1, title:'% Avance Anexo 4 · Indicadores',
+       config:{metric:'avance_a4', delta:'5.9', deltaDir:'down', deltaNote:'vs. julio', spark:true}},
+
+      {id:uid(), type:'chart', w:8, h:2, title:'% Avance por facultad · Anexo 1',
+       subtitle:'Productos conformes sobre el total inventariado en cada facultad.',
+       config:{source:'avance_a1_facultad', chartType:'bar', color:'#2f6fed', topN:12}},
+      {id:uid(), type:'chart', w:4, h:2, title:'Estados del Anexo 1',
+       subtitle:'Reparto de los productos inventariados.',
+       config:{source:'estados_a1', chartType:'doughnut', color:'#2f6fed', topN:12}},
+
+      {id:uid(), type:'chart', w:8, h:2, title:'% Avance por facultad · Anexo 3',
+       subtitle:'Fichas de caracterización completas sobre el total registrado.',
+       config:{source:'avance_a3_facultad', chartType:'bar', color:'#0fb3a1', topN:12}},
+      {id:uid(), type:'ranking', w:4, h:2, title:'Ranking de fichas completas',
+       subtitle:'Ocho facultades con mayor avance.',
+       config:{source:'avance_a3_facultad', topN:8}},
+
+      {id:uid(), type:'chart', w:6, h:2, title:'Avance acumulado del proyecto',
+       subtitle:'Serie mensual de demostración.',
+       config:{source:'avance_mensual', chartType:'line', color:'#2f6fed', topN:12}},
+      {id:uid(), type:'note', w:6, h:2, title:'Acuerdos de la última revisión',
+       config:{text:'• Cerrar el inventario del Anexo 1 en las facultades con avance menor al 50 %.\n• Remitir las fichas observadas antes del 15/09.\n• Consolidar el Anexo 4 con la Oficina de Racionalización.\n\n(Texto editable: active el modo edición y haga clic aquí.)'}}
+    ]
+  };
+}
+
+let layout = normalizeLayout(store.get(LAYOUT_KEY, null)) || defaultLayout();
+let editMode = false;
+const charts = new Map();
+
+function normalizeLayout(raw){
+  if (!raw || !Array.isArray(raw.widgets)) return null;
+  const widgets = raw.widgets
+    .filter(w => w && WIDGET_TYPES[w.type])
+    .map(w => ({
+      id: w.id || uid(),
+      type: w.type,
+      w: WIDTHS.some(x => x.v === w.w) ? w.w : 4,
+      h: HEIGHTS.includes(w.h) ? w.h : 1,
+      title: String(w.title || WIDGET_TYPES[w.type].name),
+      subtitle: w.subtitle ? String(w.subtitle) : '',
+      config: Object.assign({}, w.config)
+    }));
+  if (!widgets.length) return null;
+  return {version: 1, meta: Object.assign({cutDate:'28/08/2026'}, raw.meta), widgets};
+}
+
+const saveLayout = () => {
+  if (!store.set(LAYOUT_KEY, layout)) toast('No se pudo guardar la distribución en este navegador.', 'warn');
+};
+
+/* ---------------------------------------------------------------------
+   3.1 Render de los cuadros
+   ------------------------------------------------------------------- */
+function renderWidgets(){
+  const grid = $('#widgetGrid');
+  charts.forEach(c => c.destroy());
+  charts.clear();
+
+  if (!layout.widgets.length){
+    grid.innerHTML = '<div class="canvas-empty"><i class="fa-solid fa-table-cells-large"></i>' +
+      '<b>El panel está vacío</b>Active el modo edición y pulse «Añadir cuadro» para empezar.</div>' +
+      '<button class="widget-add" type="button" data-add><i class="fa-solid fa-plus"></i>Añadir cuadro</button>';
+  } else {
+    grid.innerHTML = layout.widgets.map(widgetHTML).join('') +
+      '<button class="widget-add" type="button" data-add><i class="fa-solid fa-plus"></i>Añadir cuadro</button>';
+  }
+
+  layout.widgets.forEach(w => { if (w.type === 'chart') buildChart(w); });
+  applyEditableState();
+}
+
+function widgetHTML(w){
+  const tools = `
+    <div class="w-tools">
+      <button class="w-tool grab" type="button" data-act="drag" data-id="${w.id}" title="Arrastrar para mover" aria-label="Mover cuadro"><i class="fa-solid fa-grip-vertical"></i></button>
+      <button class="w-tool" type="button" data-act="left"  data-id="${w.id}" title="Mover a la izquierda" aria-label="Mover a la izquierda"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="w-tool" type="button" data-act="right" data-id="${w.id}" title="Mover a la derecha" aria-label="Mover a la derecha"><i class="fa-solid fa-arrow-right"></i></button>
+      <span class="sep"></span>
+      <button class="w-tool" type="button" data-act="width"  data-id="${w.id}" title="Cambiar ancho" aria-label="Cambiar ancho"><i class="fa-solid fa-left-right"></i></button>
+      <button class="w-tool" type="button" data-act="height" data-id="${w.id}" title="Cambiar alto" aria-label="Cambiar alto"><i class="fa-solid fa-up-down"></i></button>
+      <span class="sep"></span>
+      <button class="w-tool" type="button" data-act="edit"  data-id="${w.id}" title="Editar contenido" aria-label="Editar cuadro"><i class="fa-solid fa-pen"></i></button>
+      <button class="w-tool" type="button" data-act="clone" data-id="${w.id}" title="Duplicar" aria-label="Duplicar cuadro"><i class="fa-solid fa-clone"></i></button>
+      <button class="w-tool del" type="button" data-act="delete" data-id="${w.id}" title="Eliminar" aria-label="Eliminar cuadro"><i class="fa-solid fa-trash-can"></i></button>
+    </div>`;
+
+  const head = `
+    <div class="w-head">
+      <div class="lead" aria-hidden="true"><i class="fa-solid ${WIDGET_TYPES[w.type].icon}"></i></div>
+      <div style="min-width:0;flex:1">
+        <h3 class="w-title" data-editable data-id="${w.id}" data-bind="title">${esc(w.title)}</h3>
+        ${w.subtitle || w.type !== 'kpi'
+          ? `<p class="w-sub" data-editable data-id="${w.id}" data-bind="subtitle">${esc(w.subtitle)}</p>` : ''}
+      </div>
+    </div>`;
+
+  return `<article class="widget" data-id="${w.id}" data-w="${w.w}" data-h="${w.h}" data-type="${w.type}">
+    ${tools}${head}<div class="w-body${w.type === 'kpi' ? ' tight' : ''}">${widgetBody(w)}</div>
+  </article>`;
+}
+
+function widgetBody(w){
+  const m = metrics();
+  switch (w.type){
+
+    case 'kpi': {
+      const cfg = w.config || {};
+      const met = KPI_METRICS[cfg.metric] || KPI_METRICS.manual;
+      const auto = met.get(m);
+      const value = auto ? auto.value : (cfg.value != null ? cfg.value : '—');
+      const unit  = auto ? auto.unit  : (cfg.unit || '');
+      const foot  = cfg.foot || (auto ? auto.foot : '');
+      const dir   = cfg.deltaDir || 'flat';
+      const arrow = dir === 'up' ? 'fa-caret-up' : (dir === 'down' ? 'fa-caret-down' : 'fa-minus');
+      const delta = cfg.delta
+        ? `<span class="kpi-delta ${dir}"><i class="fa-solid ${arrow}"></i> ${esc(cfg.delta)}${unit === '%' ? ' %' : ''} ${esc(cfg.deltaNote || '')}</span>` : '';
+      const numeric = typeof value === 'number' ? value : parseFloat(String(value).replace(',', '.'));
+      const track = unit === '%' && isFinite(numeric)
+        ? `<div class="kpi-track"><i style="width:${clamp(numeric, 0, 100)}%"></i></div>` : '';
+      const spark = cfg.spark === false ? '' :
+        `<div class="spark" aria-hidden="true">${sparkBars(cfg.metric || 'manual')}</div>`;
+      return `<div class="kpi-val">
+          <span class="kpi-num" ${met === KPI_METRICS.manual ? 'data-editable data-id="' + w.id + '" data-bind="config.value"' : ''}>${esc(value)}${unit ? '<span style="font-size:20px;font-weight:800"> ' + unit + '</span>' : ''}</span>
+          ${delta}
+        </div>
+        ${track}
+        ${foot ? `<div class="kpi-foot">${esc(foot)}</div>` : ''}
+        ${spark}`;
+    }
+
+    case 'chart':
+      return `<div class="chart-holder"><canvas id="cv-${w.id}" role="img" aria-label="${esc(w.title)}"></canvas></div>`;
+
+    case 'progress': {
+      const rows = progressRows(w);
+      if (!rows.length) return emptyBox('Sin datos para las facultades seleccionadas.');
+      const max = Math.max.apply(null, rows.map(r => Number(r.value) || 0).concat([1]));
+      return '<div class="prog-list">' + rows.map(r => {
+        const val = Number(r.value) || 0;
+        return `<div class="prog-row">
+            <span class="lb" title="${esc(r.full || r.label)}">${esc(r.label)}</span>
+            <span class="tk"><span class="fl ${esc(r.color || '')}" style="width:${clamp((val / max) * 100, 0, 100)}%"></span></span>
+            <b>${esc(r.display != null ? r.display : val + (r.suffix || ''))}</b>
+          </div>`;
+      }).join('') + '</div>';
+    }
+
+    case 'ranking': {
+      const src = DATA_SOURCES[(w.config || {}).source] || DATA_SOURCES.avance_a3_facultad;
+      const d = src.get((w.config || {}).topN || 8);
+      if (!d.values.length) return emptyBox('Sin datos para las facultades seleccionadas.');
+      const max = Math.max.apply(null, d.values.concat([1]));
+      return '<div class="rank-list">' + d.labels.map((lb, i) => {
+        const v = d.values[i];
+        const cls = v >= 75 ? 'hi' : (v >= 50 ? 'md' : 'lo');
+        return `<div class="rank-row">
+            <span title="${esc((d.full || [])[i] || lb)}">${esc(lb)}</span>
+            <span class="rank-track"><span class="rank-fill ${cls}" style="width:${clamp((v / max) * 100, 0, 100)}%"></span></span>
+            <strong>${v}${d.suffix || ''}</strong>
+          </div>`;
+      }).join('') + '</div>';
+    }
+
+    case 'table': {
+      const cfg = w.config || {};
+      let rows = cfg.dataset === 'anexo3' ? a3() : (cfg.dataset === 'todos' ? dbAll() : a1());
+      if (cfg.status && cfg.status !== 'all') rows = rows.filter(r => r.status === cfg.status);
+      rows = rows.slice(0, Number(cfg.limit) || 8);
+      if (!rows.length) return emptyBox('No hay registros con ese filtro.');
+      return `<div class="mini-scroll"><table class="mini-table">
+          <thead><tr><th>Facultad</th><th>Código</th><th>Nombre</th><th>Estado</th></tr></thead>
+          <tbody>${rows.map(r => `<tr>
+            <td>${esc(r.faculty)}</td><td><code>${esc(r.code)}</code></td>
+            <td>${esc(r.name)}</td><td><span class="badge ${badgeClass(r.status)}">${esc(r.status)}</span></td>
+          </tr>`).join('')}</tbody></table></div>`;
+    }
+
+    case 'note':
+      return `<div class="note-body" data-editable data-id="${w.id}" data-bind="config.text">${esc((w.config || {}).text || '')}</div>`;
+
+    default:
+      return emptyBox('Tipo de cuadro no reconocido.');
+  }
+}
+
+const emptyBox = (msg) => `<div class="empty-state" style="padding:24px"><i class="fa-solid fa-inbox"></i>${esc(msg)}</div>`;
+const badgeClass = (s) => (s === 'CONFORME' || s === 'COMPLETA') ? 'ok'
+  : (s === 'OBSERVADO' || s === 'INCOMPLETA') ? 'warn'
+  : (s === 'SIN REGISTRO' || s === 'SIN PRODUCTO') ? 'danger' : 'gray';
+
+function sparkBars(metricKey){
+  /* Minigráfico coherente con la métrica: la última barra siempre
+     representa el valor actual. */
+  const base = monthlySeries.slice(-8);
+  const m = metrics();
+  const target = {avance_fase1:m.avanceFase1, avance_a1:m.avanceA1, avance_a3:m.avanceA3, avance_a4:m.avanceA4}[metricKey];
+  const vals = base.slice(0, -1).concat([target != null ? target : base[base.length - 1]]);
+  const max = Math.max.apply(null, vals.concat([1]));
+  return vals.map(v => `<span style="height:${clamp((v / max) * 100, 6, 100)}%"></span>`).join('');
+}
+
+function progressRows(w){
+  const cfg = w.config || {};
+  if (cfg.mode === 'manual' && Array.isArray(cfg.rows)) return cfg.rows;
+  const src = DATA_SOURCES[cfg.source] || DATA_SOURCES.estados_a1;
+  const d = src.get(cfg.topN || 8);
+  const colorFor = (lb) => STATUS_COLORS[lb] ? (STATUS_COLORS[lb] === '#12a37c' ? 'green' : STATUS_COLORS[lb] === '#d97706' ? 'amber' : 'red') : '';
+  return d.labels.map((lb, i) => ({label: lb, full: (d.full || [])[i], value: d.values[i],
+    display: d.values[i] + (d.suffix || ''), color: colorFor(lb)}));
+}
+
+/* ---------------------------------------------------------------------
+   3.2 Gráficos (Chart.js)
+   ------------------------------------------------------------------- */
+Chart.defaults.font.family = "'Outfit', system-ui, sans-serif";
+Chart.defaults.color = '#7b8ca6';
+
+function buildChart(w){
+  const canvas = document.getElementById('cv-' + w.id);
+  if (!canvas) return;
+  const cfg = w.config || {};
+  const src = DATA_SOURCES[cfg.source] || DATA_SOURCES.avance_a1_facultad;
+  const d = src.get(cfg.topN || 12);
+  const type = cfg.chartType || 'bar';
+  const color = cfg.color || '#2f6fed';
+  const round = type === 'doughnut' || type === 'pie';
+  const colors = d.colors || (round ? PALETTE : color);
+
+  const tooltip = {
+    backgroundColor:'#101d33', padding:10, cornerRadius:8, displayColors:round,
+    titleFont:{weight:'700', size:12}, bodyFont:{size:12},
+    callbacks:{
+      title: (items) => (d.full && d.full[items[0].dataIndex]) || items[0].label,
+      label: (item) => ' ' + (item.parsed.y != null ? item.parsed.y : item.parsed) + (d.suffix || '')
+    }
+  };
+
+  const options = {
+    responsive:true, maintainAspectRatio:false,
+    animation:{duration:500},
+    interaction:{intersect:false, mode: round ? 'nearest' : 'index'},
+    plugins:{legend:{display:false}, tooltip},
+    scales: round ? {} : {
+      y:{beginAtZero:true, suggestedMax: d.suffix === '%' ? 100 : undefined,
+         border:{display:false}, grid:{color:'rgba(16,29,51,.06)'},
+         ticks:{padding:6, font:{size:11}, callback: v => v + (d.suffix || '')}},
+      x:{border:{display:false}, grid:{display:false}, ticks:{font:{size:10, weight:'600'}, maxRotation:0, autoSkip:true}}
+    }
+  };
+
+  const dataset = {
+    data: d.values,
+    backgroundColor: type === 'line' ? 'rgba(47,111,237,.12)' : colors,
+    borderColor: type === 'line' ? color : (round ? '#fff' : 'transparent'),
+    borderWidth: round ? 3 : (type === 'line' ? 2.5 : 0),
+    borderRadius: round ? 0 : 6,
+    maxBarThickness: 34,
+    fill: type === 'line',
+    tension: .38,
+    pointRadius: 3, pointBackgroundColor: color, pointBorderColor:'#fff', pointBorderWidth:2,
+    cutout: type === 'doughnut' ? '62%' : undefined
+  };
+
+  const chart = new Chart(canvas, {type, data:{labels: d.labels, datasets:[dataset]}, options});
+  charts.set(w.id, chart);
+
+  if (round){
+    /* En anillos y tartas la leyenda va fuera del canvas para no
+       comprimir el gráfico en anchos pequeños. */
+    const holder = canvas.parentElement;
+    if (holder && !holder.parentElement.classList.contains('donut-wrap')){
+      const wrap = document.createElement('div');
+      wrap.className = 'donut-wrap';
+      holder.parentElement.insertBefore(wrap, holder);
+      wrap.appendChild(holder);
+      const total = d.values.reduce((s, v) => s + v, 0) || 1;
+      const legend = document.createElement('div');
+      legend.className = 'legend';
+      legend.innerHTML = d.labels.map((lb, i) => `<div class="legend-row">
+          <span class="sw" style="background:${(d.colors || PALETTE)[i % PALETTE.length]}"></span>
+          <span class="lb" title="${esc(lb)}">${esc(lb)}</span>
+          <b>${d.values[i]} · ${pct(d.values[i], total)}%</b>
+        </div>`).join('');
+      wrap.appendChild(legend);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------
+   3.3 Modo edición: mover, redimensionar, editar en el sitio
+   ------------------------------------------------------------------- */
+function setEditMode(on){
+  editMode = on;
+  document.body.classList.toggle('edit-mode', on);
+  $('#btnEditMode').setAttribute('aria-pressed', String(on));
+  $('#canvasBar').hidden = !on;
+  if (on && currentView !== 'dashboard') switchView('dashboard');
+  applyEditableState();
+}
+
+function applyEditableState(){
+  $$('#widgetGrid [data-editable]').forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+    el.spellcheck = false;
+    if (editMode) el.setAttribute('role', 'textbox'); else el.removeAttribute('role');
+  });
+  const cd = $('#cutDate');
+  cd.contentEditable = editMode ? 'true' : 'false';
+}
+
+function findWidget(id){ return layout.widgets.find(w => w.id === id); }
+
+function setPath(obj, path, value){
+  const parts = path.split('.');
+  let ref = obj;
+  for (let i = 0; i < parts.length - 1; i++){
+    if (!ref[parts[i]] || typeof ref[parts[i]] !== 'object') ref[parts[i]] = {};
+    ref = ref[parts[i]];
+  }
+  ref[parts[parts.length - 1]] = value;
+}
+
+/* Confirmar la edición en el sitio al salir del campo */
+document.addEventListener('focusout', (ev) => {
+  const el = ev.target;
+  if (!el.matches || !el.matches('[data-editable]')) return;
+  const text = el.innerText.replace(/ /g, ' ').replace(/\n{3,}/g, '\n\n').trimEnd();
+  if (el.id === 'cutDate'){ layout.meta.cutDate = text; saveLayout(); return; }
+  const w = findWidget(el.dataset.id);
+  if (!w) return;
+  setPath(w, el.dataset.bind, text);
+  saveLayout();
+  if (el.dataset.bind === 'config.value') renderWidgets();
+});
+
+/* Enter confirma (salvo en las notas, donde se permiten saltos de línea) */
+document.addEventListener('keydown', (ev) => {
+  const el = ev.target;
+  if (ev.key === 'Enter' && el.matches && el.matches('[data-editable]') && el.dataset.bind !== 'config.text'){
+    ev.preventDefault(); el.blur();
+  }
+  if (ev.key === 'Escape'){
+    if ($('#widgetModal').classList.contains('open')) closeModal();
+    else if ($('#helpModal').classList.contains('open')) $('#helpModal').classList.remove('open');
+    else if (document.body.classList.contains('filters-open')) document.body.classList.remove('filters-open');
+  }
+});
+
+/* ---- Acciones de la barra de herramientas de cada cuadro ---- */
+$('#widgetGrid').addEventListener('click', (ev) => {
+  if (ev.target.closest('[data-add]')) { openModal(null); return; }
+  const btn = ev.target.closest('.w-tool');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const w = findWidget(id);
+  if (!w) return;
+  const idx = layout.widgets.indexOf(w);
+
+  switch (btn.dataset.act){
+    case 'left':
+      if (idx > 0){ layout.widgets.splice(idx, 1); layout.widgets.splice(idx - 1, 0, w); commit(); }
+      break;
+    case 'right':
+      if (idx < layout.widgets.length - 1){ layout.widgets.splice(idx, 1); layout.widgets.splice(idx + 1, 0, w); commit(); }
+      break;
+    case 'width': {
+      const i = WIDTHS.findIndex(x => x.v === w.w);
+      w.w = WIDTHS[(i + 1) % WIDTHS.length].v; commit();
+      toast('Ancho: ' + WIDTHS.find(x => x.v === w.w).l + ' del panel');
+      break;
+    }
+    case 'height': {
+      const i = HEIGHTS.indexOf(w.h);
+      w.h = HEIGHTS[(i + 1) % HEIGHTS.length]; commit();
+      toast('Alto: nivel ' + w.h + ' de 3');
+      break;
+    }
+    case 'edit': openModal(w); break;
+    case 'clone': {
+      const copy = JSON.parse(JSON.stringify(w));
+      copy.id = uid(); copy.title = w.title + ' (copia)';
+      layout.widgets.splice(idx + 1, 0, copy); commit();
+      toast('Cuadro duplicado');
+      break;
+    }
+    case 'delete':
+      if (confirm('¿Eliminar el cuadro «' + w.title + '»?')){
+        layout.widgets.splice(idx, 1); commit(); toast('Cuadro eliminado');
+      }
+      break;
+  }
+});
+
+function commit(){ saveLayout(); renderWidgets(); }
+
+/* ---- Arrastrar y soltar para reordenar ---- */
+let draggedId = null;
+
+$('#widgetGrid').addEventListener('pointerdown', (ev) => {
+  const handle = ev.target.closest('[data-act="drag"]');
+  const card = ev.target.closest('.widget');
+  if (card) card.draggable = !!handle;
+});
+
+$('#widgetGrid').addEventListener('dragstart', (ev) => {
+  const card = ev.target.closest('.widget');
+  if (!card || !card.draggable) { ev.preventDefault(); return; }
+  draggedId = card.dataset.id;
+  card.classList.add('dragging');
+  ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', draggedId); } catch (e) {}
+});
+
+$('#widgetGrid').addEventListener('dragover', (ev) => {
+  if (!draggedId) return;
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = 'move';
+  const card = ev.target.closest('.widget');
+  $$('#widgetGrid .widget').forEach(c => c.classList.remove('drop-before', 'drop-after'));
+  if (!card || card.dataset.id === draggedId) return;
+  const box = card.getBoundingClientRect();
+  card.classList.add(ev.clientX < box.left + box.width / 2 ? 'drop-before' : 'drop-after');
+});
+
+$('#widgetGrid').addEventListener('drop', (ev) => {
+  if (!draggedId) return;
+  ev.preventDefault();
+  const target = ev.target.closest('.widget');
+  const moved = findWidget(draggedId);
+  if (!moved) return;
+  if (target && target.dataset.id !== draggedId){
+    const box = target.getBoundingClientRect();
+    const before = ev.clientX < box.left + box.width / 2;
+    layout.widgets.splice(layout.widgets.indexOf(moved), 1);
+    let at = layout.widgets.indexOf(findWidget(target.dataset.id));
+    layout.widgets.splice(before ? at : at + 1, 0, moved);
+  } else if (!target){
+    layout.widgets.splice(layout.widgets.indexOf(moved), 1);
+    layout.widgets.push(moved);
+  }
+  draggedId = null;
+  commit();
+});
+
+$('#widgetGrid').addEventListener('dragend', () => {
+  draggedId = null;
+  $$('#widgetGrid .widget').forEach(c => {
+    c.classList.remove('dragging', 'drop-before', 'drop-after');
+    c.draggable = false;
+  });
+});
+
+/* =====================================================================
+   4. MODAL DE ALTA / EDICIÓN DE CUADRO
+   ===================================================================== */
+let modalWidget = null;   // null = alta
+let modalType = 'kpi';
+
+function openModal(widget){
+  modalWidget = widget;
+  modalType = widget ? widget.type : 'kpi';
+  $('#modalTitle').textContent = widget ? 'Editar cuadro' : 'Añadir cuadro';
+  $('#modalSubtitle').textContent = widget
+    ? 'Modifique el contenido, la fuente de datos y el tamaño.'
+    : 'Elija el tipo de cuadro y complete su contenido.';
+  $('#typePickerField').style.display = widget ? 'none' : '';
+  renderTypeGrid();
+  renderModalFields();
+  $('#widgetModal').classList.add('open');
+  setTimeout(() => { const f = $('#f_title'); if (f) f.focus(); }, 60);
+}
+
+function closeModal(){ $('#widgetModal').classList.remove('open'); modalWidget = null; }
+
+function renderTypeGrid(){
+  $('#typeGrid').innerHTML = Object.keys(WIDGET_TYPES).map(k => {
+    const t = WIDGET_TYPES[k];
+    return `<button class="type-card ${k === modalType ? 'selected' : ''}" type="button" data-type="${k}">
+      <i class="fa-solid ${t.icon}"></i><div class="nm">${t.name}</div><div class="ds">${t.desc}</div></button>`;
+  }).join('');
+}
+
+$('#typeGrid').addEventListener('click', (ev) => {
+  const card = ev.target.closest('.type-card');
+  if (!card) return;
+  modalType = card.dataset.type;
+  renderTypeGrid();
+  renderModalFields();
+});
+
+const sourceOptions = (sel) => Object.keys(DATA_SOURCES)
+  .map(k => `<option value="${k}"${k === sel ? ' selected' : ''}>${esc(DATA_SOURCES[k].label)}</option>`).join('');
+
+function sizeFields(w){
+  const width = w ? w.w : (modalType === 'kpi' ? 3 : 6);
+  const height = w ? w.h : (modalType === 'kpi' ? 1 : 2);
+  return `<div class="field-row">
+      <div class="field"><label>Ancho del cuadro</label>
+        <div class="seg" id="segWidth">${WIDTHS.map(x => `<button type="button" data-v="${x.v}" class="${x.v === width ? 'on' : ''}">${x.l}</button>`).join('')}</div>
+        <div class="hint">Fracción del ancho del panel.</div>
+      </div>
+      <div class="field"><label>Alto del cuadro</label>
+        <div class="seg" id="segHeight">${HEIGHTS.map(h => `<button type="button" data-v="${h}" class="${h === height ? 'on' : ''}">${['Bajo','Medio','Alto'][h-1]}</button>`).join('')}</div>
+        <div class="hint">Altura mínima reservada.</div>
+      </div>
+    </div>`;
+}
+
+function renderModalFields(){
+  const w = modalWidget;
+  const c = (w && w.config) || {};
+  const title = w ? w.title : WIDGET_TYPES[modalType].name;
+  const subtitle = w ? (w.subtitle || '') : '';
+  let html = `<div class="field"><label for="f_title">Título</label>
+      <input type="text" id="f_title" value="${esc(title)}" maxlength="90"></div>`;
+
+  if (modalType !== 'kpi'){
+    html += `<div class="field"><label for="f_subtitle">Descripción breve</label>
+      <input type="text" id="f_subtitle" value="${esc(subtitle)}" maxlength="140" placeholder="Opcional">
+      <div class="hint">Aparece bajo el título del cuadro.</div></div>`;
+  }
+
+  switch (modalType){
+    case 'kpi':
+      html += `<div class="field"><label for="f_metric">Métrica</label>
+          <select id="f_metric">${Object.keys(KPI_METRICS).map(k =>
+            `<option value="${k}"${k === (c.metric || 'avance_fase1') ? ' selected' : ''}>${esc(KPI_METRICS[k].label)}</option>`).join('')}</select>
+          <div class="hint">Las métricas automáticas se recalculan con los filtros de facultad.</div></div>
+        <div class="field-row">
+          <div class="field"><label for="f_value">Valor manual</label>
+            <input type="text" id="f_value" value="${esc(c.value != null ? c.value : '')}" placeholder="Solo si elige «valor escrito a mano»"></div>
+          <div class="field"><label for="f_unit">Unidad</label>
+            <input type="text" id="f_unit" value="${esc(c.unit || '')}" placeholder="%, días, docs…" maxlength="10"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="f_delta">Variación</label>
+            <input type="text" id="f_delta" value="${esc(c.delta || '')}" placeholder="10.3"></div>
+          <div class="field"><label for="f_deltaNote">Texto de la variación</label>
+            <input type="text" id="f_deltaNote" value="${esc(c.deltaNote || 'vs. julio')}" maxlength="30"></div>
+        </div>
+        <div class="field"><label>Sentido de la variación</label>
+          <div class="seg" id="segDir">${[['up','Sube'],['down','Baja'],['flat','Estable']].map(o =>
+            `<button type="button" data-v="${o[0]}" class="${(c.deltaDir || 'up') === o[0] ? 'on' : ''}">${o[1]}</button>`).join('')}</div></div>
+        <div class="field"><label for="f_foot">Pie del indicador</label>
+          <input type="text" id="f_foot" value="${esc(c.foot || '')}" placeholder="Se completa solo con la métrica elegida" maxlength="90"></div>`;
+      break;
+
+    case 'chart':
+      html += `<div class="field"><label for="f_source">Fuente de datos</label>
+          <select id="f_source">${sourceOptions(c.source || 'avance_a1_facultad')}</select></div>
+        <div class="field"><label>Tipo de gráfico</label>
+          <div class="seg" id="segChart">${[['bar','Barras'],['line','Líneas'],['doughnut','Anillo'],['pie','Tarta']].map(o =>
+            `<button type="button" data-v="${o[0]}" class="${(c.chartType || 'bar') === o[0] ? 'on' : ''}">${o[1]}</button>`).join('')}</div></div>
+        <div class="field-row">
+          <div class="field"><label for="f_topN">Elementos a mostrar</label>
+            <input type="number" id="f_topN" min="3" max="20" value="${Number(c.topN) || 12}"></div>
+          <div class="field"><label>Color principal</label>
+            <div class="seg" id="segColor">${PALETTE.slice(0,5).map(col =>
+              `<button type="button" data-v="${col}" class="${(c.color || '#2f6fed') === col ? 'on' : ''}" style="background:${col};color:#fff;border-color:${col}">&nbsp;</button>`).join('')}</div></div>
+        </div>`;
+      break;
+
+    case 'progress':
+      html += `<div class="field"><label>Origen de las barras</label>
+          <div class="seg" id="segMode">${[['auto','Desde los datos'],['manual','Filas manuales']].map(o =>
+            `<button type="button" data-v="${o[0]}" class="${(c.mode || 'auto') === o[0] ? 'on' : ''}">${o[1]}</button>`).join('')}</div></div>
+        <div class="field" id="wrapSource"><label for="f_source">Fuente de datos</label>
+          <select id="f_source">${sourceOptions(c.source || 'estados_a1')}</select></div>
+        <div class="field" id="wrapRows"><label>Filas manuales</label>
+          <div class="rows-editor" id="rowsEditor"></div>
+          <button class="btn" type="button" id="btnAddRow" style="margin-top:10px"><i class="fa-solid fa-plus"></i> Añadir fila</button>
+        </div>`;
+      break;
+
+    case 'ranking':
+      html += `<div class="field"><label for="f_source">Métrica del ranking</label>
+          <select id="f_source">${sourceOptions(c.source || 'avance_a3_facultad')}</select></div>
+        <div class="field"><label for="f_topN">Facultades a mostrar</label>
+          <input type="number" id="f_topN" min="3" max="20" value="${Number(c.topN) || 8}"></div>`;
+      break;
+
+    case 'table':
+      html += `<div class="field"><label for="f_dataset">Conjunto de registros</label>
+          <select id="f_dataset">${[['anexo1','Anexo 1 · productos'],['anexo3','Anexo 3 · fichas'],['todos','Consolidado']].map(o =>
+            `<option value="${o[0]}"${(c.dataset || 'anexo1') === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('')}</select></div>
+        <div class="field-row">
+          <div class="field"><label for="f_status">Estado</label>
+            <select id="f_status">${['all'].concat(A1_STATUSES, A3_STATUSES).map(s =>
+              `<option value="${s}"${(c.status || 'all') === s ? ' selected' : ''}>${s === 'all' ? 'Todos' : s}</option>`).join('')}</select></div>
+          <div class="field"><label for="f_limit">Filas a mostrar</label>
+            <input type="number" id="f_limit" min="3" max="30" value="${Number(c.limit) || 8}"></div>
+        </div>`;
+      break;
+
+    case 'note':
+      html += `<div class="field"><label for="f_text">Contenido</label>
+          <textarea id="f_text" rows="7" placeholder="Acuerdos, pendientes, notas de la reunión…">${esc(c.text || '')}</textarea>
+          <div class="hint">También puede escribir directamente sobre el cuadro con el modo edición activo.</div></div>`;
+      break;
+  }
+
+  html += sizeFields(w);
+  $('#modalFields').innerHTML = html;
+
+  if (modalType === 'progress'){
+    renderRowsEditor((c.mode === 'manual' && Array.isArray(c.rows) && c.rows.length)
+      ? c.rows : [{label:'Etiqueta', value:60, color:''}]);
+    syncProgressMode();
+    $('#btnAddRow').addEventListener('click', () => addRowEditor({label:'', value:50, color:''}));
+  }
+}
+
+/* Segmentados: un único botón activo por grupo */
+$('#modalFields').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.seg button');
+  if (!btn) return;
+  $$('button', btn.parentElement).forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  /* El grupo se lee después de marcar el botón, no antes. */
+  if (btn.parentElement.id === 'segMode') syncProgressMode();
+});
+
+const segValue = (id, fallback) => {
+  const on = $('#' + id + ' button.on');
+  return on ? on.dataset.v : fallback;
+};
+
+function syncProgressMode(){
+  const manual = segValue('segMode', 'auto') === 'manual';
+  $('#wrapSource').style.display = manual ? 'none' : '';
+  $('#wrapRows').style.display = manual ? '' : 'none';
+}
+
+const COLOR_CHOICES = [['', 'Azul'], ['green','Verde'], ['amber','Ámbar'], ['red','Rojo'], ['navy','Marino']];
+
+function addRowEditor(row){
+  const el = document.createElement('div');
+  el.className = 're';
+  el.innerHTML = `<input type="text" class="r-label" placeholder="Etiqueta" value="${esc(row.label || '')}">
+    <input type="number" class="r-value" min="0" max="1000" value="${Number(row.value) || 0}">
+    <select class="r-color">${COLOR_CHOICES.map(o => `<option value="${o[0]}"${(row.color || '') === o[0] ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>
+    <button class="rm" type="button" aria-label="Quitar fila"><i class="fa-solid fa-xmark"></i></button>`;
+  el.querySelector('.rm').addEventListener('click', () => el.remove());
+  $('#rowsEditor').appendChild(el);
+}
+
+function renderRowsEditor(rows){ $('#rowsEditor').innerHTML = ''; rows.forEach(addRowEditor); }
+
+function collectModalValues(){
+  const val = (id) => { const el = $('#' + id); return el ? el.value.trim() : ''; };
+  const cfg = {};
+  switch (modalType){
+    case 'kpi':
+      cfg.metric = val('f_metric');
+      cfg.value = val('f_value');
+      cfg.unit = val('f_unit');
+      cfg.delta = val('f_delta');
+      cfg.deltaNote = val('f_deltaNote');
+      cfg.deltaDir = segValue('segDir', 'up');
+      cfg.foot = val('f_foot');
+      cfg.spark = true;
+      break;
+    case 'chart':
+      cfg.source = val('f_source');
+      cfg.chartType = segValue('segChart', 'bar');
+      cfg.color = segValue('segColor', '#2f6fed');
+      cfg.topN = clamp(Number(val('f_topN')) || 12, 3, 20);
+      break;
+    case 'progress':
+      cfg.mode = segValue('segMode', 'auto');
+      cfg.source = val('f_source');
+      cfg.rows = $$('#rowsEditor .re').map(el => ({
+        label: $('.r-label', el).value.trim() || '—',
+        value: Number($('.r-value', el).value) || 0,
+        color: $('.r-color', el).value
+      }));
+      break;
+    case 'ranking':
+      cfg.source = val('f_source');
+      cfg.topN = clamp(Number(val('f_topN')) || 8, 3, 20);
+      break;
+    case 'table':
+      cfg.dataset = val('f_dataset');
+      cfg.status = val('f_status');
+      cfg.limit = clamp(Number(val('f_limit')) || 8, 3, 30);
+      break;
+    case 'note':
+      cfg.text = $('#f_text').value;
+      break;
+  }
+  return {
+    type: modalType,
+    title: val('f_title') || WIDGET_TYPES[modalType].name,
+    subtitle: $('#f_subtitle') ? val('f_subtitle') : '',
+    w: Number(segValue('segWidth', 6)),
+    h: Number(segValue('segHeight', 2)),
+    config: cfg
+  };
+}
+
+$('#btnSaveWidget').addEventListener('click', () => {
+  const data = collectModalValues();
+  if (modalWidget){
+    Object.assign(modalWidget, data, {id: modalWidget.id});
+    toast('Cuadro actualizado');
+  } else {
+    layout.widgets.push(Object.assign({id: uid()}, data));
+    toast('Cuadro añadido');
+  }
+  closeModal();
+  commit();
+});
+
+/* =====================================================================
+   5. NAVEGACIÓN ENTRE VISTAS
+   ===================================================================== */
+let currentView = 'dashboard';
+
+function switchView(view){
+  currentView = view;
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+  $$('.tab').forEach(b => {
+    const on = b.dataset.view === view;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  $$('.rail-btn[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.body.classList.remove('filters-open');
+  if (view === 'dashboard') charts.forEach(c => c.resize());
+}
+
+$$('.tab[data-view], .rail-btn[data-view]').forEach(b =>
+  b.addEventListener('click', () => switchView(b.dataset.view)));
+
+/* =====================================================================
+   6. PANEL DE FILTROS POR FACULTAD
+   ===================================================================== */
+function renderFacultyList(){
+  const q = $('#facultySearch').value.trim().toLowerCase();
+  const list = faculties.filter(f => !q || f.name.toLowerCase().includes(q) || f.code.toLowerCase().includes(q));
+  $('#facultyList').innerHTML = list.length ? list.map(f => {
+    const on = selectedFaculties.has(f.code);
+    const dot = f.processes > 9 ? 'dot-hi' : (f.processes > 7 ? 'dot-md' : 'dot-lo');
+    return `<li class="faculty-item ${on ? 'selected' : ''}" data-code="${f.code}" role="checkbox"
+              aria-checked="${on}" tabindex="0" title="${esc(f.name)}">
+        <span class="chip">${esc(f.short)}</span>
+        <span class="info"><span class="nm">${esc(f.name)}</span><span class="sub">${f.processes} procesos</span></span>
+        <span class="dot ${dot}" aria-hidden="true"></span>
+      </li>`;
+  }).join('') : '<li style="padding:14px;font-size:11.5px;color:rgba(255,255,255,.45)">Sin coincidencias.</li>';
+
+  const m = metrics();
+  $('#facCount').textContent = m.facultades;
+  $('#procCount').textContent = m.procesos;
+  $('#recCount').textContent = m.rd.length;
+  $('#btnToggleAllFaculties').textContent =
+    selectedFaculties.size === faculties.length ? 'Quitar todas' : 'Seleccionar todas';
+}
+
+function toggleFaculty(code){
+  if (selectedFaculties.has(code)){
+    if (selectedFaculties.size === 1){ toast('Debe quedar al menos una facultad seleccionada.', 'warn'); return; }
+    selectedFaculties.delete(code);
+  } else selectedFaculties.add(code);
+  renderAll();
+}
+
+$('#facultyList').addEventListener('click', (ev) => {
+  const li = ev.target.closest('.faculty-item[data-code]');
+  if (li) toggleFaculty(li.dataset.code);
+});
+$('#facultyList').addEventListener('keydown', (ev) => {
+  const li = ev.target.closest('.faculty-item[data-code]');
+  if (li && (ev.key === 'Enter' || ev.key === ' ')){ ev.preventDefault(); toggleFaculty(li.dataset.code); }
+});
+$('#facultySearch').addEventListener('input', renderFacultyList);
+
+$('#btnToggleAllFaculties').addEventListener('click', () => {
+  if (selectedFaculties.size === faculties.length){
+    selectedFaculties.clear();
+    selectedFaculties.add(faculties[0].code);
+  } else faculties.forEach(f => selectedFaculties.add(f.code));
+  renderAll();
+});
+
+$('#btnResetFilters').addEventListener('click', () => {
+  faculties.forEach(f => selectedFaculties.add(f.code));
+  $('#facultySearch').value = '';
+  ['filterFacultyA1','filterProcessA1','filterTypeA1','filterFacultyA3','filterProcessA3','filterTypeA3',
+   'dbFilterFaculty','dbFilterProcess','dbFilterAnexo'].forEach(id => { const el = $('#' + id); if (el) el.value = ''; });
+  $('#dbSearchInput').value = '';
+  setDbEntityFilter('all', true);
+  setDbStatusFilter('all', true);
+  dbPage = 1;
+  renderAll();
+  toast('Filtros restablecidos');
+});
+
+$('#btnFiltersToggle').addEventListener('click', () => document.body.classList.toggle('filters-open'));
+
+/* =====================================================================
+   7. VISTA ANÁLISIS
+   ===================================================================== */
+let a1StatusFilter = 'CONFORME';
+let a3StatusFilter = 'COMPLETA';
+
+$$('.tab-ana').forEach(b => b.addEventListener('click', () => {
+  $$('.tab-ana').forEach(x => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-selected', String(on)); });
+  $$('.panel-ana').forEach(p => p.classList.toggle('active', p.id === 'panel-' + b.dataset.target));
+}));
+
+const A1_BLOCKS = [
+  {key:'producto',    title:'Productos',   rows: () => a1(), labels:['Conformes','Observados','Sin registro'], statuses:A1_STATUSES},
+  {key:'procesos',    title:'Procesos',    rows: () => dbAll().filter(d => d.entity === 'Proceso'),    labels:['Conformes','Observados','Sin registro'], statuses:A1_STATUSES},
+  {key:'subprocesos', title:'Subprocesos', rows: () => dbAll().filter(d => d.entity === 'SubProceso'), labels:['Conformes','Observados','Sin registro'], statuses:A1_STATUSES}
+];
+
+function renderAnexo1Cards(){
+  $('#anexo1Cards').innerHTML = A1_BLOCKS.map(block => {
+    const rows = block.rows();
+    const counts = block.statuses.map(s => countBy(rows, s));
+    const total = rows.length;
+    const max = Math.max.apply(null, counts.concat([1]));
+    const metricsHTML = block.statuses.map((s, i) => `
+      <div class="metric status-filter ${block.key === 'producto' && s === a1StatusFilter ? 'active-status' : (block.key === 'producto' ? 'inactive-status' : '')}"
+           data-status="${s}" data-block="${block.key}" role="button" tabindex="0"
+           aria-label="${block.labels[i]}: ${counts[i]} de ${total}">
+        <div class="m-title">${block.labels[i]}</div>
+        <div class="m-num">${counts[i]}</div>
+        <div class="m-den">de ${total}</div>
+        <div class="m-change">${pct(counts[i], total)} % del total</div>
+      </div>`).join('');
+    const barsHTML = block.statuses.map((s, i) => `
+      <div class="prog-row">
+        <span class="lb">${block.labels[i]}</span>
+        <span class="tk"><span class="fl ${i === 0 ? 'green' : i === 1 ? 'amber' : 'red'}" style="width:${clamp((counts[i] / max) * 100, 0, 100)}%"></span></span>
+        <b>${counts[i]}</b>
+      </div>`).join('');
+    return `<article class="entity-card">
+        <div class="entity-head"><div class="entity-title">${block.title}</div><div class="entity-tag">ANEXO 1</div></div>
+        <div class="entity-body">
+          <div class="metrics">${metricsHTML}</div>
+          <div class="chart-box"><div class="chart-title">Gráfico de cuantificación</div><div class="prog-list">${barsHTML}</div></div>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+$('#anexo1Cards').addEventListener('click', (ev) => {
+  const el = ev.target.closest('.status-filter[data-block="producto"]');
+  if (!el) return;
+  a1StatusFilter = el.dataset.status;
+  renderAnexo1Cards();
+  renderAnexo1Table();
+});
+
+function renderAnexo3Cards(){
+  const rows = a3();
+  const counts = A3_STATUSES.map(s => countBy(rows, s));
+  const total = rows.length;
+  const labels = ['Completas','Incompletas','Sin producto'];
+  $('#anexo3Metrics').innerHTML = A3_STATUSES.map((s, i) => `
+    <div class="big-metric status-filter ${s === a3StatusFilter ? 'active-status' : 'inactive-status'}"
+         data-status="${s}" role="button" tabindex="0">
+      <h4>${labels[i]}</h4><div class="n">${counts[i]}</div>
+      <div class="den">de ${total}</div><div class="chg">${pct(counts[i], total)} % del total</div>
+    </div>`).join('');
+
+  const max = Math.max.apply(null, counts.concat([1]));
+  $('#anexo3Bars').innerHTML = A3_STATUSES.map((s, i) => `
+    <div class="prog-row"><span class="lb">${labels[i]}</span>
+      <span class="tk"><span class="fl ${i === 0 ? 'green' : i === 1 ? 'amber' : 'red'}" style="width:${clamp((counts[i] / max) * 100, 0, 100)}%"></span></span>
+      <b>${counts[i]}</b></div>`).join('');
+
+  const rank = byFaculty(rows, 'COMPLETA').sort((a, b) => b.value - a.value).slice(0, 10);
+  $('#rankingAnexo3').innerHTML = rank.length ? rank.map(f => {
+    const cls = f.value >= 75 ? 'hi' : (f.value >= 50 ? 'md' : 'lo');
+    return `<div class="rank-row"><span title="${esc(f.name)}">${esc(f.short)}</span>
+      <span class="rank-track"><span class="rank-fill ${cls}" style="width:${f.value}%"></span></span>
+      <strong>${f.value}%</strong></div>`;
+  }).join('') : '<div class="empty-state" style="padding:24px">Sin facultades seleccionadas.</div>';
+}
+
+$('#anexo3Metrics').addEventListener('click', (ev) => {
+  const el = ev.target.closest('.status-filter[data-status]');
+  if (!el) return;
+  a3StatusFilter = el.dataset.status;
+  renderAnexo3Cards();
+  renderAnexo3Table();
+});
+
+function fillSelect(el, values){
+  const keep = el.value;
+  const first = el.options[0].outerHTML;
+  el.innerHTML = first + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if (values.includes(keep)) el.value = keep;
+}
+
+function tableRowsHTML(rows){
+  return rows.map(d => `<tr>
+      <td>${esc(d.faculty)}</td><td>${d.id}</td><td>${esc(d.process)}</td><td><code>${esc(d.code)}</code></td>
+      <td>${esc(d.name)}</td><td>${esc(d.type)}</td>
+      <td><span class="badge ${badgeClass(d.status)}">${esc(d.status)}</span></td>
+      <td class="cumplimiento">${d.compliance} %</td><td class="criterios">${esc(d.criteria)}</td>
+      <td class="obs">${esc(d.observations)}</td></tr>`).join('');
+}
+
+const A1_LIMIT = 100;
+
+function renderAnexo1Table(){
+  const fac = $('#filterFacultyA1').value, proc = $('#filterProcessA1').value, type = $('#filterTypeA1').value;
+  let rows = a1().filter(d => d.status === a1StatusFilter);
+  if (fac)  rows = rows.filter(d => d.faculty === fac);
+  if (proc) rows = rows.filter(d => d.process === proc);
+  if (type) rows = rows.filter(d => d.type === type);
+
+  const shown = rows.slice(0, A1_LIMIT);
+  $('#statusViewA1').textContent = 'Productos · ' + a1StatusFilter;
+  $('#visibleCountA1').textContent = rows.length;
+  $('#tableTitleA1').textContent = 'Detalle de productos · ' + a1StatusFilter;
+  $('#productRowsA1').innerHTML = shown.length ? tableRowsHTML(shown)
+    : '<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i>No hay registros para los filtros seleccionados.</div></td></tr>';
+  $('#dataFooterA1').innerHTML = rows.length
+    ? 'Se muestran ' + shown.length + ' de <b>' + rows.length + '</b> productos en estado <b>' + esc(a1StatusFilter) +
+      '</b>.' + (rows.length > A1_LIMIT ? ' Afine los filtros para ver el resto.' : '')
+    : 'Sin resultados. Pruebe con otros filtros o seleccione más facultades.';
+}
+
+function renderAnexo3Table(){
+  const fac = $('#filterFacultyA3').value, proc = $('#filterProcessA3').value, type = $('#filterTypeA3').value;
+  let rows = a3().filter(d => d.status === a3StatusFilter);
+  if (fac)  rows = rows.filter(d => d.faculty === fac);
+  if (proc) rows = rows.filter(d => d.process === proc);
+  if (type) rows = rows.filter(d => d.type === type);
+
+  const shown = rows.slice(0, A1_LIMIT);
+  $('#statusViewA3').textContent = 'Fichas · ' + a3StatusFilter;
+  $('#visibleCountA3').textContent = rows.length;
+  $('#tableTitleA3').textContent = 'Detalle de fichas · ' + a3StatusFilter;
+  $('#productRowsA3').innerHTML = shown.length ? tableRowsHTML(shown)
+    : '<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i>No hay registros para los filtros seleccionados.</div></td></tr>';
+  $('#dataFooterA3').innerHTML = rows.length
+    ? 'Se muestran ' + shown.length + ' de <b>' + rows.length + '</b> fichas en estado <b>' + esc(a3StatusFilter) +
+      '</b>.' + (rows.length > A1_LIMIT ? ' Afine los filtros para ver el resto.' : '')
+    : 'Sin resultados. Pruebe con otros filtros o seleccione más facultades.';
+}
+
+['filterFacultyA1','filterProcessA1','filterTypeA1'].forEach(id => $('#' + id).addEventListener('change', renderAnexo1Table));
+['filterFacultyA3','filterProcessA3','filterTypeA3'].forEach(id => $('#' + id).addEventListener('change', renderAnexo3Table));
+
+/* =====================================================================
+   8. VISTA BASE DE DATOS
+   ===================================================================== */
+let dbPage = 1;
+const DB_PAGE_SIZE = 12;
+let dbEntityFilter = 'all';
+let dbStatusFilter = 'all';
+
+function getDbFiltered(){
+  const q = $('#dbSearchInput').value.trim().toLowerCase();
+  const fac = $('#dbFilterFaculty').value, proc = $('#dbFilterProcess').value, anexo = $('#dbFilterAnexo').value;
+  return dbAll().filter(d => {
+    if (dbEntityFilter !== 'all' && d.entity !== dbEntityFilter) return false;
+    if (dbStatusFilter !== 'all' && d.status !== dbStatusFilter) return false;
+    if (fac && d.faculty !== fac) return false;
+    if (proc && d.process !== proc) return false;
+    if (anexo && d.anexo !== anexo) return false;
+    if (q){
+      const hay = (d.faculty + ' ' + d.facultyName + ' ' + d.process + ' ' + d.code + ' ' + d.name + ' ' +
+                   d.type + ' ' + d.status + ' ' + d.observations).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderDatabase(){
+  const m = metrics();
+  $('#dbTotalCount').textContent = m.rd.length;
+  $('#dbOkCount').textContent = m.okAll;
+  $('#dbWarnCount').textContent = m.warnAll;
+  $('#dbDangerCount').textContent = m.dangerAll;
+
+  const data = getDbFiltered();
+  const total = data.length;
+  const totalPages = Math.max(1, Math.ceil(total / DB_PAGE_SIZE));
+  dbPage = clamp(dbPage, 1, totalPages);
+  const start = (dbPage - 1) * DB_PAGE_SIZE;
+  const pageData = data.slice(start, start + DB_PAGE_SIZE);
+
+  $('#dbShowingCount').textContent = total;
+  $('#dbTotalMeta').textContent = m.rd.length;
+  $('#dbPageMeta').textContent = dbPage;
+  $('#dbTotalPages').textContent = totalPages;
+  $('#dbPageInfo').textContent = total === 0 ? 'No hay registros para mostrar'
+    : 'Mostrando ' + (start + 1) + '–' + Math.min(start + DB_PAGE_SIZE, total) + ' de ' + total + ' registros';
+  $('#dbTableTitle').textContent = 'Registros consolidados · ' +
+    (dbEntityFilter === 'all' ? 'Todos' : dbEntityFilter + 's') +
+    (dbStatusFilter === 'all' ? '' : ' · ' + dbStatusFilter);
+
+  $('#dbRows').innerHTML = pageData.length ? pageData.map((d, i) => `<tr>
+      <td>${start + i + 1}</td><td>${esc(d.entity)}</td><td>${esc(d.anexo)}</td>
+      <td title="${esc(d.facultyName || '')}">${esc(d.faculty)}</td><td>${esc(d.process)}</td>
+      <td><code>${esc(d.code)}</code></td><td>${esc(d.name)}</td><td>${esc(d.type)}</td>
+      <td><span class="badge ${badgeClass(d.status)}">${esc(d.status)}</span></td>
+      <td class="cumplimiento">${d.compliance} %</td><td class="criterios">${esc(d.criteria)}</td>
+      <td class="obs">${esc(d.observations)}</td></tr>`).join('')
+    : '<tr><td colspan="12"><div class="empty-state"><i class="fa-solid fa-inbox"></i>No se encontraron registros con los filtros aplicados.</div></td></tr>';
+
+  let html = `<button class="db-page-btn" type="button" data-page="${dbPage - 1}" ${dbPage === 1 ? 'disabled' : ''} aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>`;
+  for (let i = 1; i <= totalPages; i++){
+    if (i === 1 || i === totalPages || (i >= dbPage - 1 && i <= dbPage + 1)){
+      html += `<button class="db-page-btn ${i === dbPage ? 'active' : ''}" type="button" data-page="${i}">${i}</button>`;
+    } else if (i === dbPage - 2 || i === dbPage + 2){
+      html += '<span style="padding:0 4px;color:var(--muted)">…</span>';
+    }
+  }
+  html += `<button class="db-page-btn" type="button" data-page="${dbPage + 1}" ${dbPage === totalPages ? 'disabled' : ''} aria-label="Página siguiente"><i class="fa-solid fa-chevron-right"></i></button>`;
+  $('#dbPageButtons').innerHTML = html;
+}
+
+$('#dbPageButtons').addEventListener('click', (ev) => {
+  const b = ev.target.closest('.db-page-btn[data-page]');
+  if (!b || b.disabled) return;
+  dbPage = Number(b.dataset.page);
+  renderDatabase();
+});
+
+function setDbEntityFilter(v, silent){
+  dbEntityFilter = v; dbPage = 1;
+  $$('.db-filter-chip[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === v));
+  if (!silent) renderDatabase();
+}
+function setDbStatusFilter(v, silent){
+  dbStatusFilter = v; dbPage = 1;
+  $$('.db-filter-chip[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === v));
+  if (!silent) renderDatabase();
+}
+
+$$('.db-filter-chip[data-filter]').forEach(b => b.addEventListener('click', () => setDbEntityFilter(b.dataset.filter)));
+$$('.db-filter-chip[data-status]').forEach(b => b.addEventListener('click', () => setDbStatusFilter(b.dataset.status)));
+['dbFilterFaculty','dbFilterProcess','dbFilterAnexo'].forEach(id =>
+  $('#' + id).addEventListener('change', () => { dbPage = 1; renderDatabase(); }));
+$('#dbSearchInput').addEventListener('input', () => { dbPage = 1; renderDatabase(); });
+$('#btnDbReset').addEventListener('click', () => {
+  $('#dbSearchInput').value = '';
+  ['dbFilterFaculty','dbFilterProcess','dbFilterAnexo'].forEach(id => { $('#' + id).value = ''; });
+  setDbEntityFilter('all', true);
+  setDbStatusFilter('all', true);
+  renderDatabase();
+  toast('Filtros de la base de datos limpiados');
+});
+
+function download(filename, content, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+$('#btnDbExport').addEventListener('click', () => {
+  const data = getDbFiltered();
+  if (!data.length){ toast('No hay registros que exportar.', 'warn'); return; }
+  const headers = ['#','Entidad','Anexo','Facultad','Nombre de la facultad','Proceso','Codigo','Nombre','Tipo','Estado','Cumplimiento','Criterios','Observaciones'];
+  const rows = data.map((d, i) => [i + 1, d.entity, d.anexo, d.faculty, d.facultyName || '', d.process,
+    d.code, d.name, d.type, d.status, d.compliance + '%', d.criteria, d.observations]);
+  /* Separador «;» y BOM UTF-8 para que Excel en español abra el archivo
+     con las columnas y las tildes correctas. */
+  const csv = '﻿' + [headers].concat(rows)
+    .map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+  download('base-datos-gxp-unmsm.csv', csv, 'text/csv;charset=utf-8;');
+  toast(data.length + ' registros exportados');
+});
+
+/* =====================================================================
+   9. GUARDAR, EXPORTAR E IMPORTAR LA DISTRIBUCIÓN
+   ===================================================================== */
+$('#btnEditMode').addEventListener('click', () => {
+  setEditMode(!editMode);
+  toast(editMode ? 'Modo edición activado' : 'Cambios guardados en este navegador');
+});
+
+$('#btnAddWidget').addEventListener('click', () => openModal(null));
+$('#btnCloseModal').addEventListener('click', closeModal);
+$('#btnCancelModal').addEventListener('click', closeModal);
+$('#widgetModal').addEventListener('click', (ev) => { if (ev.target.id === 'widgetModal') closeModal(); });
+
+$('#btnHelp').addEventListener('click', () => $('#helpModal').classList.add('open'));
+$('#btnCloseHelp').addEventListener('click', () => $('#helpModal').classList.remove('open'));
+$('#btnCloseHelp2').addEventListener('click', () => $('#helpModal').classList.remove('open'));
+$('#helpModal').addEventListener('click', (ev) => { if (ev.target.id === 'helpModal') $('#helpModal').classList.remove('open'); });
+
+$('#btnExportLayout').addEventListener('click', () => {
+  download('panel-gxp-unmsm.json', JSON.stringify(layout, null, 2), 'application/json');
+  toast('Distribución exportada');
+});
+
+$('#btnImportLayout').addEventListener('click', () => $('#importFile').click());
+$('#importFile').addEventListener('change', (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = normalizeLayout(JSON.parse(reader.result));
+      if (!parsed) throw new Error('formato');
+      layout = parsed;
+      $('#cutDate').textContent = layout.meta.cutDate;
+      commit();
+      toast('Distribución importada');
+    } catch (e){
+      toast('El archivo no tiene un formato de panel válido.', 'warn');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+});
+
+$('#btnResetLayout').addEventListener('click', () => {
+  if (!confirm('¿Restablecer el panel a su distribución original? Se perderán los cuadros añadidos y las ediciones.')) return;
+  store.del(LAYOUT_KEY);
+  layout = defaultLayout();
+  $('#cutDate').textContent = layout.meta.cutDate;
+  commit();
+  toast('Panel restablecido');
+});
+
+/* =====================================================================
+   10. ARRANQUE
+   ===================================================================== */
+function renderAll(){
+  renderFacultyList();
+  renderWidgets();
+  renderAnexo1Cards();
+  renderAnexo3Cards();
+  renderAnexo1Table();
+  renderAnexo3Table();
+  renderDatabase();
+}
+
+function populateSelects(){
+  const facCodes = faculties.map(f => f.code);
+  fillSelect($('#filterFacultyA1'), facCodes);
+  fillSelect($('#filterProcessA1'), processTypes);
+  fillSelect($('#filterTypeA1'), productTypes);
+  fillSelect($('#filterFacultyA3'), facCodes);
+  fillSelect($('#filterProcessA3'), processTypes);
+  fillSelect($('#filterTypeA3'), fichaTypes);
+  fillSelect($('#dbFilterFaculty'), facCodes);
+  fillSelect($('#dbFilterProcess'), processTypes);
+}
+
+function init(){
+  $('#cutDate').textContent = layout.meta.cutDate || '28/08/2026';
+  populateSelects();
+  renderAll();
+  switchView('dashboard');
+  setEditMode(false);
+  if (!store.get('ogpl.dashboard.seenHelp', false)){
+    store.set('ogpl.dashboard.seenHelp', true);
+    setTimeout(() => toast('Active «Modo edición» para mover, editar y añadir cuadros.'), 900);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

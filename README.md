@@ -22,6 +22,7 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 ```
 .
 ├── index.html                        Centro de documentación (portada)
+├── dashboard.html                    Panel de control editable (datos ficticios)
 ├── docs/
 │   ├── 01-plan-de-gestion-v2.html
 │   ├── 02-cronograma-v2.html
@@ -48,6 +49,23 @@ Una web interactiva con el diagnóstico de la documentación de trabajo, más lo
 │   └── README.md                     despliegue paso a paso
 └── PUBLICAR-EN-GITHUB.md
 ```
+
+## El panel de control (`dashboard.html`)
+
+Página autónoma —un solo archivo— con tres vistas: **Dashboard**, **Análisis**
+y **Base de datos**.
+
+**Los datos son ficticios.** Se generan en el navegador con una semilla fija,
+así que las cifras no cambian entre recargas y las tarjetas, los gráficos y las
+tablas siempre concuerdan. Para enlazar datos reales basta con sustituir el
+bloque «1. DATOS DE DEMOSTRACIÓN» del script y volver a llamar a `renderAll()`.
+
+El interruptor **Modo edición** de la barra superior convierte el Dashboard en
+un lienzo: se pueden arrastrar los cuadros para reordenarlos, reescribir los
+textos en el sitio, cambiar ancho y alto, duplicar, eliminar y añadir cuadros
+nuevos (indicador, gráfico, barras, ranking, tabla y nota). La distribución se
+guarda en el `localStorage` del navegador y puede exportarse e importarse como
+`.json`.
 
 ## Al modificar un archivo de `assets/`
 
