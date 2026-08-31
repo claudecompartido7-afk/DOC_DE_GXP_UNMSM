@@ -208,12 +208,12 @@ button{font-family:inherit;color:inherit}
 }
 .filters-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:14px}
 .filters-head .t{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;letter-spacing:.01em}
-.filters-head i.lead{color:var(--blue-2)}
+.filters-head .lead{color:var(--blue-2)}
 .icon-ghost{background:transparent;border:0;color:rgba(255,255,255,.5);cursor:pointer;padding:6px;border-radius:8px;transition:all .18s var(--ease)}
 .icon-ghost:hover{color:#fff;background:rgba(255,255,255,.1)}
 
 .filters-search{position:relative;margin-bottom:12px}
-.filters-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(255,255,255,.4)}
+.filters-search i,.filters-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(255,255,255,.4)}
 .filters-search input{
   width:100%;padding:9px 12px 9px 32px;border-radius:var(--r-sm);
   border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);
@@ -267,7 +267,7 @@ button{font-family:inherit;color:inherit}
   border:1px dashed var(--blue-2);
 }
 .canvas-bar .msg{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600;color:#1e4fb0;margin-right:auto}
-.canvas-bar .msg i{font-size:15px}
+.canvas-bar .msg i,.canvas-bar .msg svg{font-size:15px}
 .canvas-bar .msg kbd{
   background:#fff;border:1px solid #c3d7ff;border-bottom-width:2px;border-radius:5px;
   padding:1px 6px;font-size:11px;font-family:inherit;font-weight:700;color:#1e4fb0;
@@ -348,7 +348,7 @@ body.edit-mode [data-editable]:focus{background:#fff;outline:2px solid var(--blu
   display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;
   font-size:12.5px;font-weight:700;cursor:pointer;transition:all .18s var(--ease);
 }
-.widget-add i{font-size:22px}
+.widget-add i,.widget-add svg{font-size:22px}
 .widget-add:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
 body.edit-mode .widget-add{display:flex}
 
@@ -356,7 +356,7 @@ body.edit-mode .widget-add{display:flex}
   grid-column:span 12;padding:56px 24px;text-align:center;color:var(--muted);
   border:2px dashed #ccdaea;border-radius:var(--r-xl);background:rgba(255,255,255,.5);
 }
-.canvas-empty i{font-size:34px;opacity:.35;display:block;margin-bottom:12px}
+.canvas-empty i,.canvas-empty svg{font-size:34px;opacity:.35;display:block;margin-bottom:12px}
 .canvas-empty b{display:block;color:var(--text-2);font-size:14px;margin-bottom:4px}
 
 /* =====================================================================
@@ -464,7 +464,7 @@ body.edit-mode .widget-add{display:flex}
 }
 .type-card:hover{border-color:var(--blue-2);transform:translateY(-2px);box-shadow:var(--sh-sm)}
 .type-card.selected{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(47,111,237,.12)}
-.type-card i{font-size:18px;color:var(--blue);display:block;margin-bottom:9px}
+.type-card i,.type-card > svg{font-size:18px;color:var(--blue);display:block;margin-bottom:9px}
 .type-card .nm{font-size:12.5px;font-weight:800;color:var(--text)}
 .type-card .ds{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
 
@@ -510,8 +510,13 @@ body.edit-mode .widget-add{display:flex}
   transition:opacity .22s var(--ease),transform .22s var(--ease);
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.toast i{color:#4ade80;flex-shrink:0}
-.toast.warn i{color:#fbbf24}
+/* Los dos iconos viven en el marcado y se alternan por CSS: así el aviso
+   funciona igual con Font Awesome en CSS que en su versión SVG. */
+.toast .ic-ok,.toast .ic-warn{flex-shrink:0}
+.toast .ic-ok{color:#4ade80}
+.toast .ic-warn{color:#fbbf24;display:none}
+.toast.warn .ic-ok{display:none}
+.toast.warn .ic-warn{display:inline-block}
 
 /* =====================================================================
    6. VISTA ANÁLISIS
@@ -606,14 +611,14 @@ body.edit-mode .widget-add{display:flex}
 .obs{min-width:220px;max-width:300px}
 .data-footer{padding:11px 16px;font-size:11px;color:var(--muted);background:var(--surface-2)}
 .empty-state{padding:44px 20px;text-align:center;color:var(--muted);font-size:13px}
-.empty-state i{font-size:30px;opacity:.35;display:block;margin-bottom:12px}
+.empty-state i,.empty-state svg{font-size:30px;opacity:.35;display:block;margin-bottom:12px}
 
 /* =====================================================================
    8. VISTA BASE DE DATOS
    ===================================================================== */
 .db-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
 .db-search-wrap{position:relative;flex:1;min-width:260px;max-width:460px}
-.db-search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+.db-search-wrap i,.db-search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
 .db-search-wrap input{
   width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--surface);color:var(--text);font-size:12.5px;font-weight:600;font-family:inherit;
@@ -1003,7 +1008,7 @@ body.edit-mode .widget-add{display:flex}
   </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><i class="fa-solid fa-circle-check ic-ok" aria-hidden="true"></i><i class="fa-solid fa-triangle-exclamation ic-warn" aria-hidden="true"></i><span id="toastMsg"></span></div>
 
 <script>
 "use strict";
@@ -1046,7 +1051,6 @@ function toast(msg, kind){
   const el = $('#toast');
   $('#toastMsg').textContent = msg;
   el.classList.toggle('warn', kind === 'warn');
-  $('#toast i').className = kind === 'warn' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
@@ -2377,13 +2381,33 @@ $('#btnDbReset').addEventListener('click', () => {
   toast('Filtros de la base de datos limpiados');
 });
 
-function download(filename, content, mime){
+/* Servida como página web, la descarga se hace con un enlace temporal.
+   Publicada dentro de un visor que no permite descargas directas, se usa
+   el guardado que ofrece el propio visor. Se resuelve una sola vez. */
+let saveApi;
+async function getSaveApi(){
+  if (saveApi !== undefined) return saveApi;
+  saveApi = null;
+  if (window.claude && typeof window.claude.use === 'function'){
+    try { saveApi = await window.claude.use('downloads'); } catch (e) { saveApi = null; }
+  }
+  return saveApi;
+}
+
+async function download(filename, content, mime, okMsg){
+  const api = await getSaveApi();
+  if (api){
+    try { await api.save({filename, data: content}); toast(okMsg || 'Archivo guardado'); }
+    catch (e){ if (!e || e.code !== 'declined') toast('No se pudo guardar el archivo.', 'warn'); }
+    return;
+  }
   const blob = new Blob([content], {type: mime});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(okMsg || 'Archivo descargado');
 }
 
 $('#btnDbExport').addEventListener('click', () => {
@@ -2396,8 +2420,7 @@ $('#btnDbExport').addEventListener('click', () => {
      con las columnas y las tildes correctas. */
   const csv = '﻿' + [headers].concat(rows)
     .map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
-  download('base-datos-gxp-unmsm.csv', csv, 'text/csv;charset=utf-8;');
-  toast(data.length + ' registros exportados');
+  download('base-datos-gxp-unmsm.csv', csv, 'text/csv;charset=utf-8;', data.length + ' registros exportados');
 });
 
 /* =====================================================================
@@ -2419,8 +2442,7 @@ $('#btnCloseHelp2').addEventListener('click', () => $('#helpModal').classList.re
 $('#helpModal').addEventListener('click', (ev) => { if (ev.target.id === 'helpModal') $('#helpModal').classList.remove('open'); });
 
 $('#btnExportLayout').addEventListener('click', () => {
-  download('panel-gxp-unmsm.json', JSON.stringify(layout, null, 2), 'application/json');
-  toast('Distribución exportada');
+  download('panel-gxp-unmsm.json', JSON.stringify(layout, null, 2), 'application/json', 'Distribución exportada');
 });
 
 $('#btnImportLayout').addEventListener('click', () => $('#importFile').click());
