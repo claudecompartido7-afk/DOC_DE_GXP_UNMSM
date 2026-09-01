@@ -9,7 +9,7 @@
  * archivo y comprueba la aritmetica y la integridad del catalogo.
  */
 const fs = require('fs');
-const html = fs.readFileSync(__dirname + '/Dashboard_HTML', 'utf8');
+const html = fs.readFileSync(__dirname + '/Dashboard.html', 'utf8');
 const m = html.match(/const DATOS_FUENTE = ([\s\S]*?);\n/);
 if (!m) { console.error('No se encontro el bloque DATOS_FUENTE.'); process.exit(1); }
 const D = JSON.parse(m[1]);
@@ -28,11 +28,15 @@ ok('cada codigo termina en su sigla',
    D.facultades.filter(f => !f.codigo.endsWith('_' + f.sigla)).map(f => f.codigo).join(','));
 // El orden de la relacion no coincide con el numero del codigo en las cuatro
 // ultimas. Si alguna vez coincidiera del todo, es que se reordeno mal.
-const especiales = { FII: 'F20_FII', FPSIC: 'F17_FPSIC', FIEE: 'F18_FIEE', FISI: 'F19_FISI' };
+// Tras la correccion del 31/08 el codigo sigue el orden de la relacion.
+const especiales = { FII: 'F17_FII', FPSIC: 'F18_FPSIC', FIEE: 'F19_FIEE', FISI: 'F20_FISI' };
 for (const [sig, cod] of Object.entries(especiales)) {
   const f = D.facultades.find(x => x.sigla === sig);
   ok(sig + ' conserva su codigo ' + cod, f && f.codigo === cod, f && f.codigo);
 }
+ok('el numero del codigo coincide con el orden de la relacion',
+   D.facultades.every(f => Number(f.codigo.slice(1, 3)) === f.orden),
+   D.facultades.filter(f => Number(f.codigo.slice(1, 3)) !== f.orden).map(f => f.codigo).join(','));
 
 gr('Aritmetica de los indicadores');
 const T = D.totales;
@@ -50,6 +54,17 @@ ok('el KPI del Anexo 1 es el promedio de las 20', Math.abs(m1 - D.kpi.anexo1) < 
 ok('el KPI del Anexo 3 es el promedio de las 20', Math.abs(m3 - D.kpi.anexo3) < 0.05, m3.toFixed(2));
 ok('el avance general es la media de ambos anexos',
    Math.abs((m1 + m3) / 2 - D.kpi.general) < 0.1, ((m1 + m3) / 2).toFixed(2));
+
+gr('Anexo 4 y revisiones');
+ok('el KPI del Anexo 4 sale de la hoja de indicadores',
+   Math.abs(D.anexo4.aprobados * 100 / D.anexo4.indicadores - D.kpi.anexo4) < 0.05,
+   D.kpi.anexo4);
+ok('hay historico de revisiones', Array.isArray(D.revisiones) && D.revisiones.length >= 1,
+   (D.revisiones || []).length);
+ok('la ultima revision coincide con los KPI mostrados', (function () {
+  const u = D.revisiones[D.revisiones.length - 1];
+  return u.general === D.kpi.general && u.anexo4 === D.kpi.anexo4;
+})());
 
 gr('Registros de detalle');
 ok('hay registros', D.registros.length > 0, D.registros.length);
