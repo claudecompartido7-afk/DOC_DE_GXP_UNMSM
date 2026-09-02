@@ -98,20 +98,49 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     }));
     return { a1: leer('clasif-a1'), a3: leer('clasif-a3') };
   });
-  ok('hay un solo cuadro por grafico, con 3 grupos cada uno',
-     clasif.a1.length === 3 && clasif.a3.length === 3, [clasif.a1.length, clasif.a3.length]);
+  ok('hay un solo cuadro por grafico, con 4 grupos cada uno',
+     clasif.a1.length === 4 && clasif.a3.length === 4, [clasif.a1.length, clasif.a3.length]);
   ok('los titulos son los pedidos, en orden',
      clasif.a1.every((g,i) => g.titulo.startsWith(['Facultades que están en el 100%',
-        'Facultades con avance mayor al 80%','Facultades con avance menor al 50%'][i])),
+        'Facultades con avance mayor al 80%','Facultades con avance entre el 50% y 80%',
+        'Facultades con avance menor al 50%'][i])),
      clasif.a1.map(g => g.titulo));
+
+  // Cerrar el rango es justo esto: que no quede ninguna fuera de los cuatro.
+  const cobertura = await pag.evaluate(() => {
+    const dentro = clave => {
+      const puestas = new Set();
+      TRAMOS.forEach(t => DATOS_FUENTE.facultades
+        .filter(f => typeof f[clave] === 'number' && t.prueba(f[clave]))
+        .forEach(f => puestas.add(f.sigla)));
+      return { puestas: puestas.size, total: DATOS_FUENTE.facultades.length,
+               fuera: DATOS_FUENTE.facultades.filter(f => !puestas.has(f.sigla))
+                        .map(f => f.sigla + ':' + f[clave]) };
+    };
+    return { a1: dentro('pctAnexo1'), a3: dentro('pctAnexo3') };
+  });
+  ok('el rango queda cerrado en el Anexo 1: ninguna facultad fuera de los tramos',
+     cobertura.a1.fuera.length === 0, cobertura.a1);
+  ok('y cerrado tambien en el Anexo 3', cobertura.a3.fuera.length === 0, cobertura.a3);
+  // Y que nadie caiga en dos a la vez, que seria contarla dos veces.
+  const solapes = await pag.evaluate(() => DATOS_FUENTE.facultades.filter(f =>
+     TRAMOS.filter(t => t.prueba(f.pctAnexo1)).length > 1).map(f => f.sigla + ':' + f.pctAnexo1));
+  ok('los tramos no se solapan', solapes.length === 0, solapes);
   const enA1 = await pag.evaluate(() => DATOS_FUENTE.facultades.filter(f => f.pctAnexo1 >= 100).map(f => f.sigla));
   ok('el grupo del 100% del Anexo 1 cuadra con los datos',
      JSON.stringify(clasif.a1[0].items.sort()) === JSON.stringify(enA1.sort()),
      { panel: clasif.a1[0].items, datos: enA1 });
   const menor50A3 = await pag.evaluate(() => DATOS_FUENTE.facultades.filter(f => f.pctAnexo3 < 50).map(f => f.sigla));
+  // El grupo de <50% es el ultimo, ahora que el rango va cerrado.
+  const ultimoA3 = clasif.a3[clasif.a3.length - 1];
   ok('el grupo de <50% del Anexo 3 evalua SOLO el Anexo 3',
-     JSON.stringify(clasif.a3[2].items.sort()) === JSON.stringify(menor50A3.sort()),
-     { panel: clasif.a3[2].items, datos: menor50A3 });
+     JSON.stringify(ultimoA3.items.sort()) === JSON.stringify(menor50A3.sort()),
+     { panel: ultimoA3.items, datos: menor50A3 });
+  const medioA3 = await pag.evaluate(() =>
+     DATOS_FUENTE.facultades.filter(f => f.pctAnexo3 >= 50 && f.pctAnexo3 <= 80).map(f => f.sigla));
+  ok('el tramo nuevo 50-80 recoge las que antes quedaban fuera',
+     JSON.stringify(clasif.a3[2].items.sort()) === JSON.stringify(medioA3.sort()),
+     { panel: clasif.a3[2].items, datos: medioA3 });
 
   console.log('\nEje de porcentajes');
   const eje = await pag.evaluate(() => ({
@@ -199,6 +228,37 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('los KPI vuelven al conjunto', vuelta.kpi1 === fmt(vuelta.general), [vuelta.kpi1, fmt(vuelta.general)]);
   ok('las barras recuperan el color pleno',
      vuelta.colores.every(c => c === '#3b82f6'));
+
+  console.log('\nVariacion de cada anexo contra SU revision anterior');
+  // Se inyecta un historial con fechas escalonadas: si la tarjeta rotulara la
+  // fecha de una corrida conjunta, mostraria la de otro anexo.
+  const variacion = await pag.evaluate(() => {
+    DATOS_FUENTE.historial = {
+      anexo1: { actual: { valor: 81.3, fecha: '2026-08-28T09:00:00Z' },
+                anterior: { valor: 78.2, fecha: '2026-08-20T10:00:00Z' },
+                variacion: 3.1, registros: 3 },
+      anexo3: { actual: { valor: 61.4, fecha: '2026-08-27T16:00:00Z' },
+                anterior: { valor: 70.0, fecha: '2026-08-15T11:00:00Z' },
+                variacion: -8.6, registros: 2 },
+      anexo4: { actual: { valor: 40.4, fecha: '2026-09-01T12:00:00Z' },
+                anterior: null, variacion: null, registros: 1 }
+    };
+    vincularVariaciones();
+    const leer = id => document.getElementById(id);
+    return {
+      a1: leer('kpi2-var').textContent.trim(), a1cls: leer('kpi2-var').className,
+      a3: leer('kpi3-var').textContent.trim(), a3cls: leer('kpi3-var').className,
+      a4: leer('kpi4-var').textContent.trim()
+    };
+  });
+  ok('la subida sale con signo, en pp y con la fecha de SU anterior',
+     /\+3,1 pp vs R\. 20\/08/.test(variacion.a1), variacion.a1);
+  ok('y en verde', /emerald/.test(variacion.a1cls));
+  ok('la bajada sale negativa y con la fecha de SU anterior, otro dia distinto',
+     /-8,6 pp vs R\. 15\/08/.test(variacion.a3), variacion.a3);
+  ok('y en rojo', /rose/.test(variacion.a3cls));
+  ok('con un solo registro dice que no hay anterior, en vez de inventar un 0',
+     /sin revisión anterior/.test(variacion.a4), variacion.a4);
 
   console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
   if (errores.length) { console.log('\nErrores de consola:'); errores.slice(0,6).forEach(e => console.log('  ' + e)); }

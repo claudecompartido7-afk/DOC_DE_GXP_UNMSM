@@ -144,6 +144,7 @@ function construirTablero_() {
   const totales   = sumarTotales_(facultades);
   const anexo4    = leerAnexo4_(indic, pctA4Hoja);
   const revisiones= leerHistorial_(histor, anexo4);
+  const historial = historialPorAnexo_(histor);
 
   return {
     ok: true,
@@ -151,9 +152,10 @@ function construirTablero_() {
     origen: libro.getName(),
     facultades: facultades,
     totales: totales,
-    kpi: calcularKpi_(facultades, totales, anexo4),
+    kpi: calcularKpi_(facultades, totales, anexo4, historial),
     anexo4: anexo4,
     revisiones: revisiones,
+    historial: historial,
     registros: registros.filas,
     cobertura: registros.cobertura,
     recorte: registros.recorte
@@ -307,7 +309,7 @@ function sumarTotales_(facultades) {
  * productos no puede pesar lo mismo que una con 62—, que es el criterio de la
  * fórmula del Centro de Documentación: (conformes + ½ observados) ÷ total.
  */
-function calcularKpi_(facultades, t, anexo4) {
+function calcularKpi_(facultades, t, anexo4, historial) {
   const totalProd = t.prodConf + t.prodObs + t.prodSin;
   const totalFich = t.fichComp + t.fichIncomp + t.fichSin;
 
@@ -319,7 +321,73 @@ function calcularKpi_(facultades, t, anexo4) {
     ? redondear_(conAvance.reduce(function (a, f) { return a + f.pctGeneral; }, 0) / conAvance.length)
     : 0;
 
-  return { general: general, anexo1: a1, anexo3: a3, anexo4: anexo4.pct };
+  // HISTORIAL_REVISIONES es la cifra que la OGPL da por buena para cada anexo:
+  // la escribe el propio auditor al terminar. Manda sobre lo que se recalcula
+  // aquí desde las hojas de resumen, que puede diferir si alguien editó una a
+  // mano después de la corrida. Si un anexo no está en el historial todavía,
+  // se queda con el cálculo, que es mejor que un hueco.
+  const delHistorial = function (clave, calculado) {
+    const h = historial && historial[clave];
+    return h && h.actual ? h.actual.valor : calculado;
+  };
+
+  return {
+    general: general,
+    anexo1: delHistorial('anexo1', a1),
+    anexo3: delHistorial('anexo3', a3),
+    anexo4: delHistorial('anexo4', anexo4.pct),
+
+    // Lo que dan las hojas por su cuenta, al margen del historial. No lo pinta
+    // ninguna tarjeta: está para que `probarTablero()` pueda enseñar las dos
+    // cifras cuando no coinciden, que es justo cuando alguien quiere saberlo.
+    hojas: { general: general, anexo1: a1, anexo3: a3, anexo4: anexo4.pctContado }
+  };
+}
+
+/**
+ * El historial visto anexo por anexo: su último registro, el anterior y la
+ * diferencia en puntos porcentuales.
+ *
+ * Se ordena por fecha DENTRO de cada anexo, no por corridas conjuntas. Importa:
+ * los tres auditores se ejecutan por separado, así que la revisión anterior del
+ * Anexo 4 puede ser de otro día que la del Anexo 1, y agruparlas por momento
+ * haría que una tarjeta se comparase contra una revisión que no es la suya.
+ */
+function historialPorAnexo_(filas) {
+  const porAnexo = { anexo1: [], anexo3: [], anexo4: [] };
+
+  filas.forEach(function (f) {
+    const fecha = f[0] instanceof Date ? f[0] : new Date(f[0]);
+    if (isNaN(fecha.getTime())) return;
+
+    const texto = String(f[1] || '');
+    const clave = /4/.test(texto) ? 'anexo4'
+                : /3/.test(texto) ? 'anexo3'
+                : /1/.test(texto) ? 'anexo1' : null;
+    if (!clave) return;
+
+    const valor = pct_(f[2]);
+    if (valor === null) return;
+
+    porAnexo[clave].push({ fecha: fecha.toISOString(), valor: valor });
+  });
+
+  const salida = {};
+  Object.keys(porAnexo).forEach(function (clave) {
+    const lista = porAnexo[clave].sort(function (a, b) {
+      return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0);
+    });
+    const actual   = lista.length ? lista[lista.length - 1] : null;
+    const anterior = lista.length > 1 ? lista[lista.length - 2] : null;
+
+    salida[clave] = {
+      actual: actual,
+      anterior: anterior,
+      variacion: (actual && anterior) ? redondear_(actual.valor - anterior.valor) : null,
+      registros: lista.length
+    };
+  });
+  return salida;
 }
 
 /* ── Detalle de la revisión ─────────────────────────────────────────────── */
@@ -649,6 +717,11 @@ function probarTablero() {
   lineas.push('');
   lineas.push('KPI · general ' + d.kpi.general + '%  ·  Anexo 1 ' + d.kpi.anexo1 +
               '%  ·  Anexo 3 ' + d.kpi.anexo3 + '%  ·  Anexo 4 ' + d.kpi.anexo4 + '%');
+  lineas.push('    (las hojas por su cuenta dan: Anexo 1 ' + d.kpi.hojas.anexo1 +
+              '%  ·  Anexo 3 ' + d.kpi.hojas.anexo3 +
+              '%  ·  Anexo 4 ' + d.kpi.hojas.anexo4 + '%)');
+  lineas.push('    Orden de preferencia: HISTORIAL_REVISIONES › celda ' +
+              TABLERO.CELDA_PCT_A4 + ' (solo A4) › cálculo de las hojas.');
   lineas.push('');
   lineas.push('Catálogo tomado de: ' + CATALOGO_ORIGEN);
   lineas.push('Facultades: ' + d.facultades.length +
@@ -660,7 +733,21 @@ function probarTablero() {
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  (+' + d.recorte + ' recortados por MAX_REGISTROS)' : ''));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
-  lineas.push('Revisiones en el histórico: ' + d.revisiones.length);
+  lineas.push('');
+  lineas.push('HISTORIAL_REVISIONES, anexo por anexo:');
+  ['anexo1', 'anexo3', 'anexo4'].forEach(function (k) {
+    const h = d.historial[k];
+    if (!h || !h.actual) {
+      lineas.push('  ' + k + ': sin registros — la tarjeta usará el cálculo de las hojas');
+      return;
+    }
+    lineas.push('  ' + k + ': ' + h.actual.valor + '%  (' + h.actual.fecha + ')' +
+      (h.anterior
+        ? '   anterior ' + h.anterior.valor + '%  (' + h.anterior.fecha + ')' +
+          '   variación ' + (h.variacion >= 0 ? '+' : '') + h.variacion + ' pp'
+        : '   sin revisión anterior') +
+      '   ·  ' + h.registros + ' registro(s)');
+  });
   lineas.push('═════════════════════════════════');
 
   const texto = lineas.join('\n');

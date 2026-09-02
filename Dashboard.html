@@ -677,9 +677,11 @@ function vincularIndicadores() {
     const pc = v => v.toFixed(1).replace('.', ',') + '%';
 
     fijar('kpi1-val', pc(sel ? sel.pctGeneral : K.general));
+    // Sin seleccion, K.anexo1/3/4 son el ultimo registro de cada anexo en
+    // HISTORIAL_REVISIONES. Con una facultad elegida, el historial no aplica
+    // —solo guarda cifras del conjunto— y se muestra la de esa facultad.
     fijar('kpi2-val', pc(sel ? sel.pctAnexo1  : K.anexo1));
     fijar('kpi3-val', pc(sel ? sel.pctAnexo3  : K.anexo3));
-    // El Anexo 4 sale de la celda F36 de RESUMEN_EJECUTIVO_A4.
     fijar('kpi4-val', pc(K.anexo4));
 
     // Deja claro que las cifras son de una facultad y no del conjunto.
@@ -754,15 +756,36 @@ function serieRevisiones(clave) {
 
 function vincularVariaciones() {
     const revs = DATOS_FUENTE.revisiones || [];
-    const anterior = revs.length > 1 ? revs[revs.length - 2] : null;
+    const H = DATOS_FUENTE.historial || {};
     const claves = ['general', 'anexo1', 'anexo3', 'anexo4'];
 
     claves.forEach((clave, i) => {
         const caja = document.getElementById('kpi' + (i + 1) + '-var');
         if (!caja) return;
 
-        const serie = serieRevisiones(clave);
-        if (serie.length < 2) {
+        // Los tres anexos comparan contra SU propia revision anterior, la que
+        // HISTORIAL_REVISIONES guarda para ese anexo. Los auditores corren por
+        // separado, asi que la anterior del Anexo 4 puede ser de otro dia que
+        // la del Anexo 1; medir contra corridas conjuntas enfrentaba una
+        // tarjeta a una revision que no era la suya.
+        //
+        // «Fase 1» no se registra en el historial: es un agregado de las
+        // hojas, y sigue midiendose contra la corrida anterior completa.
+        const h = H[clave];
+        let delta = null, fechaAnterior = null;
+
+        if (h && h.variacion !== null && h.variacion !== undefined) {
+            delta = h.variacion;
+            fechaAnterior = h.anterior ? h.anterior.fecha : null;
+        } else if (!h) {
+            const serie = serieRevisiones(clave);
+            if (serie.length > 1) {
+                delta = serie[serie.length - 1] - serie[serie.length - 2];
+                fechaAnterior = revs.length > 1 ? revs[revs.length - 2].fecha : null;
+            }
+        }
+
+        if (delta === null) {
             // Sin dos puntos no hay variacion que mostrar. Decirlo es mas
             // util que enseñar un cero o una cifra inventada.
             caja.className = 'text-xs font-semibold text-slate-500 flex items-center gap-1 ' +
@@ -771,9 +794,8 @@ function vincularVariaciones() {
             return;
         }
 
-        const delta = serie[serie.length - 1] - serie[serie.length - 2];
         const sube = delta >= 0;
-        const fecha = rotuloRevision(anterior);
+        const fecha = rotuloRevision({ fecha: fechaAnterior });
         const contra = fecha ? 'vs R. ' + fecha : 'vs revisión anterior';
 
         caja.className = 'text-sm font-bold flex items-center gap-1 px-2 py-0.5 rounded-md border ' +
@@ -784,8 +806,6 @@ function vincularVariaciones() {
     });
 }
 
-// Las barras de cuantificacion viven junto a su bloque de metricas;
-// se localizan por la tarjeta que contiene el filtro de ese bloque.
 function pintarBarras(bloque, valores) {
     const ancla = document.querySelector('[data-block="' + bloque + '"]');
     if (!ancla) return;
@@ -1116,9 +1136,10 @@ function aplicarSeleccion() {
 // ninguno: es lo pedido, y por eso el cuadro no dice «resto».
 // ============================================================
 const TRAMOS = [
-    { titulo: 'Facultades que están en el 100%',   color: '#10b981', prueba: v => v >= 100 },
-    { titulo: 'Facultades con avance mayor al 80%', color: '#f59e0b', prueba: v => v > 80 && v < 100 },
-    { titulo: 'Facultades con avance menor al 50%', color: '#f43f5e', prueba: v => v < 50 }
+    { titulo: 'Facultades que están en el 100%',          color: '#10b981', prueba: v => v >= 100 },
+    { titulo: 'Facultades con avance mayor al 80%',       color: '#22c55e', prueba: v => v > 80 && v < 100 },
+    { titulo: 'Facultades con avance entre el 50% y 80%', color: '#f59e0b', prueba: v => v >= 50 && v <= 80 },
+    { titulo: 'Facultades con avance menor al 50%',       color: '#f43f5e', prueba: v => v < 50 }
 ];
 
 function pintarClasificaciones() {
