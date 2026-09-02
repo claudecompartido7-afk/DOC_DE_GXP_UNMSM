@@ -327,8 +327,20 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
   </div>
   <p class="dash-nota">El mismo tablero que se publica en la portada. Se actualiza
     con cada corrida de la auditoría de los anexos.</p>
-  <iframe class="dash-marco" src="Dashboard.html" title="Dashboard de avance por Facultad" loading="lazy"></iframe>
+  <iframe class="dash-marco" id="marco-dashboard" src="Dashboard.html"
+          title="Dashboard de avance por Facultad" loading="lazy"></iframe>
 </section>
+<script>
+/* El tablero avisa de su altura al quedar incrustado; así el marco crece con
+   el contenido en lugar de abrir una segunda barra de desplazamiento. Si el
+   mensaje no llega, el iframe se queda con su altura fija y todo sigue
+   funcionando. */
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.tipo !== 'dashboard-ogpl:altura') return;
+  const marco = document.getElementById('marco-dashboard');
+  if (marco) marco.style.height = e.data.altura + 'px';
+});
+</script>
 
 <!-- ============ DIAGNÓSTICO ============ -->
 <section class="panel" id="diagnostico"></section>

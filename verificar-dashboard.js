@@ -10,7 +10,7 @@
  */
 const fs = require('fs');
 const html = fs.readFileSync(__dirname + '/Dashboard.html', 'utf8');
-const m = html.match(/const DATOS_FUENTE = ([\s\S]*?);\n/);
+const m = html.match(/(?:const|let) DATOS_FUENTE = ([\s\S]*?);\n/);
 if (!m) { console.error('No se encontro el bloque DATOS_FUENTE.'); process.exit(1); }
 const D = JSON.parse(m[1]);
 
