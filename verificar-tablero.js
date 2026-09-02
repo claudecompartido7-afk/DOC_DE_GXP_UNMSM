@@ -291,6 +291,49 @@ ok('sin registro de Fase 1 se calcula como antes',
    d.kpi.general > 0 && d.historial.fase1.actual === null,
    [d.kpi.general, d.historial.fase1.actual]);
 
+console.log('\nFase 1 en C13 y C14, como esta en el libro');
+// Reproduce la hoja real: 14 filas, y las de Fase 1 en la 13 y la 14, con la
+// fecha escrita COMO TEXTO en formato peruano. Antes se descartaban en
+// silencio por no poder interpretar la columna A.
+const histC13C14 = [['FECHA_HORA','ANEXO','PORCENTAJE']];
+for (let i = 2; i <= 12; i++) {
+  histC13C14.push([new Date('2026-08-2' + (i % 9) + 'T09:00:00Z'), 'Anexo 1', 60 + i]);
+}
+histC13C14.push(['20/08/2026 10:00', 'Fase 1', 66.0]);   // fila 13 -> C13
+histC13C14.push(['28/08/2026 09:00', 'Fase 1', 71.9]);   // fila 14 -> C14
+const dC14 = correr(Object.assign({}, HOJAS_OK, { 'HISTORIAL_REVISIONES': histC13C14 }));
+
+ok('una fecha escrita como texto ya no descarta la fila',
+   dC14.historial.fase1.registros === 2, dC14.historial.fase1);
+ok('el valor principal es el de C14, el ultimo registro',
+   dC14.kpi.general === 71.9, dC14.kpi.general);
+ok('el anterior es el de C13', dC14.historial.fase1.anterior.valor === 66.0,
+   dC14.historial.fase1.anterior);
+ok('con su variacion en puntos porcentuales',
+   dC14.historial.fase1.variacion === 5.9, dC14.historial.fase1.variacion);
+ok('lee el dia primero, como se escribe aqui, y no al reves',
+   /2026-08-27|2026-08-28/.test(dC14.historial.fase1.actual.fecha),
+   dC14.historial.fase1.actual.fecha);
+ok('dice que salio de la fila del historial',
+   /fila «Fase 1»/.test(dC14.kpi.origenFase1), dC14.kpi.origenFase1);
+
+// Sin fecha ninguna: manda el orden de la hoja, y C14 sigue siendo el ultimo.
+const sinFechas = histC13C14.map((f, i) => i === 0 ? f : ['', f[1], f[2]]);
+const dSinFecha = correr(Object.assign({}, HOJAS_OK, { 'HISTORIAL_REVISIONES': sinFechas }));
+ok('sin fecha alguna, el ultimo sigue siendo el de mas abajo',
+   dSinFecha.kpi.general === 71.9, dSinFecha.kpi.general);
+
+// Rotulo distinto: la busqueda falla y entra el respaldo por celda C14.
+// Las dos filas de Fase 1 son los indices 12 y 13 (filas 13 y 14 de la hoja,
+// contando la cabecera). Renombrar solo una dejaba la otra encontrable.
+const otroRotulo = histC13C14.map((f, i) =>
+  i >= 12 ? [f[0], 'Avance general del proyecto', f[2]] : f);
+const dCelda = correr(Object.assign({}, HOJAS_OK, { 'HISTORIAL_REVISIONES': otroRotulo }));
+ok('si el rotulo no dice «Fase 1», recae en la celda C14',
+   dCelda.kpi.general === 71.9, dCelda.kpi.general);
+ok('y deja constancia de que uso la celda',
+   /C14/.test(dCelda.kpi.origenFase1), dCelda.kpi.origenFase1);
+
 console.log('\nSerie completa para las lineas de tendencia');
 const dSerie = correr(Object.assign({}, HOJAS_OK, {
   'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat([
