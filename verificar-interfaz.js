@@ -114,8 +114,10 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('ninguna facultad seleccionada', porDefecto.sel === null, porDefecto.sel);
   ok('el grafico trae las 20 facultades', porDefecto.barras === 20, porDefecto.barras);
   ok('el panel de filtros lista las 20', porDefecto.facultadesEnLista === 20, porDefecto.facultadesEnLista);
+  // Ya no hay un color unico: cada barra lleva el de su tramo. Sin seleccion,
+  // lo que se comprueba es que ninguna vaya atenuada (sin el sufijo de alfa).
   ok('todas las barras a opacidad plena',
-     porDefecto.colores && porDefecto.colores.every(c => c === '#3b82f6'),
+     porDefecto.colores && porDefecto.colores.every(c => /^#[0-9a-f]{6}$/i.test(c)),
      porDefecto.colores && porDefecto.colores.slice(0,3));
   ok('todas las facultades del filtro a opacidad 1',
      porDefecto.opacidades.every(o => o === '1'), porDefecto.opacidades.slice(0,3));
@@ -215,10 +217,11 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('el KPI del Anexo 3 tambien', tras.kpi3 === fmt(tras.esperado[2]), [tras.kpi3, fmt(tras.esperado[2])]);
   ok('el KPI del Anexo 4 NO se filtra (es institucional)',
      tras.kpi4 === fmt(tras.kpi4Global), [tras.kpi4, fmt(tras.kpi4Global)]);
-  ok('la barra elegida conserva el color solido',
-     tras.colores[tras.idx] === '#3b82f6', tras.colores[tras.idx]);
-  ok('las demas barras se atenuan',
-     tras.colores.filter((c,i) => i !== tras.idx).every(c => c === '#3b82f633'),
+  ok('la barra elegida conserva el color solido de su tramo',
+     /^#[0-9a-f]{6}$/i.test(tras.colores[tras.idx]), tras.colores[tras.idx]);
+  ok('las demas se atenuan pero conservan su color, no pasan a un gris comun',
+     tras.colores.filter((c,i) => i !== tras.idx).every(c => /^#[0-9a-f]{6}38$/i.test(c)) &&
+     new Set(tras.colores.filter((c,i) => i !== tras.idx)).size > 1,
      tras.colores.slice(0,3));
   ok('aparece el rotulo con la sigla', !tras.selloOculto && tras.sello === 'FO', tras.sello);
 
@@ -232,11 +235,15 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     const rel = window.devicePixelRatio || 1;
     const franja = ctx.getImageData(Math.round(area.left * rel) + 4, Math.round(y * rel) - 1,
                                     Math.round((area.right - area.left) * rel) - 8, 3).data;
-    // Cuenta pixeles del azul de la linea (#3b82f6) a esa altura.
+    // La linea toma el color del TRAMO de la facultad elegida, no uno fijo:
+    // se calcula cual le toca y se buscan esos pixeles.
+    const hex = colorDeAvance(f.pctAnexo1);
+    const objetivo = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16));
     let pintados = 0, huecos = 0;
     for (let i = 0; i < franja.length; i += 4) {
       const [r, g, b, a] = [franja[i], franja[i+1], franja[i+2], franja[i+3]];
-      if (a > 200 && Math.abs(r - 59) < 40 && Math.abs(g - 130) < 40 && Math.abs(b - 246) < 40) pintados++;
+      if (a > 200 && Math.abs(r - objetivo[0]) < 45 && Math.abs(g - objetivo[1]) < 45 &&
+          Math.abs(b - objetivo[2]) < 45) pintados++;
       else if (a < 30) huecos++;
     }
     return { pintados, huecos, y, alto: chart1.canvas.height };
@@ -259,7 +266,7 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('volver a pulsar deshace el filtro', vuelta.sel === null, vuelta.sel);
   ok('los KPI vuelven al conjunto', vuelta.kpi1 === fmt(vuelta.general), [vuelta.kpi1, fmt(vuelta.general)]);
   ok('las barras recuperan el color pleno',
-     vuelta.colores.every(c => c === '#3b82f6'));
+     vuelta.colores.every(c => /^#[0-9a-f]{6}$/i.test(c)), vuelta.colores.slice(0,3));
 
   console.log('\nVariacion de cada anexo contra SU revision anterior');
   // Se inyecta un historial con fechas escalonadas: si la tarjeta rotulara la
@@ -488,6 +495,118 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('debajo van las dos metricas por separado',
      /proc\. nivel 0/.test(panel.metricas) && /subprocesos/.test(panel.metricas),
      panel.metricas);
+
+  console.log('\nFase 1: variacion y tendencia');
+  const fase = await pag.evaluate(() => {
+    // Dos registros de Fase 1, como C13 y C14 en la hoja.
+    DATOS_FUENTE.historial = Object.assign({}, DATOS_FUENTE.historial, {
+      fase1: {
+        actual:   { valor: 71.9, fecha: '2026-08-28T09:00:00Z' },
+        anterior: { valor: 66.0, fecha: '2026-08-20T10:00:00Z' },
+        variacion: 5.9, registros: 2,
+        serie: [{ fecha: '2026-08-20T10:00:00Z', valor: 66.0, variacion: null },
+                { fecha: '2026-08-28T09:00:00Z', valor: 71.9, variacion: 5.9 }]
+      }
+    });
+    vincularVariaciones(); pintarTendencias();
+    return {
+      variacion: document.getElementById('kpi1-var').textContent.trim(),
+      hayGrafico: !!TENDENCIAS.fase1,
+      puntos: TENDENCIAS.fase1 ? TENDENCIAS.fase1.data.datasets[0].data : null,
+      cajaVisible: !document.getElementById('tend-caja-1').hidden
+    };
+  });
+  ok('la tarjeta de Fase 1 ya no dice «sin revision anterior»',
+     !/sin revisión anterior/i.test(fase.variacion), fase.variacion);
+  ok('muestra su variacion en pp con la fecha de la anterior',
+     /\+5,9 pp vs R\. 20\/08/.test(fase.variacion), fase.variacion);
+  ok('y tiene su linea de tendencia', fase.hayGrafico && fase.cajaVisible, fase);
+  ok('con los dos registros del historial',
+     JSON.stringify(fase.puntos) === JSON.stringify([66, 71.9]), fase.puntos);
+
+  console.log('\nColor condicional de las barras');
+  const colores2 = await pag.evaluate(() => {
+    facultadSel = null; aplicarSeleccion();
+    const fondos = chart1.data.datasets[0].backgroundColor;
+    return DATOS_FUENTE.facultades.map((f, i) => ({
+      sigla: f.sigla, pct: f.pctAnexo1, color: fondos[i],
+      tramo: TRAMOS.findIndex(t => t.prueba(f.pctAnexo1))
+    }));
+  });
+  const esperado = i => ['#047857', '#34d399', '#f59e0b', '#e11d48'][i];
+  ok('cada barra toma el color de su tramo, no uno unico',
+     colores2.every(c => c.color === esperado(c.tramo)),
+     colores2.filter(c => c.color !== esperado(c.tramo)).slice(0, 3));
+  ok('no queda ni una barra con el azul unico de antes',
+     !colores2.some(c => c.color === '#3b82f6'));
+  ok('hay mas de un color en el grafico',
+     new Set(colores2.map(c => c.color)).size > 1,
+     [...new Set(colores2.map(c => c.color))]);
+  const cien = colores2.filter(c => c.pct >= 100);
+  if (cien.length) ok('  el 100% va en verde intenso',
+     cien.every(c => c.color === '#047857'), cien.slice(0, 2));
+  const bajo = colores2.filter(c => c.pct < 50);
+  if (bajo.length) ok('  por debajo del 50% va en rojo',
+     bajo.every(c => c.color === '#e11d48'), bajo.slice(0, 2));
+  ok('el color de la barra es el mismo que el del punto de su tramo',
+     await pag.evaluate(() => {
+       const f = DATOS_FUENTE.facultades[0];
+       const punto = [...document.querySelectorAll('#clasif-a1 .clasif-grupo')]
+         .map(g => g.querySelector('.clasif-punto').style.background);
+       const i = TRAMOS.findIndex(t => t.prueba(f.pctAnexo1));
+       const aHex = c => '#' + (c.match(/\d+/g) || []).map(n =>
+         Number(n).toString(16).padStart(2, '0')).join('');
+       return i >= 0 && aHex(punto[i]) === TRAMOS[i].color;
+     }));
+
+  console.log('\nRanking de facultades en las tres tarjetas');
+  for (const [bloque, rotulo] of [['producto','Productos'], ['procesos','Procesos'],
+                                  ['subprocesos','SubProcesos']]) {
+    for (const [estado, etiqueta, orden] of [['CONFORME','Conformes','desc'],
+        ['OBSERVADO','Observados','asc'], ['SIN REGISTRAR','Sin Registrar','asc']]) {
+      await pag.evaluate(([b, e]) => filterByStatus(b, e), [bloque, estado]);
+      await pag.waitForTimeout(120);
+      const r = await pag.evaluate(b => {
+        const caja = document.getElementById('ranking-' + b);
+        const filas = [...caja.querySelectorAll('.ranking-fila')].map(f => ({
+          nombre: f.querySelector('.ranking-nombre').textContent,
+          valor: Number(f.querySelector('.ranking-valor').textContent.replace(/\D+.*$/, ''))
+        }));
+        return { titulo: caja.querySelector('.ranking-titulo').textContent, filas };
+      }, bloque);
+      const vals = r.filas.map(f => f.valor);
+      const ordenado = orden === 'desc'
+        ? vals.every((v, i) => i === 0 || vals[i-1] >= v)
+        : vals.every((v, i) => i === 0 || vals[i-1] <= v);
+      ok(rotulo + ' · ' + etiqueta + ': el titulo cambia',
+         r.titulo.includes(rotulo) && r.titulo.includes(etiqueta), r.titulo);
+      ok('  y ordena ' + (orden === 'desc' ? 'de mayor a menor' : 'de menor a mayor'),
+         ordenado && r.filas.length === 20, vals.slice(0, 5));
+    }
+  }
+
+  console.log('\nTope de filas de la tabla de detalle');
+  await pag.evaluate(() => { facultadSel = null; aplicarSeleccion();
+                             filterByStatus('producto', 'CONFORME'); });
+  await pag.waitForTimeout(250);
+  const tope = await pag.evaluate(() => ({
+    pintadas: document.querySelectorAll('#productRowsA1 tr').length,
+    total: Number(document.getElementById('visibleCountA1').textContent),
+    pie: document.getElementById('dataFooterA1').textContent,
+    hayBoton: !!document.querySelector('#dataFooterA1 button')
+  }));
+  ok('pinta el bloque entero, no 50 filas', tope.pintadas === Math.min(200, tope.total),
+     tope);
+  if (tope.total > 200) {
+    ok('  dice cuantas de cuantas', /Se muestran 200 de/.test(tope.pie), tope.pie);
+    ok('  y ofrece ver mas', tope.hayBoton);
+    await pag.evaluate(() => verMasA1());
+    await pag.waitForTimeout(200);
+    const mas = await pag.evaluate(() => document.querySelectorAll('#productRowsA1 tr').length);
+    ok('  «ver mas» añade otro bloque', mas === Math.min(400, tope.total), mas);
+  } else {
+    ok('  con pocos registros no ofrece «ver mas»', !tope.hayBoton, tope.pie);
+  }
 
   console.log('\nResponsivo');
   const pantallas = [
