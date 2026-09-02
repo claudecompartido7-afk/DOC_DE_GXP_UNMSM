@@ -178,5 +178,35 @@ const cortado = Object.assign({}, HOJAS_OK,
 ok('un catalogo incompleto tampoco lo vacia',
    correr(cortado).facultades.length === 20);
 
+console.log('\nEl libro real: filas de mas al pie de las hojas');
+// Reproduce lo que devolvio probarTablero() sobre el libro de verdad: la hoja
+// de codificacion trae 22 filas y no 20, y la del Anexo 4 trae 35 y no 34.
+// Exigir el numero exacto descartaba el catalogo entero, en silencio.
+const catalogo22 = catalogo.concat([
+  [21, 'TOTAL', 'TOTAL', ''],
+  [22, 'FACULTAD FM', 'FM', 'F01']            // repetida al pie
+]);
+// FII y FISI se cruzan EN LA HOJA: si el tablero lo recoge, manda la hoja.
+catalogo22.find(f => f[2] === 'FII')[3]  = 'F20';
+catalogo22.find(f => f[2] === 'FISI')[3] = 'F17';
+const a4con35 = indic.concat([['', 'TOTAL DE INDICADORES', ''], ['', '', '']]);
+const real = correr(Object.assign({}, HOJAS_OK, {
+  'CODIFICACION_ DE_LAS_FACULTADES': catalogo22,
+  'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(a4con35)
+}));
+ok('22 filas de catalogo siguen dando las 20 facultades',
+   real.facultades.length === 20, real.facultades.length);
+ok('no cuela la fila TOTAL como facultad',
+   !real.facultades.some(f => f.sigla === 'TOTAL'), real.facultades.map(f=>f.sigla));
+ok('no duplica la facultad repetida al pie',
+   new Set(real.facultades.map(f => f.sigla)).size === 20);
+ok('manda la hoja: FII pasa a F20 y FISI a F17 porque asi lo dice',
+   real.facultades.find(f => f.sigla === 'FII').codigo === 'F20_FII' &&
+   real.facultades.find(f => f.sigla === 'FISI').codigo === 'F17_FISI',
+   real.facultades.filter(f => ['FII','FISI'].includes(f.sigla)).map(f => f.codigo));
+ok('la fila de TOTAL no cuenta como indicador del Anexo 4',
+   real.anexo4.indicadores === 3, real.anexo4);
+ok('ni las filas vacias', real.anexo4.aprobados === 2, real.anexo4);
+
 console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
 process.exit(malas ? 1 : 0);
