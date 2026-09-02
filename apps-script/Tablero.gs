@@ -59,6 +59,15 @@ const TABLERO = {
    */
   CELDA_PCT_A4: 'F36',
 
+  /**
+   * Celda de `HISTORIAL_REVISIONES` con el avance de Fase 1 de la última
+   * versión registrada. Es el respaldo de la búsqueda por «Fase 1» en la
+   * columna B: si esa búsqueda no da con la fila —porque la fecha está escrita
+   * de una forma que no se reconoce, o el rótulo cambió— se lee esta celda en
+   * lugar de dejar la tarjeta con el promedio calculado.
+   */
+  CELDA_PCT_FASE1: 'C14',
+
   /** Segundos que se guarda la respuesta antes de volver a leer el libro. */
   CACHE_SEG: 60,
 
@@ -145,6 +154,8 @@ function construirTablero_() {
   const anexo4    = leerAnexo4_(indic, pctA4Hoja);
   const revisiones= leerHistorial_(histor, anexo4);
   const historial = historialPorAnexo_(histor);
+  const pctFase1Celda = leerCeldaPct_(libro, TABLERO.HOJAS.HISTORIAL,
+                                      TABLERO.CELDA_PCT_FASE1);
 
   return {
     ok: true,
@@ -152,7 +163,7 @@ function construirTablero_() {
     origen: libro.getName(),
     facultades: facultades,
     totales: totales,
-    kpi: calcularKpi_(facultades, totales, anexo4, historial),
+    kpi: calcularKpi_(facultades, totales, anexo4, historial, pctFase1Celda),
     anexo4: anexo4,
     revisiones: revisiones,
     historial: historial,
@@ -336,7 +347,7 @@ function sumarTotales_(facultades) {
  * productos no puede pesar lo mismo que una con 62—, que es el criterio de la
  * fórmula del Centro de Documentación: (conformes + ½ observados) ÷ total.
  */
-function calcularKpi_(facultades, t, anexo4, historial) {
+function calcularKpi_(facultades, t, anexo4, historial, pctFase1Celda) {
   const totalProd = t.prodConf + t.prodObs + t.prodSin;
   const totalFich = t.fichComp + t.fichIncomp + t.fichSin;
 
@@ -358,11 +369,18 @@ function calcularKpi_(facultades, t, anexo4, historial) {
     return h && h.actual ? h.actual.valor : calculado;
   };
 
+  // Fase 1, en orden de preferencia:
+  //   1. La fila «Fase 1» más reciente del historial. Es la única que trae
+  //      fecha, así que es la única con la que la tarjeta puede mostrar su
+  //      variación y su línea de tendencia.
+  //   2. La celda C14 a secas, para cuando la búsqueda no da con la fila.
+  //   3. El promedio de las facultades con avance.
+  const fase1 = (historial && historial.fase1 && historial.fase1.actual)
+    ? historial.fase1.actual.valor
+    : (pctFase1Celda === null || pctFase1Celda === undefined ? general : pctFase1Celda);
+
   return {
-    // Fase 1 se registra con `registrarRevision('Fase 1', pct)`. Mientras
-    // nadie lo haga, se calcula como hasta ahora: el promedio de las
-    // facultades con avance.
-    general: delHistorial('fase1', general),
+    general: fase1,
     anexo1: delHistorial('anexo1', a1),
     anexo3: delHistorial('anexo3', a3),
     anexo4: delHistorial('anexo4', anexo4.pct),
@@ -370,7 +388,15 @@ function calcularKpi_(facultades, t, anexo4, historial) {
     // Lo que dan las hojas por su cuenta, al margen del historial. No lo pinta
     // ninguna tarjeta: está para que `probarTablero()` pueda enseñar las dos
     // cifras cuando no coinciden, que es justo cuando alguien quiere saberlo.
-    hojas: { general: general, anexo1: a1, anexo3: a3, anexo4: anexo4.pctContado }
+    hojas: { general: general, anexo1: a1, anexo3: a3, anexo4: anexo4.pctContado },
+
+    // De dónde salió cada cifra de Fase 1, para poder decirlo en el diagnóstico.
+    origenFase1: (historial && historial.fase1 && historial.fase1.actual)
+      ? 'la fila «Fase 1» más reciente de ' + TABLERO.HOJAS.HISTORIAL
+      : (pctFase1Celda === null || pctFase1Celda === undefined
+          ? 'el promedio de las facultades (ni fila «Fase 1» ni celda ' +
+            TABLERO.CELDA_PCT_FASE1 + ')'
+          : 'la celda ' + TABLERO.CELDA_PCT_FASE1 + ' (no se encontró la fila «Fase 1»)')
   };
 }
 
@@ -386,9 +412,13 @@ function calcularKpi_(facultades, t, anexo4, historial) {
 function historialPorAnexo_(filas) {
   const porAnexo = { fase1: [], anexo1: [], anexo3: [], anexo4: [] };
 
-  filas.forEach(function (f) {
-    const fecha = f[0] instanceof Date ? f[0] : new Date(f[0]);
-    if (isNaN(fecha.getTime())) return;
+  filas.forEach(function (f, i) {
+    // Una fecha que no se puede interpretar NO descarta la fila. Antes sí, y
+    // en silencio: una columna A escrita como texto —«28/08/2026 09:00»— hacía
+    // desaparecer registros que estaban perfectamente ahí, sin que nada lo
+    // dijera. Se conserva la fila y, a falta de fecha, manda su orden en la
+    // hoja, que es el orden en que se registraron.
+    const fecha = fechaDeCelda_(f[0]);
 
     // «Fase 1» se comprueba ANTES que los anexos: lleva un 1 en el nombre y si
     // no, se colaría como Anexo 1 y falsearía las dos series.
@@ -402,13 +432,21 @@ function historialPorAnexo_(filas) {
     const valor = pct_(f[2]);
     if (valor === null) return;
 
-    porAnexo[clave].push({ fecha: fecha.toISOString(), valor: valor });
+    porAnexo[clave].push({
+      fecha: fecha ? fecha.toISOString() : null,
+      valor: valor,
+      orden: i
+    });
   });
 
   const salida = {};
   Object.keys(porAnexo).forEach(function (clave) {
+    // Por fecha cuando la hay; a igualdad, o sin fecha, por su posición en la
+    // hoja. Así «el último registro» sigue siendo el de más abajo aunque la
+    // columna A esté vacía o mal escrita.
     const lista = porAnexo[clave].sort(function (a, b) {
-      return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0);
+      if (a.fecha && b.fecha && a.fecha !== b.fecha) return a.fecha < b.fecha ? -1 : 1;
+      return a.orden - b.orden;
     });
     const actual   = lista.length ? lista[lista.length - 1] : null;
     const anterior = lista.length > 1 ? lista[lista.length - 2] : null;
@@ -653,6 +691,28 @@ function primeraCelda_(fila) {
   return '';
 }
 
+/**
+ * Fecha de una celda, o null. Además de lo que `new Date` entiende, admite el
+ * formato en que se escribe a mano en el Perú —«28/08/2026», día primero—,
+ * que `new Date` interpreta al revés o directamente rechaza.
+ */
+function fechaDeCelda_(v) {
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+
+  const s = String(v === null || v === undefined ? '' : v).trim();
+  if (!s) return null;
+
+  const m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})(?:[\s,]+(\d{1,2}):(\d{2}))?/);
+  if (m) {
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]),
+                       Number(m[4] || 0), Number(m[5] || 0));
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 /** Reconoce las filas de cierre que las hojas llevan al pie. */
 function esTotal_(valor) {
   return /^(TOTAL|TOTALES|PROMEDIO|GENERAL|RESUMEN|SUMA|LEYENDA)\b/i
@@ -778,6 +838,35 @@ function probarTablero() {
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  (+' + d.recorte + ' recortados por MAX_REGISTROS)' : ''));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
+  // Volcado literal de la hoja: cuando una fila «no aparece», lo que hace
+  // falta es ver qué pone exactamente y cómo se ha clasificado, no adivinarlo.
+  lineas.push('');
+  lineas.push('HISTORIAL_REVISIONES, fila por fila (columnas A, B y C):');
+  const hojaHist = buscarHoja_(libro, TABLERO.HOJAS.HISTORIAL);
+  if (!hojaHist) {
+    lineas.push('  (la hoja no aparece)');
+  } else {
+    const crudo = hojaHist.getDataRange().getValues();
+    crudo.forEach(function (f, i) {
+      if (i === 0) { lineas.push('  fila 1 (cabecera): ' + f.slice(0, 3).join(' | ')); return; }
+      const fecha = fechaDeCelda_(f[0]);
+      const texto = String(f[1] || '');
+      const clave = /fase\s*1/i.test(texto) ? 'Fase 1'
+                  : /4/.test(texto) ? 'Anexo 4'
+                  : /3/.test(texto) ? 'Anexo 3'
+                  : /1/.test(texto) ? 'Anexo 1' : null;
+      const valor = pct_(f[2]);
+      lineas.push('  fila ' + (i + 1) + ': A=«' + f[0] + '»  B=«' + texto +
+                  '»  C=«' + f[2] + '»' +
+                  '   →  ' + (clave ? clave : 'NO CLASIFICADA (la columna B no dice fase 1 ni 1/3/4)') +
+                  ', ' + (valor === null ? 'SIN VALOR (la columna C no da un número)' : valor + '%') +
+                  ', ' + (fecha ? 'fecha ok' : 'sin fecha legible → ordena por su posición'));
+    });
+  }
+
+  lineas.push('');
+  lineas.push('% Avance Fase 1: ' + d.kpi.general + '%  ·  tomado de ' + d.kpi.origenFase1);
+
   lineas.push('');
   lineas.push('HISTORIAL_REVISIONES, anexo por anexo:');
   ['fase1', 'anexo1', 'anexo3', 'anexo4'].forEach(function (k) {

@@ -381,11 +381,33 @@ lleva en `procesosN0` y `subprocesos`, y los totales del tablero son su suma.
 
 ### Fase 1 en el historial
 
-`% Avance Fase 1` sale del último registro de `HISTORIAL_REVISIONES` cuya
-columna B diga «Fase 1» — registrado con `registrarRevision('Fase 1', pct)`.
-Mientras nadie lo escriba, se calcula como hasta ahora: el promedio de las
-facultades con avance.
+`% Avance Fase 1` sale, por este orden:
+
+1. **La fila «Fase 1» más reciente** de `HISTORIAL_REVISIONES`. Es la única vía
+   que trae fecha, así que es la única con la que la tarjeta puede mostrar su
+   variación y su línea de tendencia.
+2. **La celda `C14`** (`TABLERO.CELDA_PCT_FASE1`), cuando esa búsqueda no da
+   con la fila —el rótulo cambió, la columna A quedó vacía—.
+3. El promedio de las facultades con avance.
+
+`probarTablero()` dice cuál de las tres se usó.
 
 «Fase 1» se comprueba **antes** que los anexos al clasificar el historial:
 lleva un 1 en el nombre y, si no, se colaría como Anexo 1 y falsearía las dos
 series.
+
+### Una fecha ilegible ya no borra la fila
+
+La columna A se escribe a veces como texto —`28/08/2026 09:00`—, y
+`new Date` lo interpreta al revés o lo rechaza. La fila se descartaba **en
+silencio**: registros que estaban perfectamente en la hoja no llegaban al
+tablero y nada lo decía.
+
+Ahora se admite el formato de día primero, y una fecha que aun así no se
+entienda no descarta nada: la fila se conserva y, a falta de fecha, manda su
+posición en la hoja, que es el orden en que se registró. «El último registro»
+sigue siendo el de más abajo.
+
+`probarTablero()` vuelca la hoja **fila a fila** con lo que dice cada columna y
+cómo se ha clasificado. Cuando una fila «no aparece», eso es lo que hace falta
+ver, no adivinarlo.
