@@ -312,3 +312,33 @@ como `anexo4.pctContado`. `probarTablero()` dice cuál de los dos se usó.
 
 Si la hoja cambia y el valor pasa a otra celda, se ajusta `CELDA_PCT_A4` y
 basta con volver a implementar.
+
+### De dónde sale cada porcentaje de las tarjetas
+
+Orden de preferencia, y por qué:
+
+1. **`HISTORIAL_REVISIONES`** — es la cifra que el propio auditor escribe al
+   terminar su corrida, y la que la OGPL da por buena para cada anexo.
+2. **`RESUMEN_EJECUTIVO_A4!F36`** — solo para el Anexo 4, si aún no hay
+   registro suyo en el historial.
+3. **El cálculo sobre las hojas de resumen** — si falta todo lo anterior.
+   Mejor una cifra recalculada que un hueco.
+
+Lo que las hojas dan por su cuenta viaja siempre en `kpi.hojas`, aunque no lo
+pinte ninguna tarjeta: `probarTablero()` enseña las dos cifras, que es lo que
+hace falta cuando no coinciden porque alguien editó una hoja a mano después
+de la corrida.
+
+El KPI de **Fase 1** no está en el historial: es un agregado de las veinte
+facultades y se calcula siempre.
+
+### La variación se mide anexo por anexo
+
+Cada tarjeta compara su último registro contra **el penúltimo de ese mismo
+anexo**, no contra la corrida anterior del conjunto. Los tres auditores se
+ejecutan por separado, así que la revisión anterior del Anexo 4 puede ser de
+otro día que la del Anexo 1; medirlas contra corridas conjuntas enfrentaba una
+tarjeta a una revisión que no era la suya, y rotulaba una fecha ajena.
+
+Con un solo registro no hay variación: la tarjeta lo dice, en vez de mostrar
+un 0 que se lee como «no ha avanzado».

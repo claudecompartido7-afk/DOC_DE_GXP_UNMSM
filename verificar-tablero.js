@@ -119,9 +119,11 @@ const suma=(k,s)=>d.facultades.reduce((a,f)=>a+f[k][s],0);
 ok('productos conformes cuadran', suma('productos','conformes')===d.totales.prodConf);
 ok('productos observados cuadran', suma('productos','observados')===d.totales.prodObs);
 ok('fichas completas cuadran', suma('fichas','completas')===d.totales.fichComp);
-ok('el KPI del Anexo 1 es ponderado, no promedio simple',
-   d.kpi.anexo1===Math.round(((d.totales.prodConf+d.totales.prodObs/2)/
-     (d.totales.prodConf+d.totales.prodObs+d.totales.prodSin))*1000)/10, d.kpi.anexo1);
+// El KPI que se pinta sale del historial; lo que las hojas dan por su cuenta
+// queda en kpi.hojas, y ahi es donde se comprueba la ponderacion.
+ok('el calculo de las hojas para el Anexo 1 es ponderado, no promedio simple',
+   d.kpi.hojas.anexo1===Math.round(((d.totales.prodConf+d.totales.prodObs/2)/
+     (d.totales.prodConf+d.totales.prodObs+d.totales.prodSin))*1000)/10, d.kpi.hojas.anexo1);
 ok('los 4 KPI estan entre 0 y 100',
    ['general','anexo1','anexo3','anexo4'].every(k=>d.kpi[k]>=0&&d.kpi[k]<=100), d.kpi);
 
@@ -227,20 +229,77 @@ for (let i = 1; i <= 34; i++) {
   conF36.push(['IND-' + i, 'Indicador ' + i, i <= 14 ? 'Aprobado' : 'Pendiente', '', '', '']);
 }
 conF36.push(['', 'ULTIMA REVISION DEL HISTORIAL', '', '', '', 0.404]);   // fila 36
-const dF36 = correr(Object.assign({}, HOJAS_OK, { 'RESUMEN_EJECUTIVO_A4': conF36 }));
-ok('toma el 40,4 % de F36 y no el recuento', dF36.kpi.anexo4 === 40.4, dF36.kpi.anexo4);
+// Orden de preferencia para el Anexo 4: historial > celda F36 > recuento.
+// Aqui se prueba el escalon del medio, sin historial para ese anexo.
+const histSinA4 = hist.filter(f => !/4/.test(String(f[1])));
+const dF36 = correr(Object.assign({}, HOJAS_OK, {
+  'RESUMEN_EJECUTIVO_A4': conF36,
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(histSinA4) }));
+ok('sin historial de Anexo 4, toma el 40,4 % de F36 y no el recuento',
+   dF36.kpi.anexo4 === 40.4, dF36.kpi.anexo4);
 ok('conserva el recuento como respaldo',
    typeof dF36.anexo4.pctContado === 'number' && dF36.anexo4.pctContado !== 40.4,
    dF36.anexo4);
 ok('dice de donde saco el porcentaje',
    /F36/.test(dF36.anexo4.origenPct), dF36.anexo4.origenPct);
+ok('el historial manda sobre F36 cuando lo hay',
+   correr(Object.assign({}, HOJAS_OK, { 'RESUMEN_EJECUTIVO_A4': conF36 })).kpi.anexo4 === 20.6);
 
-// Sin esa celda debe recaer en el recuento, no dar cero.
+// Sin la celda Y sin historial debe recaer en el recuento, no dar cero.
 const sinF36 = correr(Object.assign({}, HOJAS_OK, {
-  'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(indic) }));
-ok('sin F36 recae en el recuento de aprobados',
+  'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(indic),
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(histSinA4) }));
+ok('sin historial ni F36 recae en el recuento de aprobados',
    sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
    sinF36.anexo4);
+
+console.log('\nHISTORIAL_REVISIONES, anexo por anexo');
+// Fechas escalonadas a proposito: los tres auditores corren por separado, y
+// la revision anterior del Anexo 4 no tiene por que ser del mismo dia que la
+// del Anexo 1. Agrupar por corridas conjuntas comparaba contra la ajena.
+const histEscalonado = [
+  [new Date('2026-08-10T08:00:00Z'), 'Anexo 1', 70.0],
+  [new Date('2026-08-20T10:00:00Z'), 'Anexo 1', 78.2],
+  [new Date('2026-08-28T09:00:00Z'), 'Anexo 1', 81.3],
+  [new Date('2026-08-15T11:00:00Z'), 'Anexo 3', 50.0],
+  [new Date('2026-08-27T16:00:00Z'), 'Anexo 3', 61.4],
+  [new Date('2026-09-01T12:00:00Z'), 'Anexo 4', 40.4]     // uno solo
+];
+const dh = correr(Object.assign({}, HOJAS_OK, {
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(histEscalonado) }));
+
+ok('el valor actual es el ultimo registro de cada anexo',
+   dh.historial.anexo1.actual.valor === 81.3 &&
+   dh.historial.anexo3.actual.valor === 61.4 &&
+   dh.historial.anexo4.actual.valor === 40.4,
+   ['anexo1','anexo3','anexo4'].map(k => dh.historial[k].actual.valor));
+ok('el anterior es el PENULTIMO de ese anexo, no de otra corrida',
+   dh.historial.anexo1.anterior.valor === 78.2 &&
+   dh.historial.anexo3.anterior.valor === 50.0,
+   [dh.historial.anexo1.anterior, dh.historial.anexo3.anterior]);
+ok('la variacion son puntos porcentuales',
+   dh.historial.anexo1.variacion === 3.1 && dh.historial.anexo3.variacion === 11.4,
+   [dh.historial.anexo1.variacion, dh.historial.anexo3.variacion]);
+ok('conserva la fecha del penultimo, para poder rotularlo',
+   /2026-08-20/.test(dh.historial.anexo1.anterior.fecha) &&
+   /2026-08-15/.test(dh.historial.anexo3.anterior.fecha),
+   [dh.historial.anexo1.anterior.fecha, dh.historial.anexo3.anterior.fecha]);
+ok('con un solo registro no inventa variacion',
+   dh.historial.anexo4.variacion === null && dh.historial.anexo4.anterior === null,
+   dh.historial.anexo4);
+ok('los KPI de los tres anexos salen del historial',
+   dh.kpi.anexo1 === 81.3 && dh.kpi.anexo3 === 61.4 && dh.kpi.anexo4 === 40.4,
+   dh.kpi);
+ok('el KPI general NO sale del historial: es agregado de las hojas',
+   dh.kpi.general > 0 && dh.kpi.general !== 81.3, dh.kpi.general);
+
+// Sin historial, las tarjetas no se quedan en blanco.
+const sinHist = correr(Object.fromEntries(
+  Object.entries(HOJAS_OK).filter(([k]) => k !== 'HISTORIAL_REVISIONES')));
+ok('sin historial los KPI recaen en el calculo de las hojas',
+   sinHist.kpi.anexo1 > 0 && sinHist.kpi.anexo3 > 0, sinHist.kpi);
+ok('y el Anexo 4 recae en el recuento cuando tampoco hay F36',
+   sinHist.kpi.anexo4 === sinHist.anexo4.pctContado, sinHist.anexo4);
 
 console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
 process.exit(malas ? 1 : 0);
