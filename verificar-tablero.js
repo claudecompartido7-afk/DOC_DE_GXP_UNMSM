@@ -41,29 +41,47 @@ const hist      = [[new Date('2026-08-20T10:00:00Z'),'Anexo 1',78.2],
                    [new Date('2026-08-28T09:00:00Z'),'Anexo 3',61.4],
                    [new Date('2026-08-28T09:00:00Z'),'Anexo 4',20.6]];
 
-const HOJAS = {
-  'RESUMEN_GENERAL': general, 'RESUMEN_EJECUTIVO_A1': resA1, 'RESUMEN_EJECUTIVO_A3': resA3,
-  'DETALLADO_PRODUCTOS_A1': productos, 'OBSERVACIONES_DE_PROCESO_A1': procesos,
-  'RESUMEN_FICHAS_A3': fichas, 'RESUMEN_INDICADORES': indic, 'HISTORIAL_REVISIONES': hist
-};
-const CAB = { 'RESUMEN_GENERAL':['SIGLA'], 'RESUMEN_EJECUTIVO_A1':['FACULTAD'] };
+// La hoja de catálogo con el nombre EXACTO que tiene el libro: hay un espacio
+// suelto detrás del guion bajo, y ese detalle es justo lo que buscarHoja_ debe
+// tolerar. Sus columnas van en otro orden que el del código, a propósito.
+const catalogo = [['N°','FACULTAD','SIGLA','CODIGO']].concat(
+  FAC.map(([s,c],i) => [i+1, 'FACULTAD '+s, s, c]));
 
-const ctx = {
-  Logger: { log: () => {} },
-  CacheService: { getScriptCache: () => ({ get: () => null, put: () => {} }) },
-  SpreadsheetApp: { openById: () => ({
-      getName: () => '4_REVISIÓN_INTERNA DE_AVANCES_ACTIVIDADES',
-      getSheetByName: (n) => {
-        const f = HOJAS[n]; if (!f) return null;
-        const conCab = [(CAB[n] || ['CABECERA'])].concat(f);
-        return { getLastRow: () => conCab.length,
-                 getDataRange: () => ({ getValues: () => conCab }) };
-      } }) },
-  console
+const HOJAS_OK = {
+  'RESUMEN_GENERAL': [['SIGLA']].concat(general),
+  'RESUMEN_EJECUTIVO_A1': [['FACULTAD']].concat(resA1),
+  'RESUMEN_EJECUTIVO_A3': [['SIGLA']].concat(resA3),
+  'DETALLADO_PRODUCTOS_A1': [['FACULTAD']].concat(productos),
+  'OBSERVACIONES_DE_PROCESO_A1': [['FACULTAD']].concat(procesos),
+  'RESUMEN_FICHAS_A3': [['FACULTAD']].concat(fichas),
+  'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(indic),
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(hist),
+  'CODIFICACION_ DE_LAS_FACULTADES': catalogo
 };
-vm.createContext(ctx);
-vm.runInContext(fs.readFileSync('apps-script/Tablero.gs','utf8'), ctx);
-const d = vm.runInContext('tablero({sinCache:true})', ctx);
+
+/** Ejecuta Tablero.gs contra un juego de hojas, en un contexto limpio. */
+function correr(hojas) {
+  const ctx = {
+    Logger: { log: () => {} },
+    CacheService: { getScriptCache: () => ({ get: () => null, put: () => {} }) },
+    SpreadsheetApp: { openById: () => ({
+        getName: () => '4_REVISIÓN_INTERNA DE_AVANCES_ACTIVIDADES',
+        getSheets: () => Object.keys(hojas).map(n => envoltura(n, hojas[n])),
+        getSheetByName: (n) => hojas[n] ? envoltura(n, hojas[n]) : null
+      }) },
+    console
+  };
+  const envoltura = (nombre, filas) => ({
+    getName: () => nombre,
+    getLastRow: () => filas.length,
+    getDataRange: () => ({ getValues: () => filas })
+  });
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync('apps-script/Tablero.gs','utf8'), ctx);
+  return vm.runInContext('tablero({sinCache:true})', ctx);
+}
+
+const d = correr(HOJAS_OK);
 
 let n=0, malas=0;
 const ok=(t,c,x)=>{n++;console.log((c?'  ok    ':'  FALLA ')+t+(c?'':'   -> '+JSON.stringify(x)));if(!c)malas++;};
@@ -118,6 +136,47 @@ ok('la ultima se rotula «Revisión actual»',
    d.revisiones[d.revisiones.length-1].etiqueta==='Revisión actual');
 ok('la anterior conserva sus cifras',
    d.revisiones[0].anexo1===78.2, d.revisiones[0]);
+
+console.log('\nNombres de las hojas del libro');
+ok('el Anexo 4 sale de RESUMEN_EJECUTIVO_A4', d.anexo4.indicadores === 3, d.anexo4);
+const sinA4 = correr(Object.fromEntries(
+  Object.entries(HOJAS_OK).filter(([k]) => k !== 'RESUMEN_EJECUTIVO_A4')));
+ok('sin esa hoja el Anexo 4 queda en cero y el resto se pinta igual',
+   sinA4.anexo4.indicadores === 0 && sinA4.facultades.length === 20, sinA4.anexo4);
+
+console.log('\nCatalogo desde CODIFICACION_ DE_LAS_FACULTADES');
+ok('encuentra la hoja pese al espacio suelto del nombre',
+   d.facultades.length === 20 && d.facultades[0].sigla === 'FM');
+// El nombre sin el espacio, o con guiones: buscarHoja_ debe dar con ella igual.
+const renombrada = Object.assign({}, HOJAS_OK);
+delete renombrada['CODIFICACION_ DE_LAS_FACULTADES'];
+renombrada['CODIFICACION DE LAS FACULTADES'] = catalogo;
+ok('sigue encontrandola si le quitan el espacio o el guion bajo',
+   correr(renombrada).facultades.length === 20);
+
+// Una renumeracion hecha en la hoja debe mandar sobre la del codigo.
+const renumerado = catalogo.map(f => f.slice());
+// La fila 0 es la cabecera: FDCP va en la 2 y FLCH en la 3. Se cruzan.
+renumerado[2][3] = 'F03'; renumerado[3][3] = 'F02';
+const conCambio = Object.assign({}, HOJAS_OK, { 'CODIFICACION_ DE_LAS_FACULTADES': renumerado });
+const dc = correr(conCambio);
+ok('una renumeracion en la hoja manda sobre el catalogo del codigo',
+   dc.facultades.find(f => f.sigla === 'FDCP').codigo === 'F03_FDCP' &&
+   dc.facultades.find(f => f.sigla === 'FLCH').codigo === 'F02_FLCH',
+   dc.facultades.slice(0,3).map(f => f.codigo));
+ok('y el tablero se reordena por el numero de formulario',
+   dc.facultades.every((f, i) => f.orden === i + 1 &&
+     Number(f.codigo.slice(1,3)) === i + 1), dc.facultades.slice(0,3).map(f=>f.codigo));
+
+// Sin catalogo, o con uno incompleto, se conserva el del codigo.
+const sinCat = Object.fromEntries(
+  Object.entries(HOJAS_OK).filter(([k]) => k !== 'CODIFICACION_ DE_LAS_FACULTADES'));
+ok('sin la hoja de catalogo recae en el del codigo, no se queda vacio',
+   correr(sinCat).facultades.length === 20);
+const cortado = Object.assign({}, HOJAS_OK,
+  { 'CODIFICACION_ DE_LAS_FACULTADES': catalogo.slice(0, 15) });
+ok('un catalogo incompleto tampoco lo vacia',
+   correr(cortado).facultades.length === 20);
 
 console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
 process.exit(malas ? 1 : 0);

@@ -245,8 +245,18 @@ se ve en la portada sin tocar el repositorio.
 | `DETALLADO_PRODUCTOS_A1` | detalle de productos de la vista de base de datos |
 | `OBSERVACIONES_DE_PROCESO_A1` | detalle de procesos y subprocesos |
 | `RESUMEN_FICHAS_A3` | detalle de fichas técnicas |
-| `RESUMEN_INDICADORES` | indicadores del Anexo 4 |
+| `RESUMEN_EJECUTIVO_A4` | indicadores del Anexo 4 |
 | `HISTORIAL_REVISIONES` | la variación entre la revisión actual y la anterior |
+| `CODIFICACION_ DE_LAS_FACULTADES` | el catálogo: sigla, nombre y número de formulario |
+
+Las pestañas se localizan comparando solo letras y dígitos, así que el espacio
+suelto del nombre real —`CODIFICACION_ DE_LAS_FACULTADES`— no estorba, y
+corregirlo algún día tampoco romperá nada.
+
+El catálogo manda sobre el que lleva escrito `Tablero.gs`: una renumeración
+como la que movió FII a F17 y FISI a F20 se hace en la hoja y el tablero la
+recoge sin volver a publicar la aplicación web. Si la hoja falta o no da las 20
+facultades, se conserva el del código, que es preferible a un tablero vacío.
 
 Una hoja que aún no se haya generado no rompe nada: esa parte sale en cero y
 el resto del tablero se pinta igual.
@@ -285,6 +295,6 @@ vez en cuando.
 ### Comprobación
 
 ```
-node verificar-tablero.js     # 30 comprobaciones sobre Tablero.gs, sin red
+node verificar-tablero.js     # 38 comprobaciones sobre Tablero.gs, sin red
 node verificar-dashboard.js   # 26 sobre los datos incrustados de respaldo
 ```

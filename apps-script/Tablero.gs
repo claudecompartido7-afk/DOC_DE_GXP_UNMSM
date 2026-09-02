@@ -38,8 +38,9 @@ const TABLERO = {
     PROCESOS:   'OBSERVACIONES_DE_PROCESO_A1',
     RESUMEN_A3: 'RESUMEN_EJECUTIVO_A3',
     FICHAS:     'RESUMEN_FICHAS_A3',
-    A4:         'RESUMEN_INDICADORES',
-    HISTORIAL:  'HISTORIAL_REVISIONES'
+    A4:         'RESUMEN_EJECUTIVO_A4',
+    HISTORIAL:  'HISTORIAL_REVISIONES',
+    CATALOGO:   'CODIFICACION_ DE_LAS_FACULTADES'
   },
 
   /**
@@ -125,8 +126,9 @@ function construirTablero_() {
   const indic    = leerHoja_(libro, TABLERO.HOJAS.A4);
   const histor   = leerHoja_(libro, TABLERO.HOJAS.HISTORIAL);
 
-  const porSigla = indexarPorSigla_(general, resA1, resA3);
-  const facultades = TABLERO.FACULTADES.map(function (f, i) {
+  const catalogo = leerCatalogo_(libro);   // fija también CATALOGO_VIGENTE
+  const porSigla = indexarPorSigla_(general, resA1, resA3, catalogo);
+  const facultades = catalogo.map(function (f, i) {
     return facultadDe_(f[0], f[1] + '_' + f[0], f[2], i + 1, porSigla[f[0]] || {});
   });
 
@@ -152,9 +154,33 @@ function construirTablero_() {
 
 /** Devuelve las filas de una hoja sin su encabezado; [] si la hoja no existe. */
 function leerHoja_(libro, nombre) {
-  const hoja = libro.getSheetByName(nombre);
+  const hoja = buscarHoja_(libro, nombre);
   if (!hoja || hoja.getLastRow() < 2) return [];
   return hoja.getDataRange().getValues().slice(1);
+}
+
+/**
+ * Localiza una pestaña sin exigir que el nombre coincida carácter a carácter.
+ *
+ * Hace falta: la hoja del catálogo se llama `CODIFICACION_ DE_LAS_FACULTADES`,
+ * con un espacio suelto detrás del guion bajo. Comparar literalmente haría que
+ * el día que alguien lo corrija —o lo mueva de sitio— el tablero se quedara sin
+ * catálogo sin decir por qué. Se comparan letras y dígitos, y nada más.
+ */
+function buscarHoja_(libro, nombre) {
+  const exacta = libro.getSheetByName(nombre);
+  if (exacta) return exacta;
+
+  const buscada = esqueleto_(nombre);
+  const hojas = libro.getSheets();
+  for (let i = 0; i < hojas.length; i++) {
+    if (esqueleto_(hojas[i].getName()) === buscada) return hojas[i];
+  }
+  return null;
+}
+
+function esqueleto_(s) {
+  return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 /**
@@ -166,9 +192,9 @@ function leerHoja_(libro, nombre) {
  * el auditor del Anexo 1 escribe al pie— comprobando la sigla contra el
  * catálogo, que es el único juez de qué es una facultad.
  */
-function indexarPorSigla_(general, resA1, resA3) {
+function indexarPorSigla_(general, resA1, resA3, catalogo) {
   const validas = {};
-  TABLERO.FACULTADES.forEach(function (f) { validas[f[0]] = true; });
+  catalogo.forEach(function (f) { validas[f[0]] = true; });
 
   const mapa = {};
   const cajon = function (sigla) {
@@ -354,8 +380,68 @@ function recopilarRegistros_(productos, procesos, fichas) {
 function codigoFacultad_(valor) {
   const s = String(valor || '').trim().toUpperCase();
   if (/^F\d\d_/.test(s)) return s;                       // ya viene como F01_FM
-  const f = TABLERO.FACULTADES.filter(function (x) { return x[0] === s; })[0];
+  const f = CATALOGO_VIGENTE.filter(function (x) { return x[0] === s; })[0];
   return f ? f[1] + '_' + f[0] : '';
+}
+
+/**
+ * El catálogo que rige la corrida en curso. Lo fija `leerCatalogo_`, y hasta
+ * entonces vale el del código: así `codigoFacultad_` funciona igual si alguna
+ * vez se le llama antes de leer el libro.
+ */
+let CATALOGO_VIGENTE = TABLERO.FACULTADES;
+
+/**
+ * Catálogo de facultades desde la hoja `CODIFICACION_ DE_LAS_FACULTADES`, que
+ * es donde la OGPL lo mantiene. Se prefiere al del código porque una
+ * renumeración —como la que movió FII a F17 y FISI a F20— se hace ahí, y no
+ * tendría que obligar a volver a publicar la aplicación web.
+ *
+ * Las columnas se localizan por su encabezado, no por su posición: añadir una
+ * columna a la izquierda es lo más normal del mundo en una hoja que se edita a
+ * mano, y no debería descolocar el tablero.
+ *
+ * Si la hoja falta, o no da las 20 facultades, se conserva el catálogo del
+ * código: es preferible una numeración de hace un mes a un tablero vacío.
+ */
+function leerCatalogo_(libro) {
+  const hoja = buscarHoja_(libro, TABLERO.HOJAS.CATALOGO);
+  if (!hoja || hoja.getLastRow() < 2) return TABLERO.FACULTADES;
+
+  const datos = hoja.getDataRange().getValues();
+  const cab = datos[0].map(esqueleto_);
+  const col = function (varias) {
+    for (let i = 0; i < cab.length; i++) {
+      for (let j = 0; j < varias.length; j++) {
+        if (cab[i].indexOf(varias[j]) !== -1) return i;
+      }
+    }
+    return -1;
+  };
+
+  const iSigla  = col(['SIGLA']);
+  const iNombre = col(['FACULTAD', 'NOMBRE', 'DENOMINACION']);
+  const iCodigo = col(['CODIGO', 'FORMULARIO']);
+  if (iSigla === -1 || iCodigo === -1) return TABLERO.FACULTADES;
+
+  const filas = [];
+  for (let f = 1; f < datos.length; f++) {
+    const sigla = String(datos[f][iSigla] || '').trim().toUpperCase();
+    // El código puede venir como "F01" o como "F01_FM": interesa el número.
+    const bruto = String(datos[f][iCodigo] || '').trim().toUpperCase();
+    const m = bruto.match(/F\s*0*(\d{1,2})/);
+    if (!sigla || !m) continue;
+    filas.push([sigla,
+                'F' + ('0' + m[1]).slice(-2),
+                iNombre === -1 ? sigla : String(datos[f][iNombre] || sigla).trim()]);
+  }
+
+  if (filas.length !== TABLERO.FACULTADES.length) return TABLERO.FACULTADES;
+
+  // El orden del tablero es el del número de formulario, no el de la hoja.
+  filas.sort(function (a, b) { return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0); });
+  CATALOGO_VIGENTE = filas;
+  return filas;
 }
 
 /* ── Anexo 4 e histórico ────────────────────────────────────────────────── */
