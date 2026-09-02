@@ -211,3 +211,90 @@ de sesión válida, que dura diez horas.
 `Datos.gs` se genera desde el repositorio; no se edita a mano. Cuando cambien los
 hallazgos o los paneles hay que regenerarlo y volver a implementar el Apps
 Script con una versión nueva.
+
+## El tablero en vivo · `Tablero.gs`
+
+`Dashboard.html` llevaba sus cifras incrustadas en el propio archivo: para que
+la web reflejara una auditoría nueva había que regenerar el HTML y volver a
+publicarlo. Con `Tablero.gs` las pide al servidor, y cada corrida de
+`ejecutarAuditoriaAnexo1`, `ejecutarRevisionAnexo3` o `ejecutarRevisionAnexo4`
+se ve en la portada sin tocar el repositorio.
+
+### Instalación
+
+1. Pegar `Tablero.gs` en **este mismo proyecto** —el que publica la aplicación
+   web—, no en el proyecto enlazado a la hoja.
+2. En `Codigo.gs`, dentro del **primer** `switch` de `doPost` (el de las
+   acciones que no exigen credenciales), ya está añadida la línea:
+
+   ```javascript
+   case 'tablero':   return responder(tablero());
+   ```
+
+3. Volver a implementar con versión **«Nueva»**.
+4. `probarTablero()` desde el editor dice qué hojas encuentra y qué cifras
+   saca de cada una, sin pasar por la web.
+
+### De qué hoja sale cada cifra
+
+| Hoja del libro | Qué aporta al tablero |
+|---|---|
+| `RESUMEN_GENERAL` | % Anexo 1, % Anexo 3 y % general de cada facultad |
+| `RESUMEN_EJECUTIVO_A1` | productos conformes, observados y sin registrar; nº de procesos |
+| `RESUMEN_EJECUTIVO_A3` | fichas totales, completas, incompletas y sin producto |
+| `DETALLADO_PRODUCTOS_A1` | detalle de productos de la vista de base de datos |
+| `OBSERVACIONES_DE_PROCESO_A1` | detalle de procesos y subprocesos |
+| `RESUMEN_FICHAS_A3` | detalle de fichas técnicas |
+| `RESUMEN_EJECUTIVO_A4` | indicadores del Anexo 4 |
+| `HISTORIAL_REVISIONES` | la variación entre la revisión actual y la anterior |
+| `CODIFICACION_ DE_LAS_FACULTADES` | el catálogo: sigla, nombre y número de formulario |
+
+Las pestañas se localizan comparando solo letras y dígitos, así que el espacio
+suelto del nombre real —`CODIFICACION_ DE_LAS_FACULTADES`— no estorba, y
+corregirlo algún día tampoco romperá nada.
+
+El catálogo manda sobre el que lleva escrito `Tablero.gs`: una renumeración
+como la que movió FII a F17 y FISI a F20 se hace en la hoja y el tablero la
+recoge sin volver a publicar la aplicación web. Si la hoja falta o no da las 20
+facultades, se conserva el del código, que es preferible a un tablero vacío.
+
+Una hoja que aún no se haya generado no rompe nada: esa parte sale en cero y
+el resto del tablero se pinta igual.
+
+### Por qué se responde sin credenciales
+
+El tablero está publicado también en la portada pública, así que `tablero` va
+en el switch de acciones abiertas. Devuelve solo cifras de avance y el detalle
+de la revisión —lo mismo que ya viajaba incrustado en el HTML y era visible en
+el código fuente—. Los paneles del área interna, las decisiones y la edición de
+documentos siguen exigiendo sesión.
+
+Si esa exposición deja de ser aceptable, mover el `case 'tablero'` al segundo
+switch lo cierra: entonces el tablero solo tendrá datos frescos dentro de
+`interno.html`, y en la portada se quedará con los incrustados.
+
+### Cuánto tarda en verse un cambio
+
+El servidor guarda su respuesta **60 segundos** (`TABLERO.CACHE_SEG`), y el
+navegador vuelve a preguntar cada **dos minutos** (`CADA`, en `Dashboard.html`),
+al volver a la pestaña, y cuando se pulsa el botón de recarga del encabezado.
+En el peor caso, unos tres minutos desde que termina la auditoría. El botón lo
+hace inmediato.
+
+Una pestaña en segundo plano no pregunta: no gasta cuota de Apps Script en
+refrescar algo que nadie está mirando.
+
+### Si el servidor no contesta
+
+El HTML conserva incrustado el último estado conocido. Si la petición falla
+—red caída, endpoint sin publicar, despliegue mal configurado— el tablero se
+queda con esas cifras y lo dice en el encabezado, en lugar de aparecer vacío.
+Por eso el bloque `DATOS_FUENTE` sigue en el archivo y conviene refrescarlo de
+vez en cuando.
+
+### Comprobación
+
+```
+node verificar-tablero.js     # 38 comprobaciones sobre Tablero.gs, sin red
+node verificar-dashboard.js   # 26 sobre los datos incrustados de respaldo
+```

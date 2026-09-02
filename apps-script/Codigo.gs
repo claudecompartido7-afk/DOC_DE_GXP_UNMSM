@@ -70,6 +70,10 @@ function doPost(e) {
       case 'ping':      return responder(diagnostico());
       case 'entrar':    return responder(entrar(datos));
       case 'salir':     return responder(salir(datos));
+      // El tablero está publicado en la portada pública, así que se sirve sin
+      // credenciales. Devuelve sólo cifras de avance y el detalle de la
+      // revisión; los paneles del área interna siguen exigiendo sesión abajo.
+      case 'tablero':   return responder(tablero());
     }
 
     // Todo lo demás toca datos internos o escribe en los documentos.
@@ -260,8 +264,8 @@ function diagnostico() {
   return {
     ok: estado.every(function (l) { return l.ok !== false; }),
     version: VERSION,
-    acciones: ['ping', 'entrar', 'salir', 'datos', 'decision', 'eliminar',
-               'listar', 'contenido', 'editar'],
+    acciones: ['ping', 'entrar', 'salir', 'tablero', 'datos', 'decision',
+               'eliminar', 'listar', 'contenido', 'editar'],
     usuarios: usuarios().length,
     modo: MODO_DESTINO,
     destinos: estado

@@ -243,6 +243,17 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 .pie .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* ── Panel del Dashboard ────────────────────────────────────────────── */
+.dash-cab{display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:6px}
+.dash-cab h2{margin:0}
+.dash-abrir{font-size:13px;font-weight:700;text-decoration:none;color:var(--granate)}
+.dash-abrir:hover{text-decoration:underline}
+.dash-nota{margin:0 0 14px;font-size:13.5px;color:var(--acero)}
+.dash-marco{width:100%;height:calc(100vh - 230px);min-height:560px;
+  border:1px solid var(--linea);border-radius:10px;background:#e8eef3;display:block}
+@media (max-width:640px){.dash-marco{height:calc(100vh - 190px);min-height:420px}}
 </style>
 <link rel="stylesheet" href="assets/visor.css?v=6">
 <link rel="stylesheet" href="assets/decisiones.css?v=6">
@@ -290,6 +301,7 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 <nav>
   <div class="wrap navin" role="tablist">
     <button role="tab" aria-selected="true" data-p="tablero">Tablero</button>
+    <button role="tab" aria-selected="false" data-p="dashboard">Dashboard</button>
     <button role="tab" aria-selected="false" data-p="diagnostico">Diagnóstico</button>
     <button role="tab" aria-selected="false" data-p="contradicciones">Contradicciones</button>
     <button role="tab" aria-selected="false" data-p="alcance">Alcance</button>
@@ -306,6 +318,29 @@ h3.bloque .idx{font-family:var(--mono);font-size:12px;color:var(--granate);font-
 
 <!-- ============ TABLERO ============ -->
 <section class="panel on" id="tablero"></section>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="panel" id="dashboard">
+  <div class="dash-cab">
+    <h2>Dashboard de avance</h2>
+    <a class="dash-abrir" href="Dashboard.html" target="_blank" rel="noopener">Abrir en una pestaña ↗</a>
+  </div>
+  <p class="dash-nota">El mismo tablero que se publica en la portada. Se actualiza
+    con cada corrida de la auditoría de los anexos.</p>
+  <iframe class="dash-marco" id="marco-dashboard" src="Dashboard.html"
+          title="Dashboard de avance por Facultad" loading="lazy"></iframe>
+</section>
+<script>
+/* El tablero avisa de su altura al quedar incrustado; así el marco crece con
+   el contenido en lugar de abrir una segunda barra de desplazamiento. Si el
+   mensaje no llega, el iframe se queda con su altura fija y todo sigue
+   funcionando. */
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.tipo !== 'dashboard-ogpl:altura') return;
+  const marco = document.getElementById('marco-dashboard');
+  if (marco) marco.style.height = e.data.altura + 'px';
+});
+</script>
 
 <!-- ============ DIAGNÓSTICO ============ -->
 <section class="panel" id="diagnostico"></section>
