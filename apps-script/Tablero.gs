@@ -380,11 +380,23 @@ function historialPorAnexo_(filas) {
     const actual   = lista.length ? lista[lista.length - 1] : null;
     const anterior = lista.length > 1 ? lista[lista.length - 2] : null;
 
+    // La serie completa, con la variación de cada punto contra el anterior.
+    // Se calcula aquí y no en el navegador para que el gráfico de tendencia y
+    // la tarjeta no puedan discrepar: una sola aritmética, un solo resultado.
+    const serie = lista.map(function (p, i) {
+      return {
+        fecha: p.fecha,
+        valor: p.valor,
+        variacion: i === 0 ? null : redondear_(p.valor - lista[i - 1].valor)
+      };
+    });
+
     salida[clave] = {
       actual: actual,
       anterior: anterior,
       variacion: (actual && anterior) ? redondear_(actual.valor - anterior.valor) : null,
-      registros: lista.length
+      registros: lista.length,
+      serie: serie
     };
   });
   return salida;

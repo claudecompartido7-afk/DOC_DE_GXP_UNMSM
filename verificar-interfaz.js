@@ -8,6 +8,18 @@
  *
  *   npm i playwright chart.js && node verificar-interfaz.js
  *
+ * Para que el bloque responsivo signifique algo hace falta el CSS de Tailwind,
+ * que en la página llega de un CDN de desarrollo y se genera en el navegador.
+ * Se le puede dar uno hecho con el CLI:
+ *
+ *   npm i -D tailwindcss@3
+ *   npx tailwindcss -i entrada.css -o tw.css --content Dashboard.html --minify
+ *   # envolver tw.css en un .js que lo inyecte y defina window.tailwind
+ *   TAILWIND_SHIM=/ruta/al/shim.js node verificar-interfaz.js
+ *
+ * Sin él, la prueba lo detecta y falla en vez de dar por buenas unas medidas
+ * tomadas sobre una página sin estilos.
+ *
  * Si Playwright no está instalado, no falla: avisa y sale. Las otras dos
  * comprobaciones (verificar-tablero.js y verificar-dashboard.js) no necesitan
  * navegador y cubren los datos.
@@ -49,6 +61,20 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     await pag.route('**/chart.js*', r =>
       r.fulfill({ path: chartLocal, contentType: 'application/javascript' }));
   }
+
+  // Tailwind llega de su CDN de desarrollo, que en esta red esta bloqueado y
+  // ademas genera las clases en tiempo de ejecucion. Para poder comprobar el
+  // comportamiento responsivo hace falta el CSS de verdad: si existe un
+  // sustituto generado con el CLI, se sirve en su lugar.
+  const twShim = process.env.TAILWIND_SHIM;
+  if (twShim && fs.existsSync(twShim)) {
+    // Con expresion regular y no con glob: la URL es
+    // «https://cdn.tailwindcss.com» a secas, sin ruta, y el patron `**/…*`
+    // no llega a casar. Sin darse cuenta, se estaba probando la pagina SIN
+    // Tailwind, que es tanto como no probar el diseño.
+    await pag.route(/cdn\.tailwindcss\.com/, r =>
+      r.fulfill({ path: twShim, contentType: 'application/javascript' }));
+  }
   const errores = [];
   pag.on('pageerror', e => errores.push('pageerror: ' + e.message));
   pag.on('console', m => { if (m.type() === 'error') errores.push('console: ' + m.text()); });
@@ -60,6 +86,7 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   const ok = (t, c, x) => { n++; console.log((c?'  ok    ':'  FALLA ') + t + (c?'':'   -> '+JSON.stringify(x))); if(!c) malas++; };
 
   const chartJsCargo = await pag.evaluate(() => typeof Chart !== 'undefined');
+  const tailwindCargo = await pag.evaluate(() => getComputedStyle(document.body).margin === '0px');
   console.log('\nEntorno');
   // En esta red los CDN estan bloqueados; eso no es un fallo del tablero, que
   // esta hecho para seguir funcionando sin ellos. Se ignoran esos errores.
@@ -67,6 +94,11 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     !/ERR_TUNNEL_CONNECTION_FAILED|ERR_CONNECTION_RESET|tailwind is not defined/.test(e));
   ok('la pagina carga sin errores propios de JS', propios.length === 0, propios.slice(0,3));
   ok('Chart.js llego del CDN', chartJsCargo);
+  // Sin Tailwind las clases responsivas no existen y las medidas de mas abajo
+  // no significan nada. Se comprueba explicitamente para no dar por buenas
+  // unas comprobaciones que en realidad no se estan haciendo.
+  ok('Tailwind aplica sus clases (si no, el bloque responsivo no vale)',
+     tailwindCargo, 'body.margin != 0: no se cargo el CSS');
 
   console.log('\nEstado por defecto');
   const porDefecto = await pag.evaluate(() => ({
@@ -259,6 +291,120 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('y en rojo', /rose/.test(variacion.a3cls));
   ok('con un solo registro dice que no hay anterior, en vez de inventar un 0',
      /sin revisión anterior/.test(variacion.a4), variacion.a4);
+
+  console.log('\nLineas de tendencia historica');
+  const tend = await pag.evaluate(() => {
+    // Historial con cuatro registros del Anexo 1, dos del 3 y uno del 4:
+    // cubre la tendencia normal, la minima y el caso sin tendencia.
+    const serie = puntos => puntos.map((v, i) => ({
+      fecha: new Date(Date.UTC(2026, 6, 10 + i * 9)).toISOString(),
+      valor: v, variacion: i === 0 ? null : Math.round((v - puntos[i-1]) * 10) / 10
+    }));
+    const s1 = serie([62.0, 70.5, 68.1, 81.3]);
+    const s3 = serie([50.0, 61.4]);
+    const s4 = serie([40.4]);
+    DATOS_FUENTE.historial = {
+      anexo1: { actual: s1[3], anterior: s1[2], variacion: 13.2, registros: 4, serie: s1 },
+      anexo3: { actual: s3[1], anterior: s3[0], variacion: 11.4, registros: 2, serie: s3 },
+      anexo4: { actual: s4[0], anterior: null, variacion: null, registros: 1, serie: s4 }
+    };
+    pintarTendencias();
+    return {
+      claves: Object.keys(TENDENCIAS),
+      puntos1: TENDENCIAS.anexo1 ? TENDENCIAS.anexo1.data.datasets[0].data : null,
+      etiquetas1: TENDENCIAS.anexo1 ? TENDENCIAS.anexo1.data.labels : null,
+      tipo: TENDENCIAS.anexo1 ? TENDENCIAS.anexo1.config.type : null,
+      serieEnPlugin: TENDENCIAS.anexo1
+        ? TENDENCIAS.anexo1.options.plugins.rotuloVariacion.serie.map(p => p.variacion) : null,
+      caja4Oculta: document.getElementById('tend-caja-4').hidden,
+      aviso4: document.getElementById('tend-vacio-4').textContent,
+      aviso4Visible: !document.getElementById('tend-vacio-4').hidden
+    };
+  });
+  ok('hay tendencia para los anexos con dos registros o mas',
+     tend.claves.sort().join(',') === 'anexo1,anexo3', tend.claves);
+  ok('es un grafico de lineas', tend.tipo === 'line', tend.tipo);
+  ok('traza TODAS las versiones del historial, no solo las dos ultimas',
+     tend.puntos1 && tend.puntos1.length === 4, tend.puntos1);
+  ok('en orden, de la primera a la actual',
+     JSON.stringify(tend.puntos1) === JSON.stringify([62, 70.5, 68.1, 81.3]), tend.puntos1);
+  ok('el eje rotula la fecha de cada version',
+     tend.etiquetas1 && tend.etiquetas1.length === 4 &&
+     tend.etiquetas1.every(e => /^\d{2}\/\d{2}$/.test(e)), tend.etiquetas1);
+  ok('cada punto lleva su variacion contra el inmediatamente anterior',
+     JSON.stringify(tend.serieEnPlugin) === JSON.stringify([null, 8.5, -2.4, 13.2]),
+     tend.serieEnPlugin);
+  ok('con un solo registro no dibuja una tendencia falsa',
+     tend.caja4Oculta && tend.aviso4Visible && /una sola revisión/i.test(tend.aviso4),
+     tend.aviso4);
+
+  // La variacion se rotula sobre el lienzo: se busca el verde de una subida
+  // y el rojo de la bajada del tercer punto.
+  const colores = await pag.evaluate(() => {
+    const c = TENDENCIAS.anexo1.canvas;
+    const ctx = c.getContext('2d');
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let verde = 0, rojo = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i+3] < 128) continue;
+      if (Math.abs(d[i]-5) < 45 && Math.abs(d[i+1]-150) < 45 && Math.abs(d[i+2]-105) < 45) verde++;
+      if (Math.abs(d[i]-225) < 45 && Math.abs(d[i+1]-29) < 45 && Math.abs(d[i+2]-72) < 45) rojo++;
+    }
+    return { verde, rojo };
+  });
+  ok('las subidas se rotulan en verde sobre el grafico', colores.verde > 20, colores);
+  ok('y la caida del tercer punto, en rojo', colores.rojo > 20, colores);
+
+  console.log('\nResponsivo');
+  const pantallas = [
+    ['movil pequeno', 360, 740], ['movil', 414, 896], ['tableta vertical', 768, 1024],
+    ['tableta apaisada', 1024, 768], ['portatil', 1366, 768], ['monitor', 1920, 1080]
+  ];
+  for (const [nombre, w, h] of pantallas) {
+    await pag.setViewportSize({ width: w, height: h });
+    // Chart.js redimensiona sus lienzos en diferido. Sin esperar a que
+    // termine, se mide un lienzo con el tamaño de la resolucion anterior y el
+    // fallo que sale es del cronometraje, no del diseño.
+    await pag.waitForTimeout(500);
+    await pag.evaluate(() => {
+      [chart1, chart3, ...Object.values(TENDENCIAS)].forEach(c => c && c.resize());
+    });
+    await pag.waitForTimeout(350);
+    const m = await pag.evaluate(() => {
+      const chocan = (a, b) => {
+        if (!a || !b) return false;
+        return !(a.right <= b.left + 1 || b.right <= a.left + 1 ||
+                 a.bottom <= b.top + 1 || b.bottom <= a.top + 1);
+      };
+      const caja = sel => { const e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; };
+      const kpis = [...document.querySelectorAll('[id$="-val"]')].map(e => e.getBoundingClientRect());
+      return {
+        desborde: document.documentElement.scrollWidth - window.innerWidth,
+        lienzo: Math.round((caja('#chartAnexo1') || {width:0}).width),
+        panelClasif: Math.round((caja('#clasif-a1') || {width:0}).width),
+        tarjetaKpi: Math.round((caja('#kpi2-val') || {width:0}).width),
+        tendencia: Math.round((caja('#tend-anexo1') || {width:0}).width),
+        // ¿Se solapa alguna cifra grande con la siguiente?
+        solapeKpi: kpis.some((a, i) => kpis.slice(i + 1).some(b => chocan(a, b))),
+        // ¿Se sale algo del ancho de la ventana?
+        fuera: [...document.querySelectorAll('.glass-card, canvas, h1')]
+          .filter(e => { const r = e.getBoundingClientRect();
+                         return r.width > 0 && (r.right > window.innerWidth + 2 || r.left < -2); })
+          .length
+      };
+    });
+    ok(nombre + ' (' + w + 'x' + h + '): sin desplazamiento horizontal', m.desborde <= 1, m);
+    ok(nombre + ': ningun elemento se sale del ancho', m.fuera === 0, m);
+    ok(nombre + ': las cifras de las tarjetas no se solapan', !m.solapeKpi, m);
+    ok(nombre + ': el grafico conserva ancho util', m.lienzo >= 180, m);
+    ok(nombre + ': la linea de tendencia se dibuja', m.tendencia >= 120, m);
+  }
+  await pag.setViewportSize({ width: 390, height: 844 });
+  await pag.waitForTimeout(400);
+  await pag.screenshot({ path: path.join(require('os').tmpdir(), 'dash-movil.png'), fullPage: true });
+  await pag.setViewportSize({ width: 1600, height: 1000 });
+  await pag.waitForTimeout(400);
+  await pag.screenshot({ path: path.join(require('os').tmpdir(), 'dash-escritorio.png'), fullPage: true });
 
   console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
   if (errores.length) { console.log('\nErrores de consola:'); errores.slice(0,6).forEach(e => console.log('  ' + e)); }

@@ -253,6 +253,30 @@ ok('sin historial ni F36 recae en el recuento de aprobados',
    sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
    sinF36.anexo4);
 
+console.log('\nSerie completa para las lineas de tendencia');
+const dSerie = correr(Object.assign({}, HOJAS_OK, {
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat([
+    [new Date('2026-07-10T08:00:00Z'), 'Anexo 1', 62.0],
+    [new Date('2026-07-19T08:00:00Z'), 'Anexo 1', 70.5],
+    [new Date('2026-07-28T08:00:00Z'), 'Anexo 1', 68.1],
+    [new Date('2026-08-06T08:00:00Z'), 'Anexo 1', 81.3]
+  ]) }));
+const s1 = dSerie.historial.anexo1.serie;
+ok('la serie trae TODAS las versiones, no solo las dos ultimas',
+   s1.length === 4, s1.length);
+ok('en orden cronologico, de la primera a la actual',
+   JSON.stringify(s1.map(p => p.valor)) === JSON.stringify([62, 70.5, 68.1, 81.3]),
+   s1.map(p => p.valor));
+ok('cada punto lleva su variacion contra el inmediatamente anterior',
+   JSON.stringify(s1.map(p => p.variacion)) === JSON.stringify([null, 8.5, -2.4, 13.2]),
+   s1.map(p => p.variacion));
+ok('el primer punto no inventa una variacion', s1[0].variacion === null);
+ok('la variacion de la tarjeta es la del ultimo punto de la serie',
+   dSerie.historial.anexo1.variacion === s1[s1.length - 1].variacion,
+   [dSerie.historial.anexo1.variacion, s1[s1.length - 1].variacion]);
+ok('cada punto conserva su fecha, para rotular el eje',
+   s1.every(p => /^\d{4}-\d{2}-\d{2}T/.test(p.fecha)), s1.map(p => p.fecha));
+
 console.log('\nHISTORIAL_REVISIONES, anexo por anexo');
 // Fechas escalonadas a proposito: los tres auditores corren por separado, y
 // la revision anterior del Anexo 4 no tiene por que ser del mismo dia que la
