@@ -298,3 +298,17 @@ vez en cuando.
 node verificar-tablero.js     # 38 comprobaciones sobre Tablero.gs, sin red
 node verificar-dashboard.js   # 26 sobre los datos incrustados de respaldo
 ```
+
+### El % del Anexo 4 sale de una celda, no de un recuento
+
+`RESUMEN_EJECUTIVO_A4!F36` lleva el avance según la última versión del
+historial de revisión, ya ponderado. `TABLERO.CELDA_PCT_A4` apunta ahí y ese
+valor manda sobre contar aprobados entre el total, que trata por igual a
+indicadores que no pesan lo mismo.
+
+El recuento se conserva como respaldo —si la celda está vacía, el tablero usa
+ese en lugar de mostrar un cero que parece un dato— y viaja en la respuesta
+como `anexo4.pctContado`. `probarTablero()` dice cuál de los dos se usó.
+
+Si la hoja cambia y el valor pasa a otra celda, se ajusta `CELDA_PCT_A4` y
+basta con volver a implementar.

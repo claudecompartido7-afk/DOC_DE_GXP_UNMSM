@@ -74,7 +74,16 @@ function correr(hojas) {
   const envoltura = (nombre, filas) => ({
     getName: () => nombre,
     getLastRow: () => filas.length,
-    getDataRange: () => ({ getValues: () => filas })
+    getDataRange: () => ({ getValues: () => filas }),
+    // Solo lo que Tablero.gs pide: una celda suelta por su referencia A1.
+    getRange: (ref) => {
+      const m = /^([A-Z]+)(\d+)$/.exec(ref);
+      if (!m) throw new Error('referencia no soportada: ' + ref);
+      let col = 0;
+      for (const c of m[1]) col = col * 26 + (c.charCodeAt(0) - 64);
+      const fila = filas[Number(m[2]) - 1];
+      return { getValue: () => (fila ? fila[col - 1] : undefined) };
+    }
   });
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync('apps-script/Tablero.gs','utf8'), ctx);
@@ -207,6 +216,31 @@ ok('manda la hoja: FII pasa a F20 y FISI a F17 porque asi lo dice',
 ok('la fila de TOTAL no cuenta como indicador del Anexo 4',
    real.anexo4.indicadores === 3, real.anexo4);
 ok('ni las filas vacias', real.anexo4.aprobados === 2, real.anexo4);
+
+console.log('\nEl % del Anexo 4 sale de la celda F36');
+// Hoja con la celda F36 puesta: 36 filas, y en la F de la ultima el 40,4 %
+// con formato de porcentaje, que es como lo guarda la hoja de verdad.
+// 36 filas contando la cabecera. La ultima lleva en la columna F el 40,4 %
+// como fraccion, que es como lo guarda una celda con formato de porcentaje.
+const conF36 = [['CODIGO','INDICADOR','ESTADO','','','PCT']];
+for (let i = 1; i <= 34; i++) {
+  conF36.push(['IND-' + i, 'Indicador ' + i, i <= 14 ? 'Aprobado' : 'Pendiente', '', '', '']);
+}
+conF36.push(['', 'ULTIMA REVISION DEL HISTORIAL', '', '', '', 0.404]);   // fila 36
+const dF36 = correr(Object.assign({}, HOJAS_OK, { 'RESUMEN_EJECUTIVO_A4': conF36 }));
+ok('toma el 40,4 % de F36 y no el recuento', dF36.kpi.anexo4 === 40.4, dF36.kpi.anexo4);
+ok('conserva el recuento como respaldo',
+   typeof dF36.anexo4.pctContado === 'number' && dF36.anexo4.pctContado !== 40.4,
+   dF36.anexo4);
+ok('dice de donde saco el porcentaje',
+   /F36/.test(dF36.anexo4.origenPct), dF36.anexo4.origenPct);
+
+// Sin esa celda debe recaer en el recuento, no dar cero.
+const sinF36 = correr(Object.assign({}, HOJAS_OK, {
+  'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(indic) }));
+ok('sin F36 recae en el recuento de aprobados',
+   sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
+   sinF36.anexo4);
 
 console.log('\n' + n + ' comprobaciones - ' + (malas ? malas + ' FALLAN' : 'todas correctas'));
 process.exit(malas ? 1 : 0);

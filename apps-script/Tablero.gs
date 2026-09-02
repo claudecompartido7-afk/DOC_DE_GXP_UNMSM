@@ -52,6 +52,13 @@ const TABLERO = {
    */
   MAX_REGISTROS: 3000,
 
+  /**
+   * Celda de `RESUMEN_EJECUTIVO_A4` que lleva el avance del Anexo 4 según la
+   * última versión del historial de revisión. Manda sobre el recuento de
+   * indicadores aprobados: la hoja pondera, y contar filas no.
+   */
+  CELDA_PCT_A4: 'F36',
+
   /** Segundos que se guarda la respuesta antes de volver a leer el libro. */
   CACHE_SEG: 60,
 
@@ -124,6 +131,7 @@ function construirTablero_() {
   const procesos = leerHoja_(libro, TABLERO.HOJAS.PROCESOS);
   const fichas   = leerHoja_(libro, TABLERO.HOJAS.FICHAS);
   const indic    = leerHoja_(libro, TABLERO.HOJAS.A4);
+  const pctA4Hoja= leerCeldaPct_(libro, TABLERO.HOJAS.A4, TABLERO.CELDA_PCT_A4);
   const histor   = leerHoja_(libro, TABLERO.HOJAS.HISTORIAL);
 
   const catalogo = leerCatalogo_(libro);   // fija también CATALOGO_VIGENTE
@@ -134,7 +142,7 @@ function construirTablero_() {
 
   const registros = recopilarRegistros_(productos, procesos, fichas);
   const totales   = sumarTotales_(facultades);
-  const anexo4    = leerAnexo4_(indic);
+  const anexo4    = leerAnexo4_(indic, pctA4Hoja);
   const revisiones= leerHistorial_(histor, anexo4);
 
   return {
@@ -474,7 +482,7 @@ function leerCatalogo_(libro) {
  * que se busca el estado en cualquier columna en lugar de fiarlo a una
  * posición: si mañana se le añade una columna, esto sigue contando bien.
  */
-function leerAnexo4_(filas) {
+function leerAnexo4_(filas, pctDeLaHoja) {
   let aprobados = 0, total = 0;
 
   filas.forEach(function (f) {
@@ -487,11 +495,36 @@ function leerAnexo4_(filas) {
     if (/aprobado|conforme|cumple|validado/.test(linea)) aprobados++;
   });
 
+  // El porcentaje sale de la celda cuando la hoja lo tiene calculado: allí está
+  // ponderado, mientras que contar aprobados sobre el total trata por igual a
+  // indicadores que no pesan lo mismo. El recuento se conserva como respaldo y
+  // porque el tablero muestra «N de M» junto al porcentaje.
+  const contado = total ? redondear_((aprobados / total) * 100) : 0;
+
   return {
     aprobados: aprobados,
     indicadores: total,
-    pct: total ? redondear_((aprobados / total) * 100) : 0
+    pct: pctDeLaHoja === null ? contado : pctDeLaHoja,
+    pctContado: contado,
+    origenPct: pctDeLaHoja === null
+      ? 'recuento de aprobados (la celda ' + TABLERO.CELDA_PCT_A4 + ' está vacía)'
+      : 'la celda ' + TABLERO.CELDA_PCT_A4 + ' de ' + TABLERO.HOJAS.A4
   };
+}
+
+/**
+ * Lee una celda suelta como porcentaje. Devuelve null si la hoja o la celda no
+ * dan un número, para que quien llame decida con qué respaldo sigue en lugar
+ * de quedarse con un cero que parece un dato.
+ */
+function leerCeldaPct_(libro, nombreHoja, celda) {
+  try {
+    const hoja = buscarHoja_(libro, nombreHoja);
+    if (!hoja) return null;
+    return pct_(hoja.getRange(celda).getValue());
+  } catch (e) {
+    return null;      // la celda cae fuera de la hoja, o no se puede leer
+  }
 }
 
 /**
@@ -621,9 +654,9 @@ function probarTablero() {
   lineas.push('Facultades: ' + d.facultades.length +
               '  ·  con avance: ' + d.facultades.filter(function (f) {
                 return f.pctGeneral > 0; }).length);
-  lineas.push('Anexo 4: ' + d.anexo4.aprobados + ' aprobados de ' +
-              d.anexo4.indicadores + ' indicadores' +
-              '  (las filas de TOTAL y las vacías no cuentan)');
+  lineas.push('Anexo 4: ' + d.kpi.anexo4 + '%  ·  tomado de ' + d.anexo4.origenPct);
+  lineas.push('   (' + d.anexo4.aprobados + ' aprobados de ' + d.anexo4.indicadores +
+              ' indicadores da ' + d.anexo4.pctContado + '%, que es el respaldo)');
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  (+' + d.recorte + ' recortados por MAX_REGISTROS)' : ''));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
