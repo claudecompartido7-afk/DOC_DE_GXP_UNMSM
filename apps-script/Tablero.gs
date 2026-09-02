@@ -44,13 +44,21 @@ const TABLERO = {
   },
 
   /**
-   * Tope de filas de detalle que viajan al navegador. El libro llega a varios
-   * miles de productos; mandarlos todos haría la respuesta lenta sin que la
-   * vista de base de datos gane nada, porque pagina. Los INDICADORES no se
-   * calculan sobre este recorte, sino sobre las hojas enteras: recortar el
-   * detalle no altera ninguna cifra.
+   * Tope de filas de detalle que viajan al navegador.
+   *
+   * Estaba en 3000 y las hojas suman más: DETALLADO_PRODUCTOS_A1 ronda las
+   * 2900 filas y OBSERVACIONES_DE_PROCESO_A1 casi 1000, así que se perdían
+   * cientos de registros por el camino. Ahora cabe el libro entero con
+   * holgura; es un tope de seguridad, no un recorte de trabajo.
+   *
+   * Nada de esto afecta a los INDICADORES: se calculan sobre las hojas de
+   * resumen completas, no sobre este detalle.
+   *
+   * A cambio, la respuesta pasa de largo el máximo de la caché de Apps Script
+   * (100 KB por entrada), así que deja de guardarse y cada consulta relee el
+   * libro. Es el precio de no perder filas, y `probarTablero()` lo dice.
    */
-  MAX_REGISTROS: 3000,
+  MAX_REGISTROS: 25000,
 
   /**
    * Celda de `RESUMEN_EJECUTIVO_A4` que lleva el avance del Anexo 4 según la
@@ -122,8 +130,11 @@ function tablero(opciones) {
 
   try {
     cache.put('tablero_v1', JSON.stringify(datos), TABLERO.CACHE_SEG);
+    datos.enCache = true;
   } catch (e) {
-    // Supera el tamaño máximo de la caché: se sirve igual, sin guardar.
+    // Supera el máximo de la caché (100 KB): se sirve igual, sin guardar. Con
+    // el libro completo esto es lo normal, no una avería.
+    datos.enCache = false;
   }
   return datos;
 }
@@ -836,7 +847,11 @@ function probarTablero() {
   lineas.push('   (' + d.anexo4.aprobados + ' aprobados de ' + d.anexo4.indicadores +
               ' indicadores da ' + d.anexo4.pctContado + '%, que es el respaldo)');
   lineas.push('Registros de detalle: ' + d.registros.length +
-              (d.recorte ? '  (+' + d.recorte + ' recortados por MAX_REGISTROS)' : ''));
+              (d.recorte ? '  ¡+' + d.recorte + ' RECORTADOS! Suba TABLERO.MAX_REGISTROS'
+                         : '  (ninguno recortado: viaja el libro entero)'));
+  lineas.push('Caché: ' + (d.enCache === false
+    ? 'no cabe (>100 KB), cada consulta relee el libro — es lo esperado con el detalle completo'
+    : 'guardada ' + TABLERO.CACHE_SEG + ' s'));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
   // Volcado literal de la hoja: cuando una fila «no aparece», lo que hace
   // falta es ver qué pone exactamente y cómo se ha clasificado, no adivinarlo.

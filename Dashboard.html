@@ -272,6 +272,31 @@
         }
         .metricas-facultad b { color: rgba(255, 255, 255, .78); font-weight: 700; }
 
+        /* ===== RANKING DE FACULTADES DENTRO DE CADA TARJETA ===== */
+        .ranking-box { margin-top: 14px; }
+        .ranking-titulo {
+            font-size: 11px; font-weight: 800; letter-spacing: .01em;
+            color: #1e293b; text-transform: none; margin-bottom: 2px;
+        }
+        .ranking-criterio { font-size: 10px; color: #94a3b8; margin-bottom: 8px; }
+        .ranking-lista { display: flex; flex-direction: column; gap: 1px; max-height: 178px; overflow-y: auto; }
+        .ranking-fila {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; padding: 3px 4px; border-radius: 5px; cursor: pointer;
+        }
+        .ranking-fila:hover { background: rgba(15, 26, 46, .05); }
+        .ranking-fila.sel { background: rgba(59, 130, 246, .12); font-weight: 700; }
+        .ranking-pos {
+            width: 17px; flex: 0 0 17px; text-align: right;
+            font-variant-numeric: tabular-nums; color: #94a3b8; font-weight: 700;
+        }
+        .ranking-fila:nth-child(1) .ranking-pos { color: #047857; }
+        .ranking-nombre { flex: 1; min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+        .ranking-valor {
+            flex: 0 0 auto; font-variant-numeric: tabular-nums; font-weight: 700; color: #334155;
+        }
+        .ranking-unidad { font-weight: 500; color: #94a3b8; font-size: 10px; margin-left: 3px; }
+
         .clasif-vacio { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 5px; }
         @media (max-width: 1280px) and (min-width: 1024px) {
             .clasif-panel { width: 180px; flex: 0 0 180px; padding-left: 12px; }
@@ -378,7 +403,8 @@
                                 <i class="fa-solid fa-minus"></i> —
                             </span>
                         </div>
-                        <div class="mini-bar-container mt-4" id="mini-bar-1"></div>
+                        <div class="tendencia mt-3" id="tend-caja-1"><canvas id="tend-fase1"></canvas></div>
+                        <div class="tendencia-vacia mt-3" id="tend-vacio-1" hidden></div>
                     </div>
                     <div class="glass-card p-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -459,8 +485,7 @@
                                     <div class="metric status-filter inactive-status" data-status="OBSERVADO" data-block="producto" onclick="filterByStatus('producto','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="prod-obs">26</div><div class="m-den">/ de 231</div><div class="m-change">11.3% del total</div></div>
                                     <div class="metric status-filter inactive-status" data-status="SIN REGISTRAR" data-block="producto" onclick="filterByStatus('producto','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="prod-sin">30</div><div class="m-den">/ de 231</div><div class="m-change">13.0% del total</div></div>
                                 </div>
-                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
-                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:76%"></div></div><strong>175</strong></div>
+                                <div class="ranking-box" id="ranking-producto"></div><strong>175</strong></div>
                                     <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:11%"></div></div><strong>26</strong></div>
                                     <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:13%"></div></div><strong>30</strong></div>
                                 </div></div>
@@ -475,8 +500,7 @@
                                     <div class="metric status-filter" data-status="OBSERVADO" data-block="procesos" onclick="filterByStatus('procesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="proc-obs">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
                                     <div class="metric status-filter" data-status="SIN REGISTRAR" data-block="procesos" onclick="filterByStatus('procesos','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="proc-sin">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
                                 </div>
-                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
-                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:75%"></div></div><strong>12</strong></div>
+                                <div class="ranking-box" id="ranking-procesos"></div><strong>12</strong></div>
                                     <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:12%"></div></div><strong>2</strong></div>
                                     <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:12%"></div></div><strong>2</strong></div>
                                 </div></div>
@@ -491,8 +515,7 @@
                                     <div class="metric status-filter" data-status="OBSERVADO" data-block="subprocesos" onclick="filterByStatus('subprocesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="sub-obs">3</div><div class="m-den">/ de 14</div><div class="m-change">21.4% del total</div></div>
                                     <div class="metric status-filter" data-status="SIN REGISTRAR" data-block="subprocesos" onclick="filterByStatus('subprocesos','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="sub-sin">1</div><div class="m-den">/ de 14</div><div class="m-change">7.1% del total</div></div>
                                 </div>
-                                <div class="chart-box"><div class="chart-title">Grafico de cuantificacion</div><div class="bars">
-                                    <div class="bar-row"><span>Conformes</span><div class="track"><div class="fill dark" style="width:71%"></div></div><strong>10</strong></div>
+                                <div class="ranking-box" id="ranking-subprocesos"></div><strong>10</strong></div>
                                     <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:21%"></div></div><strong>3</strong></div>
                                     <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:7%"></div></div><strong>1</strong></div>
                                 </div></div>
@@ -865,7 +888,10 @@ function vincularVariaciones() {
         //
         // «Fase 1» no se registra en el historial: es un agregado de las
         // hojas, y sigue midiendose contra la corrida anterior completa.
-        const h = H[clave];
+        // La tarjeta se llama «general» en el HTML pero el historial la guarda
+        // como «fase1». Buscarla por «general» no la encontraba nunca, y la
+        // tarjeta decia «sin revision anterior» teniendo dos registros.
+        const h = H[clave === 'general' ? 'fase1' : clave];
         let delta = null, fechaAnterior = null;
 
         if (h && h.variacion !== null && h.variacion !== undefined) {
@@ -1052,6 +1078,8 @@ function renderMiniBars() {
     //
     // Con una sola revision se dibuja una sola barra; no se rellena con
     // valores supuestos para que parezca una tendencia.
+    // Las cuatro tarjetas llevan ya su linea de tendencia, que dice lo mismo
+    // y mejor. Esto queda por si alguna vuelve a tener minibarras.
     const claves = ['general', 'anexo1', 'anexo3', 'anexo4'];
 
     claves.forEach((clave, idx) => {
@@ -1146,7 +1174,7 @@ function initCharts() {
     chart1 = new Chart(ctx1, {
         type: 'bar',
         data: { labels, datasets: [{ data: data1, borderRadius: 6, maxBarThickness: 26,
-                                     backgroundColor: coloresBarras('pctAnexo1', '#3b82f6') }] },
+                                     backgroundColor: coloresBarras('pctAnexo1') }] },
         options: opciones('pctAnexo1'),
         plugins: [PLUGIN_LINEA]
     });
@@ -1154,7 +1182,7 @@ function initCharts() {
     chart3 = new Chart(ctx3, {
         type: 'bar',
         data: { labels, datasets: [{ data: data3, borderRadius: 6, maxBarThickness: 26,
-                                     backgroundColor: coloresBarras('pctAnexo3', '#14b8a6') }] },
+                                     backgroundColor: coloresBarras('pctAnexo3') }] },
         options: opciones('pctAnexo3'),
         plugins: [PLUGIN_LINEA]
     });
@@ -1177,10 +1205,17 @@ let facultadSel = null;
 const COLOR_A1 = '#3b82f6';
 const COLOR_A3 = '#14b8a6';
 
-/** Color de cada barra: pleno el de la elegida, translucido el resto. */
-function coloresBarras(clave, color) {
-    return DATOS_FUENTE.facultades.map(f =>
-        (!facultadSel || f.codigo === facultadSel) ? color : color + '33');
+/**
+ * Color de cada barra. Ya no es uno solo por grafico: cada facultad toma el de
+ * su tramo de avance, y al elegir una las demas se vuelven translucidas
+ * conservando su propio color, no un gris comun. Asi el resaltado no borra la
+ * lectura de quien va bien y quien va mal.
+ */
+function coloresBarras(clave) {
+    return DATOS_FUENTE.facultades.map(f => {
+        const color = colorDeAvance(f[clave]);
+        return (!facultadSel || f.codigo === facultadSel) ? color : color + '38';
+    });
 }
 
 /**
@@ -1199,7 +1234,9 @@ const PLUGIN_LINEA = {
 
         const { ctx, chartArea, scales } = grafico;
         const y = scales.y.getPixelForValue(valor);
-        const color = opciones.clave === 'pctAnexo1' ? COLOR_A1 : COLOR_A3;
+        // El color del tramo de la facultad elegida, para que la linea y su
+        // barra se lean como una sola cosa.
+        const color = colorDeAvance(valor);
 
         ctx.save();
         ctx.beginPath();
@@ -1247,14 +1284,13 @@ function aplicarSeleccion() {
     // tarjetas: las tablas de detalle se repintan con la facultad elegida.
     // Van protegidas porque el arranque llama aqui antes de que existan sus
     // desplegables, y una excepcion dejaria el resto sin pintar.
-    [renderAnexo1Table, renderAnexo3Table, renderDatabase].forEach(paso => {
+    [renderAnexo1Table, renderAnexo3Table, renderDatabase, pintarRankings].forEach(paso => {
         try { paso(); } catch (e) { /* aun no hay tabla que repintar */ }
     });
 
-    [[chart1, 'pctAnexo1', COLOR_A1], [chart3, 'pctAnexo3', COLOR_A3]]
-      .forEach(([grafico, clave, color]) => {
+    [[chart1, 'pctAnexo1'], [chart3, 'pctAnexo3']].forEach(([grafico, clave]) => {
         if (!grafico) return;
-        grafico.data.datasets[0].backgroundColor = coloresBarras(clave, color);
+        grafico.data.datasets[0].backgroundColor = coloresBarras(clave);
         grafico.update();
     });
     avisarAltura();
@@ -1269,11 +1305,23 @@ function aplicarSeleccion() {
 // ninguno: es lo pedido, y por eso el cuadro no dice «resto».
 // ============================================================
 const TRAMOS = [
-    { titulo: 'Facultades que están en el 100%',          color: '#10b981', prueba: v => v >= 100 },
-    { titulo: 'Facultades con avance mayor al 80%',       color: '#22c55e', prueba: v => v > 80 && v < 100 },
+    { titulo: 'Facultades que están en el 100%',          color: '#047857', prueba: v => v >= 100 },
+    { titulo: 'Facultades con avance mayor al 80%',       color: '#34d399', prueba: v => v > 80 && v < 100 },
     { titulo: 'Facultades con avance entre el 50% y 80%', color: '#f59e0b', prueba: v => v >= 50 && v <= 80 },
-    { titulo: 'Facultades con avance menor al 50%',       color: '#f43f5e', prueba: v => v < 50 }
+    { titulo: 'Facultades con avance menor al 50%',       color: '#e11d48', prueba: v => v < 50 }
 ];
+
+/**
+ * El color de un avance. Es la MISMA lista que rotula los tramos del panel de
+ * la derecha, a proposito: barra y cuadrante leen de aqui, asi que no pueden
+ * decir cosas distintas. Cambiar un umbral o un color en TRAMOS los mueve a
+ * los dos a la vez.
+ */
+function colorDeAvance(v) {
+    if (typeof v !== 'number') return '#94a3b8';        // sin dato: gris
+    const tramo = TRAMOS.filter(t => t.prueba(v))[0];
+    return tramo ? tramo.color : '#94a3b8';
+}
 
 function pintarClasificaciones() {
     pintarClasificacion('clasif-a1', 'pctAnexo1');
@@ -1311,6 +1359,31 @@ function pintarClasificacion(id, clave) {
 // ============================================================
 let a1StatusFilter = 'CONFORME';
 let a1EntityFilter = 'producto';
+
+// Cuantas filas se pintan de golpe en las tablas de detalle. Antes eran 50
+// fijas y sin avisar: la tabla decia «Total filtrado: 2.400 registros» y
+// mostraba cincuenta, sin nada que explicara la diferencia. Ahora se pinta un
+// bloque, se dice cuantas de cuantas, y se puede pedir mas.
+const BLOQUE_TABLA = 200;
+let limiteA1 = BLOQUE_TABLA;
+let limiteA3 = BLOQUE_TABLA;
+
+function verMasA1() { limiteA1 += BLOQUE_TABLA; renderAnexo1Table(); }
+function verMasA3() { limiteA3 += BLOQUE_TABLA; renderAnexo3Table(); }
+
+/**
+ * Pie de una tabla de detalle: cuantas se ven, cuantas hay, y el boton de
+ * seguir. Se comparte entre los dos anexos para que digan lo mismo.
+ */
+function pieDeTabla(texto, mostradas, total, funcionVerMas) {
+    if (mostradas >= total) return texto + ' Total: ' + total + ' registros.';
+    return texto + ' Se muestran <strong>' + mostradas + '</strong> de <strong>' +
+           total + '</strong> registros. ' +
+           '<button onclick="' + funcionVerMas + '()" ' +
+           'style="margin-left:8px;padding:2px 10px;border-radius:6px;border:1px solid #cbd5e1;' +
+           'background:#fff;font-weight:700;cursor:pointer">Ver ' +
+           Math.min(BLOQUE_TABLA, total - mostradas) + ' mas</button>';
+}
 
 function populateAnexo1Filters() {
     // Sobre todo el Anexo 1, no solo sobre los productos: la tabla puede estar
@@ -1359,6 +1432,7 @@ const ORIGEN_TABLA = {
 function filterByStatus(block, status) {
     a1EntityFilter = block;
     a1StatusFilter = status;
+    limiteA1 = BLOQUE_TABLA;   // otro filtro, otra lista: se empieza arriba
 
     // Solo la tarjeta pulsada queda marcada. Antes se marcaba dentro de cada
     // bloque por separado, asi que quedaban tres subcategorias resaltadas a la
@@ -1370,6 +1444,80 @@ function filterByStatus(block, status) {
     });
 
     renderAnexo1Table();
+    pintarRankings();
+}
+
+
+// ============================================================
+// RANKING DE FACULTADES POR TARJETA
+// ------------------------------------------------------------
+// Sustituye al «grafico de cuantificacion», que repetia en
+// barras las tres cifras que ya estaban justo encima. La lista
+// responde al recuadro pulsado y ordena premiando el mejor
+// desempeño en el puesto 1:
+//
+//   Conformes     -> descendente: mas es mejor.
+//   Observados    -> ascendente: 0 es el ideal.
+//   Sin Registrar -> ascendente: 0 es el ideal.
+//
+// El desempate va por nombre, para que dos facultades con el
+// mismo valor no bailen de puesto entre repintados.
+// ============================================================
+
+const RANKING = {
+    producto:    { campo: 'productos',   rotulo: 'Productos',   unidad: 'productos' },
+    procesos:    { campo: 'procesosN0',  rotulo: 'Procesos',    unidad: 'procesos' },
+    subprocesos: { campo: 'subprocesos', rotulo: 'SubProcesos', unidad: 'subprocesos' }
+};
+
+const RANKING_METRICA = {
+    'CONFORME':      { clave: 'conformes',    rotulo: 'Conformes',     orden: 'desc' },
+    'OBSERVADO':     { clave: 'observados',   rotulo: 'Observados',    orden: 'asc' },
+    'SIN REGISTRAR': { clave: 'sinRegistrar', rotulo: 'Sin Registrar', orden: 'asc' }
+};
+
+function pintarRankings() {
+    Object.keys(RANKING).forEach(pintarRankingDe);
+}
+
+function pintarRankingDe(bloque) {
+    const caja = document.getElementById('ranking-' + bloque);
+    if (!caja) return;
+
+    const cfg = RANKING[bloque];
+    // Cada tarjeta muestra el ranking de SU estado marcado. Si aun no se ha
+    // pulsado nada en ella, el de Conformes, que es el estado de partida.
+    const marcada = document.querySelector(
+        '.status-filter[data-block="' + bloque + '"].active-status');
+    const estado = (marcada && marcada.dataset.status) ||
+                   (a1EntityFilter === bloque ? a1StatusFilter : 'CONFORME');
+    const met = RANKING_METRICA[estado] || RANKING_METRICA.CONFORME;
+
+    const lista = DATOS_FUENTE.facultades
+        .map(f => ({ codigo: f.codigo, nombre: f.nombre,
+                     valor: ((f[cfg.campo] || {})[met.clave]) || 0 }))
+        .sort((a, b) => (met.orden === 'desc' ? b.valor - a.valor : a.valor - b.valor)
+                        || a.nombre.localeCompare(b.nombre));
+
+    const criterio = met.orden === 'desc'
+        ? 'De mayor a menor: el puesto 1 es quien mas tiene.'
+        : 'De menor a mayor: el puesto 1 es quien menos tiene, y 0 es lo ideal.';
+
+    caja.innerHTML =
+        '<div class="ranking-titulo">Ranking de Facultades · ' +
+            cfg.rotulo + ' ' + met.rotulo + '</div>' +
+        '<div class="ranking-criterio">' + criterio + '</div>' +
+        '<div class="ranking-lista">' +
+        lista.map((f, i) =>
+            '<div class="ranking-fila' + (f.codigo === facultadSel ? ' sel' : '') + '"' +
+            ' onclick="seleccionarFacultad(\'' + f.codigo + '\')"' +
+            ' title="' + f.nombre + '">' +
+                '<span class="ranking-pos">' + (i + 1) + '.</span>' +
+                '<span class="ranking-nombre">' + f.nombre + '</span>' +
+                '<span class="ranking-valor">' + f.valor +
+                    '<span class="ranking-unidad">' + cfg.unidad + '</span></span>' +
+            '</div>').join('') +
+        '</div>';
 }
 
 function renderAnexo1Table() {
@@ -1404,18 +1552,19 @@ function renderAnexo1Table() {
     document.getElementById('visibleCountA1').textContent = filtered.length;
     document.getElementById('tableTitleA1').textContent =
         'Detalle de ' + origen.rotulo + ' · ' + a1StatusFilter + deFacultad;
-    document.getElementById('dataFooterA1').innerHTML =
+    const mostradasA1 = Math.min(limiteA1, filtered.length);
+    document.getElementById('dataFooterA1').innerHTML = pieDeTabla(
         'Origen: <strong>' + origen.hoja + '</strong>. Se muestran unicamente los ' +
         origen.rotulo + ' con estado <strong>' + a1StatusFilter + '</strong>' +
-        (fac ? ' de <strong>' + fac + '</strong>' : '') +
-        '. Total filtrado: ' + filtered.length + ' registros.';
+        (fac ? ' de <strong>' + fac + '</strong>' : '') + '.',
+        mostradasA1, filtered.length, 'verMasA1');
 
     const tbody = document.getElementById('productRowsA1');
     if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i><br>No hay registros para los filtros seleccionados</div></td></tr>`;
         return;
     }
-    tbody.innerHTML = filtered.slice(0, 50).map(d => `
+    tbody.innerHTML = filtered.slice(0, limiteA1).map(d => `
         <tr><td>${d.faculty}</td><td>${d.row || d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
         <td>${d.name}</td><td>${d.type}</td>
         <td><span class="db-badge ${d.status==='CONFORME'?'ok':(d.status==='OBSERVADO'?'warn':'danger')}">${d.status}</span></td>
@@ -1443,6 +1592,7 @@ function populateAnexo3Filters() {
 
 function filterByStatusA3(status) {
     a3StatusFilter = status;
+    limiteA3 = BLOQUE_TABLA;
     document.querySelectorAll('.big-metric[data-block="fichas"]').forEach(m => {
         m.classList.toggle('active-status', m.dataset.status === status);
         m.classList.toggle('inactive-status', m.dataset.status !== status);
@@ -1466,14 +1616,17 @@ function renderAnexo3Table() {
     document.getElementById('statusViewA3').textContent = `Fichas ${a3StatusFilter}`;
     document.getElementById('visibleCountA3').textContent = filtered.length;
     document.getElementById('tableTitleA3').textContent = `Detalle de Fichas · ${a3StatusFilter}`;
-    document.getElementById('dataFooterA3').innerHTML = `Se muestran unicamente las Fichas con estado <strong>${a3StatusFilter}</strong>. Total filtrado: ${filtered.length} registros.`;
+    document.getElementById('dataFooterA3').innerHTML = pieDeTabla(
+        'Origen: <strong>RESUMEN_FICHAS_A3</strong>. Se muestran unicamente las Fichas ' +
+        'con estado <strong>' + a3StatusFilter + '</strong>.',
+        Math.min(limiteA3, filtered.length), filtered.length, 'verMasA3');
 
     const tbody = document.getElementById('productRowsA3');
     if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-inbox"></i><br>No hay registros para los filtros seleccionados</div></td></tr>`;
         return;
     }
-    tbody.innerHTML = filtered.slice(0, 50).map(d => `
+    tbody.innerHTML = filtered.slice(0, limiteA3).map(d => `
         <tr><td>${d.faculty}</td><td>${d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
         <td>${d.name}</td><td>${d.type}</td>
         <td><span class="db-badge ${d.status==='COMPLETA'?'ok':(d.status==='INCOMPLETA'?'warn':'danger')}">${d.status}</span></td>
@@ -1669,7 +1822,7 @@ if (window.parent !== window) {
 
 const TENDENCIAS = {};   // clave de anexo -> instancia de Chart
 
-const COLOR_TEND = { anexo1: COLOR_A1, anexo3: COLOR_A3, anexo4: '#8b5cf6' };
+const COLOR_TEND = { fase1: '#0f1a2e', anexo1: COLOR_A1, anexo3: COLOR_A3, anexo4: '#8b5cf6' };
 
 /** Fecha corta para el eje: «20/08». El detalle va en el tooltip. */
 function fechaCorta(iso) {
@@ -1716,7 +1869,7 @@ const PLUGIN_VARIACION = {
 };
 
 function pintarTendencias() {
-    [['anexo1', 2], ['anexo3', 3], ['anexo4', 4]].forEach(([clave, nCaja]) => {
+    [['fase1', 1], ['anexo1', 2], ['anexo3', 3], ['anexo4', 4]].forEach(([clave, nCaja]) => {
         const lienzo = document.getElementById('tend-' + clave);
         const caja   = document.getElementById('tend-caja-' + nCaja);
         const vacio  = document.getElementById('tend-vacio-' + nCaja);
@@ -1829,6 +1982,7 @@ function pintarTodo() {
      ['lineas de tendencia',   pintarTendencias],
      ['graficos',              initCharts],
      ['paneles de clasificacion', pintarClasificaciones],
+     ['rankings de facultades', pintarRankings],
      ['filtros Anexo 1',       populateAnexo1Filters],
      ['filtros Anexo 3',       populateAnexo3Filters],
      ['filtros base de datos', populateDbFilters],

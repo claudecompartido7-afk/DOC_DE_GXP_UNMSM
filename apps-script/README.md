@@ -411,3 +411,21 @@ sigue siendo el de más abajo.
 `probarTablero()` vuelca la hoja **fila a fila** con lo que dice cada columna y
 cómo se ha clasificado. Cuando una fila «no aparece», eso es lo que hace falta
 ver, no adivinarlo.
+
+### El detalle completo, sin recortes silenciosos
+
+`TABLERO.MAX_REGISTROS` estaba en 3000 y las hojas suman más —
+`DETALLADO_PRODUCTOS_A1` ronda las 2900 filas y `OBSERVACIONES_DE_PROCESO_A1`
+casi 1000—, así que se perdían cientos de registros sin avisar. Ahora está en
+25 000: cabe el libro entero con holgura, y es un tope de seguridad, no un
+recorte de trabajo.
+
+A cambio, la respuesta pasa de largo el máximo de la caché de Apps Script
+(100 KB por entrada) y deja de guardarse: cada consulta relee el libro. Es el
+precio de no perder filas. `probarTablero()` lo dice, y también avisa en
+mayúsculas si algo llegara a recortarse.
+
+En el navegador había un segundo tope, peor porque era invisible: la tabla de
+detalle pintaba **50 filas** mientras su pie decía «Total filtrado: 2.400
+registros». Ahora pinta bloques de 200, dice cuántas de cuántas, y ofrece un
+botón para seguir.
