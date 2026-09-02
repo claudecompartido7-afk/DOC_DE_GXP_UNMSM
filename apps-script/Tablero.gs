@@ -391,6 +391,9 @@ function codigoFacultad_(valor) {
  */
 let CATALOGO_VIGENTE = TABLERO.FACULTADES;
 
+/** De dónde salió el catálogo en la última lectura. Lo informa probarTablero. */
+let CATALOGO_ORIGEN = 'el catálogo escrito en Tablero.gs';
+
 /**
  * Catálogo de facultades desde la hoja `CODIFICACION_ DE_LAS_FACULTADES`, que
  * es donde la OGPL lo mantiene. Se prefiere al del código porque una
@@ -405,8 +408,14 @@ let CATALOGO_VIGENTE = TABLERO.FACULTADES;
  * código: es preferible una numeración de hace un mes a un tablero vacío.
  */
 function leerCatalogo_(libro) {
+  CATALOGO_ORIGEN = 'el catálogo escrito en Tablero.gs';
+  CATALOGO_VIGENTE = TABLERO.FACULTADES;
+
   const hoja = buscarHoja_(libro, TABLERO.HOJAS.CATALOGO);
-  if (!hoja || hoja.getLastRow() < 2) return TABLERO.FACULTADES;
+  if (!hoja || hoja.getLastRow() < 2) {
+    CATALOGO_ORIGEN += ' (la hoja de codificación no aparece)';
+    return TABLERO.FACULTADES;
+  }
 
   const datos = hoja.getDataRange().getValues();
   const cab = datos[0].map(esqueleto_);
@@ -422,25 +431,39 @@ function leerCatalogo_(libro) {
   const iSigla  = col(['SIGLA']);
   const iNombre = col(['FACULTAD', 'NOMBRE', 'DENOMINACION']);
   const iCodigo = col(['CODIGO', 'FORMULARIO']);
-  if (iSigla === -1 || iCodigo === -1) return TABLERO.FACULTADES;
+  if (iSigla === -1 || iCodigo === -1) {
+    CATALOGO_ORIGEN += ' (la hoja no trae columnas de SIGLA y CÓDIGO)';
+    return TABLERO.FACULTADES;
+  }
 
   const filas = [];
+  const vistas = {};
   for (let f = 1; f < datos.length; f++) {
     const sigla = String(datos[f][iSigla] || '').trim().toUpperCase();
     // El código puede venir como "F01" o como "F01_FM": interesa el número.
     const bruto = String(datos[f][iCodigo] || '').trim().toUpperCase();
     const m = bruto.match(/F\s*0*(\d{1,2})/);
-    if (!sigla || !m) continue;
+    if (!sigla || !m || esTotal_(sigla) || vistas[sigla]) continue;
+    vistas[sigla] = true;
     filas.push([sigla,
                 'F' + ('0' + m[1]).slice(-2),
                 iNombre === -1 ? sigla : String(datos[f][iNombre] || sigla).trim()]);
   }
 
-  if (filas.length !== TABLERO.FACULTADES.length) return TABLERO.FACULTADES;
+  // La hoja se edita a mano y trae más filas de las que son facultades: una de
+  // TOTAL, un pie, alguna repetida. Exigir un número exacto la descartaba
+  // entera y en silencio, que es peor que quedarse con alguna de más. Basta
+  // con que salgan las 20 y ninguna sigla se repita.
+  if (filas.length < TABLERO.FACULTADES.length) {
+    CATALOGO_ORIGEN += ' (la hoja solo dio ' + filas.length + ' facultades de ' +
+                       TABLERO.FACULTADES.length + ')';
+    return TABLERO.FACULTADES;
+  }
 
   // El orden del tablero es el del número de formulario, no el de la hoja.
   filas.sort(function (a, b) { return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0); });
   CATALOGO_VIGENTE = filas;
+  CATALOGO_ORIGEN = 'la hoja ' + hoja.getName() + ' (' + filas.length + ' facultades)';
   return filas;
 }
 
@@ -452,10 +475,14 @@ function leerCatalogo_(libro) {
  * posición: si mañana se le añade una columna, esto sigue contando bien.
  */
 function leerAnexo4_(filas) {
-  let aprobados = 0;
-  const total = filas.length;
+  let aprobados = 0, total = 0;
 
   filas.forEach(function (f) {
+    // La hoja cierra con una fila de totales, y contarla como un indicador más
+    // desplaza el porcentaje sin que nada lo delate. Tampoco cuentan las filas
+    // en blanco que quedan al final de una hoja editada a mano.
+    if (esTotal_(primeraCelda_(f)) || f.join('').trim() === '') return;
+    total++;
     const linea = f.join(' ').toLowerCase();
     if (/aprobado|conforme|cumple|validado/.test(linea)) aprobados++;
   });
@@ -465,6 +492,25 @@ function leerAnexo4_(filas) {
     indicadores: total,
     pct: total ? redondear_((aprobados / total) * 100) : 0
   };
+}
+
+/**
+ * Primera celda con algo escrito. El rótulo de una fila de cierre no siempre
+ * cae en la columna A: la hoja del Anexo 4 la deja en blanco y escribe
+ * «TOTAL DE INDICADORES» en la siguiente.
+ */
+function primeraCelda_(fila) {
+  for (let i = 0; i < fila.length; i++) {
+    const v = String(fila[i] === null || fila[i] === undefined ? '' : fila[i]).trim();
+    if (v) return v;
+  }
+  return '';
+}
+
+/** Reconoce las filas de cierre que las hojas llevan al pie. */
+function esTotal_(valor) {
+  return /^(TOTAL|TOTALES|PROMEDIO|GENERAL|RESUMEN|SUMA|LEYENDA)\b/i
+           .test(String(valor || '').trim());
 }
 
 /**
@@ -544,22 +590,40 @@ function probarTablero() {
   const lineas = ['════════ TABLERO EN VIVO ════════',
                   'Libro: ' + libro.getName(), ''];
 
-  lineas.push('Hojas que espera:');
+  const usadas = {};
+  lineas.push('Hojas que el tablero NECESITA:');
   Object.keys(TABLERO.HOJAS).forEach(function (k) {
     const nombre = TABLERO.HOJAS[k];
-    const hoja = libro.getSheetByName(nombre);
+    const hoja = buscarHoja_(libro, nombre);
+    if (hoja) usadas[hoja.getName()] = true;
     lineas.push('  ' + (hoja ? '✓' : '✗') + '  ' + nombre +
                 (hoja ? '  (' + Math.max(0, hoja.getLastRow() - 1) + ' filas)'
                       : '  — NO EXISTE: ejecute la auditoría que la genera'));
   });
 
+  // Sin esto, ver nueve hojas listadas y once en el libro parece que falta
+  // algo. No falta: el tablero no necesita las otras dos.
+  const sobrantes = libro.getSheets()
+    .map(function (h) { return h.getName(); })
+    .filter(function (n) { return !usadas[n]; });
+  lineas.push('');
+  lineas.push('Otras hojas del libro, que el tablero NO usa: ' +
+              (sobrantes.length ? '' : '(ninguna)'));
+  sobrantes.forEach(function (n) { lineas.push('  ·  ' + n); });
+  lineas.push('  Es normal que existan. Ninguna cifra del tablero sale de ellas.');
+
   const d = tablero({ sinCache: true });
   lineas.push('');
   lineas.push('KPI · general ' + d.kpi.general + '%  ·  Anexo 1 ' + d.kpi.anexo1 +
               '%  ·  Anexo 3 ' + d.kpi.anexo3 + '%  ·  Anexo 4 ' + d.kpi.anexo4 + '%');
+  lineas.push('');
+  lineas.push('Catálogo tomado de: ' + CATALOGO_ORIGEN);
   lineas.push('Facultades: ' + d.facultades.length +
               '  ·  con avance: ' + d.facultades.filter(function (f) {
                 return f.pctGeneral > 0; }).length);
+  lineas.push('Anexo 4: ' + d.anexo4.aprobados + ' aprobados de ' +
+              d.anexo4.indicadores + ' indicadores' +
+              '  (las filas de TOTAL y las vacías no cuentan)');
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  (+' + d.recorte + ' recortados por MAX_REGISTROS)' : ''));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
