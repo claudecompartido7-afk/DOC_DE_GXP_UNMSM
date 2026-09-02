@@ -209,6 +209,21 @@
         .empty-state { padding: 40px; text-align: center; color: var(--muted); }
         .empty-state i { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
 
+        /* ===== ALERTA EN LA COLUMNA DE OBSERVACIONES =====
+           Se pinta la 10.ª columna —encabezado y celdas— cuando la tabla
+           muestra Observados o Sin Registrar. Va por clase en la tabla y no
+           celda a celda: una sola marca decide, y al cambiar de estado se
+           quita sola sin tener que repasar cada fila. */
+        table.col-obs-alerta th:nth-child(10),
+        table.col-obs-alerta td:nth-child(10) {
+            background: #fef9c3;
+            box-shadow: inset 2px 0 0 #facc15;
+        }
+        table.col-obs-alerta th:nth-child(10) {
+            background: #fde68a;
+            color: #713f12;
+        }
+
         /* ===== TARJETAS DE GRAFICO ===== */
         /* El alto va en una variable y no en un atributo style, para poder
            cambiarlo por tamaño de pantalla: en un movil 380 px dejan el
@@ -245,6 +260,18 @@
         }
         .clasif-item:hover { color: #0f1a2e; }
         .clasif-item.sel { color: #0f1a2e; font-weight: 700; }
+        /* ===== LISTADO DE FACULTADES DEL PANEL DE FILTROS ===== */
+        .nombre-facultad {
+            font-size: 10.5px; font-weight: 600; line-height: 1.25;
+            /* Sin truncado: el nombre entero, aunque ocupe tres lineas. */
+            white-space: normal; overflow-wrap: anywhere;
+        }
+        .metricas-facultad {
+            display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 3px;
+            font-size: 9.5px; color: rgba(255, 255, 255, .45); line-height: 1.3;
+        }
+        .metricas-facultad b { color: rgba(255, 255, 255, .78); font-weight: 700; }
+
         .clasif-vacio { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 5px; }
         @media (max-width: 1280px) and (min-width: 1024px) {
             .clasif-panel { width: 180px; flex: 0 0 180px; padding-left: 12px; }
@@ -476,7 +503,7 @@
                     <section class="data-panel" id="dataPanelAnexo1">
                         <div class="data-toolbar">
                             <div class="title" id="tableTitleA1">Detalle de Productos · Conformes</div>
-                            <div class="select-wrap"><select id="filterFacultyA1" onchange="renderAnexo1Table()"><option value="">Todas las facultades</option></select></div>
+                            <div class="select-wrap"><select id="filterFacultyA1" onchange="elegirDesdeSelector(this.value)"><option value="">Todas las facultades</option></select></div>
                             <div class="select-wrap"><select id="filterProcessA1" onchange="renderAnexo1Table()"><option value="">Todos los procesos nivel 0</option></select></div>
                             <div class="select-wrap"><select id="filterTypeA1" onchange="renderAnexo1Table()"><option value="">Todos los tipos</option></select></div>
                         </div>
@@ -530,7 +557,7 @@
                     <section class="data-panel" id="dataPanelAnexo3" style="margin-top:16px;">
                         <div class="data-toolbar">
                             <div class="title" id="tableTitleA3">Detalle de Fichas · Completas</div>
-                            <div class="select-wrap"><select id="filterFacultyA3" onchange="renderAnexo3Table()"><option value="">Todas las facultades</option></select></div>
+                            <div class="select-wrap"><select id="filterFacultyA3" onchange="elegirDesdeSelector(this.value)"><option value="">Todas las facultades</option></select></div>
                             <div class="select-wrap"><select id="filterProcessA3" onchange="renderAnexo3Table()"><option value="">Todos los procesos</option></select></div>
                             <div class="select-wrap"><select id="filterTypeA3" onchange="renderAnexo3Table()"><option value="">Todos los tipos</option></select></div>
                         </div>
@@ -674,7 +701,12 @@ function derivarDeLaFuente() {
 faculties = DATOS_FUENTE.facultades.map(f => ({
     code: f.codigo, name: f.nombre, processes: f.procesos,
     sigla: f.sigla, pctAnexo1: f.pctAnexo1, pctAnexo3: f.pctAnexo3,
-    pctGeneral: f.pctGeneral, estado: f.estado, clasificacion: f.clasificacion
+    pctGeneral: f.pctGeneral, estado: f.estado, clasificacion: f.clasificacion,
+    // Los dos recuentos que el panel muestra por separado. Los datos
+    // incrustados de respaldo no los traen: entonces salen en cero, que es
+    // honesto, en lugar de repetir el total de procesos en las dos lineas.
+    nivel0: (f.procesosN0 || {}).total || 0,
+    subprocesos: (f.subprocesos || {}).total || 0
 }));
 
 // Los registros de detalle llegan ya clasificados por entidad y anexo.
@@ -744,15 +776,38 @@ function vincularIndicadores() {
     fijar('fac-count', DATOS_FUENTE.facultades.length);
     fijar('proc-count', DATOS_FUENTE.facultades.reduce((a, f) => a + f.procesos, 0));
 
-    fijar('prod-conf', T.prodConf); fijar('prod-obs', T.prodObs); fijar('prod-sin', T.prodSin);
-    fijar('proc-conf', T.procConf); fijar('proc-obs', T.procObs); fijar('proc-sin', T.procSin);
-    fijar('sub-conf',  T.subConf);  fijar('sub-obs',  T.subObs);  fijar('sub-sin',  T.subSin);
-    fijar('fich-comp', T.fichComp); fijar('fich-incomp', T.fichIncomp); fijar('fich-sin', T.fichSin);
+    // Con una facultad elegida, los recuentos de las cuatro tarjetas son los
+    // suyos; sin seleccion, los del conjunto. Es la misma cifra vista con o
+    // sin filtro, no dos calculos distintos.
+    const cuenta = sel
+        ? { prodConf: sel.productos.conformes, prodObs: sel.productos.observados,
+            prodSin: sel.productos.sinRegistrar,
+            procConf: (sel.procesosN0 || {}).conformes || 0,
+            procObs:  (sel.procesosN0 || {}).observados || 0,
+            procSin:  (sel.procesosN0 || {}).sinRegistrar || 0,
+            subConf:  (sel.subprocesos || {}).conformes || 0,
+            subObs:   (sel.subprocesos || {}).observados || 0,
+            subSin:   (sel.subprocesos || {}).sinRegistrar || 0,
+            fichComp: sel.fichas.completas, fichIncomp: sel.fichas.incompletas,
+            fichSin: sel.fichas.sinProducto }
+        : T;
 
-    pintarBarras('producto',    [T.prodConf, T.prodObs, T.prodSin]);
-    pintarBarras('procesos',    [T.procConf, T.procObs, T.procSin]);
-    pintarBarras('subprocesos', [T.subConf,  T.subObs,  T.subSin]);
-    pintarBarras('fichas',      [T.fichComp, T.fichIncomp, T.fichSin]);
+    fijar('prod-conf', cuenta.prodConf); fijar('prod-obs', cuenta.prodObs); fijar('prod-sin', cuenta.prodSin);
+    fijar('proc-conf', cuenta.procConf); fijar('proc-obs', cuenta.procObs); fijar('proc-sin', cuenta.procSin);
+    fijar('sub-conf',  cuenta.subConf);  fijar('sub-obs',  cuenta.subObs);  fijar('sub-sin',  cuenta.subSin);
+    fijar('fich-comp', cuenta.fichComp); fijar('fich-incomp', cuenta.fichIncomp); fijar('fich-sin', cuenta.fichSin);
+
+    // Los denominadores y los porcentajes de cada tarjeta, que hasta ahora
+    // eran texto fijo en el HTML y no cambiaban con nada.
+    ajustarDenominadores('producto',    [cuenta.prodConf, cuenta.prodObs, cuenta.prodSin]);
+    ajustarDenominadores('procesos',    [cuenta.procConf, cuenta.procObs, cuenta.procSin]);
+    ajustarDenominadores('subprocesos', [cuenta.subConf,  cuenta.subObs,  cuenta.subSin]);
+    ajustarDenominadores('fichas',      [cuenta.fichComp, cuenta.fichIncomp, cuenta.fichSin]);
+
+    pintarBarras('producto',    [cuenta.prodConf, cuenta.prodObs, cuenta.prodSin]);
+    pintarBarras('procesos',    [cuenta.procConf, cuenta.procObs, cuenta.procSin]);
+    pintarBarras('subprocesos', [cuenta.subConf,  cuenta.subObs,  cuenta.subSin]);
+    pintarBarras('fichas',      [cuenta.fichComp, cuenta.fichIncomp, cuenta.fichSin]);
 
     pintarRanking();
 }
@@ -845,6 +900,24 @@ function vincularVariaciones() {
     });
 }
 
+/**
+ * Pone al dia el «/ de N» y el «X % del total» de cada subcategoria. Estaban
+ * escritos en el HTML («/ de 231») y no los tocaba nadie: con el filtro por
+ * facultad habrian quedado contradiciendo al numero de al lado.
+ */
+function ajustarDenominadores(bloque, valores) {
+    const total = valores.reduce((a, b) => a + b, 0);
+    const cajas = document.querySelectorAll('.status-filter[data-block="' + bloque + '"]');
+    cajas.forEach((caja, i) => {
+        const den = caja.querySelector('.m-den, .den');
+        const chg = caja.querySelector('.m-change, .chg');
+        if (den) den.textContent = '/ de ' + total;
+        if (chg) chg.textContent = total
+            ? (valores[i] * 100 / total).toFixed(1).replace('.', ',') + '% del total'
+            : 'sin registros';
+    });
+}
+
 function pintarBarras(bloque, valores) {
     const ancla = document.querySelector('[data-block="' + bloque + '"]');
     if (!ancla) return;
@@ -923,17 +996,23 @@ function renderFacultyList() {
     // resto se apaga, igual que sus barras.
     list.innerHTML = faculties.map(f => {
         const activa = !facultadSel || f.code === facultadSel;
+        // El nombre va entero: `truncate` lo cortaba en «FACULTAD DE DERECH…»,
+        // que no identifica nada. Se baja el cuerpo y se deja envolver en dos
+        // o tres lineas, que es preferible a un nombre ilegible.
         return `
-        <li class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition group ${f.code === facultadSel ? 'bg-white/10' : ''}"
+        <li class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition group ${f.code === facultadSel ? 'bg-white/10' : ''}"
             style="opacity:${activa ? 1 : .38}"
             onclick="seleccionarFacultad('${f.code}')"
             title="${f.code === facultadSel ? 'Quitar el filtro' : 'Ver solo ' + f.name}">
-            <div class="w-8 h-8 rounded-lg ${f.code === facultadSel ? 'bg-blue-500/30' : 'bg-white/10'} flex items-center justify-center text-xs font-bold text-blue-300 group-hover:bg-blue-500/20 transition">${f.sigla}</div>
+            <div class="w-7 h-7 shrink-0 mt-0.5 rounded-lg ${f.code === facultadSel ? 'bg-blue-500/30' : 'bg-white/10'} flex items-center justify-center text-[10px] font-bold text-blue-300 group-hover:bg-blue-500/20 transition">${f.sigla}</div>
             <div class="flex-1 min-w-0">
-                <div class="text-xs font-semibold truncate">${f.name}</div>
-                <div class="text-[10px] text-white/40">${f.processes} procesos</div>
+                <div class="nombre-facultad">${f.name}</div>
+                <div class="metricas-facultad">
+                    <span><b>${f.nivel0}</b> proc. nivel 0</span>
+                    <span><b>${f.subprocesos}</b> subprocesos</span>
+                </div>
             </div>
-            <div class="w-2 h-2 rounded-full ${f.processes > 9 ? 'bg-emerald-400' : (f.processes > 6 ? 'bg-amber-400' : 'bg-rose-400')}"></div>
+            <div class="w-2 h-2 shrink-0 mt-1.5 rounded-full ${f.processes > 9 ? 'bg-emerald-400' : (f.processes > 6 ? 'bg-amber-400' : 'bg-rose-400')}"></div>
         </li>`;
     }).join('');
 }
@@ -941,9 +1020,18 @@ function renderFacultyList() {
 /** Se conserva el nombre por si algo del HTML antiguo aun lo llama. */
 function toggleFaculty(code) { seleccionarFacultad(code); }
 
+/**
+ * El desplegable de la tabla y el panel lateral son el mismo filtro visto
+ * dos veces. Elegir en uno mueve el otro; si no, el usuario ve una facultad
+ * marcada a la izquierda y otra en la tabla, y ninguna de las dos miente.
+ */
+function elegirDesdeSelector(valor) {
+    facultadSel = valor || null;
+    aplicarSeleccion();
+}
+
 function resetAllFilters() {
     facultadSel = null;
-    aplicarSeleccion();
     resetDbFilters();
     document.getElementById('filterFacultyA1').value = '';
     document.getElementById('filterProcessA1').value = '';
@@ -951,9 +1039,7 @@ function resetAllFilters() {
     document.getElementById('filterFacultyA3').value = '';
     document.getElementById('filterProcessA3').value = '';
     document.getElementById('filterTypeA3').value = '';
-    renderAnexo1Table();
-    renderAnexo3Table();
-    renderDatabase();
+    aplicarSeleccion();   // repinta tarjetas, graficos y las tres tablas
 }
 
 // ============================================================
@@ -1157,6 +1243,14 @@ function aplicarSeleccion() {
     renderFacultyList();
     pintarClasificaciones();
 
+    // El panel lateral es un filtro del tablero entero, no solo de las
+    // tarjetas: las tablas de detalle se repintan con la facultad elegida.
+    // Van protegidas porque el arranque llama aqui antes de que existan sus
+    // desplegables, y una excepcion dejaria el resto sin pintar.
+    [renderAnexo1Table, renderAnexo3Table, renderDatabase].forEach(paso => {
+        try { paso(); } catch (e) { /* aun no hay tabla que repintar */ }
+    });
+
     [[chart1, 'pctAnexo1', COLOR_A1], [chart3, 'pctAnexo3', COLOR_A3]]
       .forEach(([grafico, clave, color]) => {
         if (!grafico) return;
@@ -1219,42 +1313,102 @@ let a1StatusFilter = 'CONFORME';
 let a1EntityFilter = 'producto';
 
 function populateAnexo1Filters() {
-    const facs = [...new Set(anexo1Data.map(d => d.faculty))].sort();
-    const procs = [...new Set(anexo1Data.map(d => d.process))].sort();
-    const types = [...new Set(anexo1Data.map(d => d.type))].sort();
+    // Sobre todo el Anexo 1, no solo sobre los productos: la tabla puede estar
+    // mostrando procesos o subprocesos, y sus facultades y tipos son otros.
+    const delA1 = allData.filter(d => d.anexo === 'Anexo 1');
+    // Las facultades salen del catalogo completo, no de las que tengan
+    // detalle: si el panel lateral elige una sin registros, el desplegable
+    // tiene que poder reflejarla. Ofreciendo solo las que aparecen en los
+    // datos, se quedaba en «Todas» mientras la tabla si estaba filtrada, y
+    // los dos controles se contradecian en pantalla.
+    const facs = DATOS_FUENTE.facultades.map(f => f.codigo);
+    const procs = [...new Set(delA1.map(d => d.process))].sort();
+    const types = [...new Set(delA1.map(d => d.type))].sort();
     const f1 = document.getElementById('filterFacultyA1');
     const p1 = document.getElementById('filterProcessA1');
     const t1 = document.getElementById('filterTypeA1');
+    // Un refresco vuelve a pasar por aqui: sin vaciar, cada actualizacion
+    // duplicaba las veinte facultades en la lista.
+    [f1, p1, t1].forEach(sel => { while (sel.options.length > 1) sel.remove(1); });
     facs.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; f1.appendChild(o); });
     procs.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; p1.appendChild(o); });
     types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; t1.appendChild(o); });
 }
 
+/**
+ * Que entidad alimenta la tabla segun la tarjeta pulsada.
+ *
+ * OJO CON LOS NOMBRES DE HOJA: el encargo hablaba de tres hojas distintas
+ * —OBSERVACIONES_DE_PRODUCTOS_A1, OBSERVACIONES_DE_PROCESOS_A1 y
+ * OBSERVACIONES_DE_PROCESOS— y en el libro solo existen dos:
+ *
+ *   Productos              -> DETALLADO_PRODUCTOS_A1
+ *   Procesos y Subprocesos -> OBSERVACIONES_DE_PROCESO_A1  (en singular)
+ *
+ * Los procesos de Nivel 0 y los subprocesos comparten hoja y se distinguen por
+ * su columna NIVEL, que es lo que Tablero.gs traduce a la entidad. El efecto
+ * es el pedido —cada tarjeta proyecta datos distintos—, pero conviene saber
+ * que salen de dos hojas y no de tres.
+ */
+const ORIGEN_TABLA = {
+    producto:    { entidad: 'Producto',   rotulo: 'Productos',   hoja: 'DETALLADO_PRODUCTOS_A1' },
+    procesos:    { entidad: 'Proceso',    rotulo: 'Procesos',    hoja: 'OBSERVACIONES_DE_PROCESO_A1' },
+    subprocesos: { entidad: 'SubProceso', rotulo: 'Subprocesos', hoja: 'OBSERVACIONES_DE_PROCESO_A1' }
+};
+
 function filterByStatus(block, status) {
     a1EntityFilter = block;
     a1StatusFilter = status;
-    // Actualizar clases activas
-    document.querySelectorAll('.metric[data-block="' + block + '"]').forEach(m => {
-        m.classList.toggle('active-status', m.dataset.status === status);
-        m.classList.toggle('inactive-status', m.dataset.status !== status);
+
+    // Solo la tarjeta pulsada queda marcada. Antes se marcaba dentro de cada
+    // bloque por separado, asi que quedaban tres subcategorias resaltadas a la
+    // vez y no se sabia cual mandaba sobre la tabla.
+    document.querySelectorAll('.status-filter[data-block]').forEach(m => {
+        const activa = m.dataset.block === block && m.dataset.status === status;
+        m.classList.toggle('active-status', activa);
+        m.classList.toggle('inactive-status', !activa);
     });
+
     renderAnexo1Table();
 }
 
 function renderAnexo1Table() {
-    const fac = document.getElementById('filterFacultyA1').value;
+    const origen = ORIGEN_TABLA[a1EntityFilter] || ORIGEN_TABLA.producto;
     const proc = document.getElementById('filterProcessA1').value;
     const type = document.getElementById('filterTypeA1').value;
 
-    let filtered = anexo1Data.filter(d => d.status === a1StatusFilter);
+    // El desplegable de facultad y el panel lateral son el mismo filtro visto
+    // dos veces, y la unica verdad es `facultadSel`. El desplegable lo refleja
+    // SIEMPRE, tambien cuando se vacia: reflejarlo solo al elegir dejaba la
+    // tabla filtrada por una facultad que ya no estaba seleccionada.
+    const selector = document.getElementById('filterFacultyA1');
+    const fac = facultadSel || '';
+    if (selector.value !== fac) selector.value = fac;
+
+    // La tabla cambia de origen con la tarjeta: productos, procesos de Nivel 0
+    // o subprocesos. Antes leia siempre anexo1Data —solo productos—, asi que
+    // pulsar «Procesos» cambiaba el rotulo y no los datos.
+    let filtered = allData.filter(d => d.entity === origen.entidad && d.status === a1StatusFilter);
     if (fac) filtered = filtered.filter(d => d.faculty === fac);
     if (proc) filtered = filtered.filter(d => d.process === proc);
     if (type) filtered = filtered.filter(d => d.type === type);
 
-    document.getElementById('statusViewA1').textContent = `Productos ${a1StatusFilter}`;
+    // Observado y Sin Registrar son los estados que piden accion: se resalta
+    // la columna de observaciones para que el ojo vaya directo a que corregir.
+    const alerta = a1StatusFilter === 'OBSERVADO' || a1StatusFilter === 'SIN REGISTRAR';
+    const tabla = document.getElementById('productRowsA1').closest('table');
+    if (tabla) tabla.classList.toggle('col-obs-alerta', alerta);
+
+    const deFacultad = fac ? ' · ' + fac : '';
+    document.getElementById('statusViewA1').textContent = origen.rotulo + ' ' + a1StatusFilter;
     document.getElementById('visibleCountA1').textContent = filtered.length;
-    document.getElementById('tableTitleA1').textContent = `Detalle de Productos · ${a1StatusFilter}`;
-    document.getElementById('dataFooterA1').innerHTML = `Se muestran unicamente los Productos con estado <strong>${a1StatusFilter}</strong>. Total filtrado: ${filtered.length} registros.`;
+    document.getElementById('tableTitleA1').textContent =
+        'Detalle de ' + origen.rotulo + ' · ' + a1StatusFilter + deFacultad;
+    document.getElementById('dataFooterA1').innerHTML =
+        'Origen: <strong>' + origen.hoja + '</strong>. Se muestran unicamente los ' +
+        origen.rotulo + ' con estado <strong>' + a1StatusFilter + '</strong>' +
+        (fac ? ' de <strong>' + fac + '</strong>' : '') +
+        '. Total filtrado: ' + filtered.length + ' registros.';
 
     const tbody = document.getElementById('productRowsA1');
     if (filtered.length === 0) {
@@ -1262,7 +1416,7 @@ function renderAnexo1Table() {
         return;
     }
     tbody.innerHTML = filtered.slice(0, 50).map(d => `
-        <tr><td>${d.faculty}</td><td>${d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
+        <tr><td>${d.faculty}</td><td>${d.row || d.id}</td><td>${d.process}</td><td><code>${d.code}</code></td>
         <td>${d.name}</td><td>${d.type}</td>
         <td><span class="db-badge ${d.status==='CONFORME'?'ok':(d.status==='OBSERVADO'?'warn':'danger')}">${d.status}</span></td>
         <td class="cumplimiento">${d.compliance}</td><td class="criterios">${d.criteria}</td><td class="obs">${d.observations}</td></tr>
@@ -1275,12 +1429,13 @@ function renderAnexo1Table() {
 let a3StatusFilter = 'COMPLETA';
 
 function populateAnexo3Filters() {
-    const facs = [...new Set(anexo3Data.map(d => d.faculty))].sort();
+    const facs = DATOS_FUENTE.facultades.map(f => f.codigo);
     const procs = [...new Set(anexo3Data.map(d => d.process))].sort();
     const types = [...new Set(anexo3Data.map(d => d.type))].sort();
     const f3 = document.getElementById('filterFacultyA3');
     const p3 = document.getElementById('filterProcessA3');
     const t3 = document.getElementById('filterTypeA3');
+    [f3, p3, t3].forEach(sel => { while (sel.options.length > 1) sel.remove(1); });
     facs.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; f3.appendChild(o); });
     procs.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; p3.appendChild(o); });
     types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; t3.appendChild(o); });
@@ -1296,7 +1451,10 @@ function filterByStatusA3(status) {
 }
 
 function renderAnexo3Table() {
-    const fac = document.getElementById('filterFacultyA3').value;
+    // Mismo criterio que en el Anexo 1: manda el panel lateral.
+    const selA3 = document.getElementById('filterFacultyA3');
+    const fac = facultadSel || '';
+    if (selA3.value !== fac) selA3.value = fac;
     const proc = document.getElementById('filterProcessA3').value;
     const type = document.getElementById('filterTypeA3').value;
 

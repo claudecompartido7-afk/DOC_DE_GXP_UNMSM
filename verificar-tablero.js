@@ -253,6 +253,44 @@ ok('sin historial ni F36 recae en el recuento de aprobados',
    sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
    sinF36.anexo4);
 
+console.log('\nDesglose de procesos y subprocesos por facultad');
+// El resumen del Anexo 1 trae en las columnas 11-13 los procesos de Nivel 0 y
+// en las 14-16 los subprocesos. Se leian y se tiraban: las dos tarjetas del
+// tablero salian siempre en cero.
+const fmProc = d.facultades.find(f => f.sigla === 'FM');
+ok('cada facultad trae su desglose de procesos de Nivel 0',
+   fmProc.procesosN0 && fmProc.procesosN0.conformes === 5 && fmProc.procesosN0.observados === 3 &&
+   fmProc.procesosN0.sinRegistrar === 1, fmProc.procesosN0);
+ok('y el de subprocesos',
+   fmProc.subprocesos && fmProc.subprocesos.conformes === 10 && fmProc.subprocesos.observados === 4 &&
+   fmProc.subprocesos.sinRegistrar === 0, fmProc.subprocesos);
+ok('con su total, para el rotulo del panel de filtros',
+   fmProc.procesosN0.total === 9 && fmProc.subprocesos.total === 14,
+   [fmProc.procesosN0.total, fmProc.subprocesos.total]);
+ok('los totales de procesos ya no salen en cero',
+   d.totales.procConf > 0 && d.totales.procObs > 0, d.totales);
+ok('ni los de subprocesos', d.totales.subConf > 0, d.totales);
+ok('y cuadran con la suma de las facultades',
+   d.totales.procConf === d.facultades.reduce((a, f) => a + f.procesosN0.conformes, 0) &&
+   d.totales.subConf === d.facultades.reduce((a, f) => a + f.subprocesos.conformes, 0));
+
+console.log('\nFase 1 desde HISTORIAL_REVISIONES');
+const dFase = correr(Object.assign({}, HOJAS_OK, {
+  'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(hist).concat([
+    [new Date('2026-08-20T10:00:00Z'), 'Fase 1', 66.0],
+    [new Date('2026-08-28T09:00:00Z'), 'Fase 1', 71.9]
+  ]) }));
+ok('el KPI de Fase 1 sale del ultimo registro «Fase 1»',
+   dFase.kpi.general === 71.9, dFase.kpi.general);
+ok('«Fase 1» NO se cuela como Anexo 1 pese a llevar un 1',
+   dFase.kpi.anexo1 === 81.3, dFase.kpi.anexo1);
+ok('Fase 1 trae su variacion contra la anterior',
+   dFase.historial.fase1.variacion === 5.9, dFase.historial.fase1);
+ok('y su serie para la tendencia', dFase.historial.fase1.serie.length === 2);
+ok('sin registro de Fase 1 se calcula como antes',
+   d.kpi.general > 0 && d.historial.fase1.actual === null,
+   [d.kpi.general, d.historial.fase1.actual]);
+
 console.log('\nSerie completa para las lineas de tendencia');
 const dSerie = correr(Object.assign({}, HOJAS_OK, {
   'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat([

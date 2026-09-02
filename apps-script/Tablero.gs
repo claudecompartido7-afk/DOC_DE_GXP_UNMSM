@@ -232,6 +232,19 @@ function indexarPorSigla_(general, resA1, resA3, catalogo) {
       sinRegistrar: num_(f[5])
     };
     c.procesos = num_(f[9]);
+    // Columnas 11-13 y 14-16 del resumen: el desglose que las tarjetas de
+    // «Procesos» y «SubProcesos» necesitan. Se leía la fila entera y solo se
+    // usaba el total, así que esas dos tarjetas salían siempre en cero.
+    c.procesosN0 = {
+      conformes:    num_(f[10]),
+      observados:   num_(f[11]),
+      sinRegistrar: num_(f[12])
+    };
+    c.subprocesos = {
+      conformes:    num_(f[13]),
+      observados:   num_(f[14]),
+      sinRegistrar: num_(f[15])
+    };
     // Si RESUMEN_GENERAL no existe todavía, el avance del Anexo 1 se toma aquí.
     if (c.pctAnexo1 === null) c.pctAnexo1 = pct_(f[6]);
   });
@@ -254,6 +267,12 @@ function indexarPorSigla_(general, resA1, resA3, catalogo) {
 /** Una facultad del catálogo, completada con lo que el libro tenga de ella. */
 function facultadDe_(sigla, codigo, nombre, orden, d) {
   const productos = d.productos || { total: 0, conformes: 0, observados: 0, sinRegistrar: 0 };
+  const cero = function () { return { conformes: 0, observados: 0, sinRegistrar: 0, total: 0 }; };
+  const conTotal = function (b) {
+    if (!b) return cero();
+    b.total = b.conformes + b.observados + b.sinRegistrar;
+    return b;
+  };
   const fichas    = d.fichas    || { total: 0, esperadas: 16, completas: 0, incompletas: 0, sinProducto: 0 };
   const pctA1 = d.pctAnexo1 === null || d.pctAnexo1 === undefined ? 0 : d.pctAnexo1;
   const pctA3 = d.pctAnexo3 === null || d.pctAnexo3 === undefined ? 0 : d.pctAnexo3;
@@ -267,6 +286,8 @@ function facultadDe_(sigla, codigo, nombre, orden, d) {
     estado: d.estado || 'Sin revisar',
     clasificacion: clasificar_(d.estado, pctG),
     productos: productos,
+    procesosN0: conTotal(d.procesosN0),
+    subprocesos: conTotal(d.subprocesos),
     fichas: fichas
   };
 }
@@ -295,6 +316,12 @@ function sumarTotales_(facultades) {
     t.prodConf   += f.productos.conformes;
     t.prodObs    += f.productos.observados;
     t.prodSin    += f.productos.sinRegistrar;
+    t.procConf   += f.procesosN0.conformes;
+    t.procObs    += f.procesosN0.observados;
+    t.procSin    += f.procesosN0.sinRegistrar;
+    t.subConf    += f.subprocesos.conformes;
+    t.subObs     += f.subprocesos.observados;
+    t.subSin     += f.subprocesos.sinRegistrar;
     t.fichComp   += f.fichas.completas;
     t.fichIncomp += f.fichas.incompletas;
     t.fichSin    += f.fichas.sinProducto;
@@ -332,7 +359,10 @@ function calcularKpi_(facultades, t, anexo4, historial) {
   };
 
   return {
-    general: general,
+    // Fase 1 se registra con `registrarRevision('Fase 1', pct)`. Mientras
+    // nadie lo haga, se calcula como hasta ahora: el promedio de las
+    // facultades con avance.
+    general: delHistorial('fase1', general),
     anexo1: delHistorial('anexo1', a1),
     anexo3: delHistorial('anexo3', a3),
     anexo4: delHistorial('anexo4', anexo4.pct),
@@ -354,14 +384,17 @@ function calcularKpi_(facultades, t, anexo4, historial) {
  * haría que una tarjeta se comparase contra una revisión que no es la suya.
  */
 function historialPorAnexo_(filas) {
-  const porAnexo = { anexo1: [], anexo3: [], anexo4: [] };
+  const porAnexo = { fase1: [], anexo1: [], anexo3: [], anexo4: [] };
 
   filas.forEach(function (f) {
     const fecha = f[0] instanceof Date ? f[0] : new Date(f[0]);
     if (isNaN(fecha.getTime())) return;
 
+    // «Fase 1» se comprueba ANTES que los anexos: lleva un 1 en el nombre y si
+    // no, se colaría como Anexo 1 y falsearía las dos series.
     const texto = String(f[1] || '');
-    const clave = /4/.test(texto) ? 'anexo4'
+    const clave = /fase\s*1/i.test(texto) ? 'fase1'
+                : /4/.test(texto) ? 'anexo4'
                 : /3/.test(texto) ? 'anexo3'
                 : /1/.test(texto) ? 'anexo1' : null;
     if (!clave) return;
@@ -747,7 +780,7 @@ function probarTablero() {
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
   lineas.push('');
   lineas.push('HISTORIAL_REVISIONES, anexo por anexo:');
-  ['anexo1', 'anexo3', 'anexo4'].forEach(function (k) {
+  ['fase1', 'anexo1', 'anexo3', 'anexo4'].forEach(function (k) {
     const h = d.historial[k];
     if (!h || !h.actual) {
       lineas.push('  ' + k + ': sin registros — la tarjeta usará el cálculo de las hojas');
