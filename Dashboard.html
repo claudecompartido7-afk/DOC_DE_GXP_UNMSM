@@ -201,6 +201,31 @@
         /* ===== EMPTY STATE ===== */
         .empty-state { padding: 40px; text-align: center; color: var(--muted); }
         .empty-state i { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+        /* ===== PANEL DE CLASIFICACION JUNTO A CADA GRAFICO ===== */
+        .clasif-panel {
+            width: 232px; flex: 0 0 232px; overflow-y: auto; padding-right: 4px;
+            border-left: 1px solid rgba(15, 26, 46, 0.10); padding-left: 18px;
+        }
+        .clasif-grupo + .clasif-grupo { margin-top: 14px; }
+        .clasif-titulo {
+            font-size: 11px; font-weight: 700; letter-spacing: .02em;
+            color: #1e293b; display: flex; align-items: center; gap: 7px;
+            padding-bottom: 5px; border-bottom: 1px solid rgba(15,26,46,.08);
+        }
+        .clasif-punto { width: 8px; height: 8px; border-radius: 999px; flex: 0 0 8px; }
+        .clasif-cuenta { margin-left: auto; font-weight: 600; color: #64748b; font-variant-numeric: tabular-nums; }
+        .clasif-cuerpo { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+        .clasif-item {
+            font-size: 11.5px; color: #475569; line-height: 1.35;
+            padding: 2px 0; cursor: pointer;
+        }
+        .clasif-item:hover { color: #0f1a2e; }
+        .clasif-item.sel { color: #0f1a2e; font-weight: 700; }
+        .clasif-vacio { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 5px; }
+        @media (max-width: 1280px) {
+            .clasif-panel { width: 180px; flex: 0 0 180px; padding-left: 12px; }
+        }
     </style>
 <base target="_blank">
 </head>
@@ -260,7 +285,9 @@
                 <div class="mb-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                     <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#14223c] pt-2 pb-2 z-10 backdrop-blur-md">
                         <h3 class="text-xs font-bold text-white/60 uppercase tracking-widest">FACULTADES</h3>
-                        <div class="flex gap-2 text-white/40"><i class="fa-solid fa-sort text-xs"></i></div>
+                        <button id="quitar-seleccion" hidden onclick="seleccionarFacultad(facultadSel)"
+                                class="text-[10px] font-bold text-blue-300 hover:text-white transition"
+                                title="Volver a las 20 facultades">VER TODAS ✕</button>
                     </div>
                     <ul id="faculty-list" class="flex flex-col gap-2.5"></ul>
                 </div>
@@ -279,6 +306,8 @@
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance Fase 1</h3>
                         <div class="flex items-end gap-3">
                             <span id="kpi1-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">68.2%</span>
+                            <span id="sello-seleccion" hidden
+                                  class="ml-2 align-middle text-[11px] font-bold text-corp-blue bg-corp-blue/10 rounded-full px-2 py-0.5"></span>
                             <span id="kpi1-var" class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                                 <i class="fa-solid fa-minus"></i> —
                             </span>
@@ -320,23 +349,29 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-6">
-                    <div class="glass-card p-6 flex flex-col relative" style="height:320px">
+                    <div class="glass-card p-6 flex flex-col relative" style="height:380px">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 1</h2>
-                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Procesos | 231 Productos registrados</p>
+                                <p class="text-sm font-medium text-corp-textmuted mt-1" id="sub-a1"></p>
                             </div>
                         </div>
-                        <div class="flex-1 relative w-full"><canvas id="chartAnexo1"></canvas></div>
+                        <div class="flex-1 min-h-0 flex gap-5">
+                            <div class="flex-1 relative min-w-0"><canvas id="chartAnexo1"></canvas></div>
+                            <div class="clasif-panel" id="clasif-a1"></div>
+                        </div>
                     </div>
-                    <div class="glass-card p-6 flex flex-col relative" style="height:320px">
+                    <div class="glass-card p-6 flex flex-col relative" style="height:380px">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 3</h2>
-                                <p class="text-sm font-medium text-corp-textmuted mt-1">20 facultades | 16 Fichas | 27 Celdas llenadas promedio</p>
+                                <p class="text-sm font-medium text-corp-textmuted mt-1" id="sub-a3"></p>
                             </div>
                         </div>
-                        <div class="flex-1 relative w-full"><canvas id="chartAnexo3"></canvas></div>
+                        <div class="flex-1 min-h-0 flex gap-5">
+                            <div class="flex-1 relative min-w-0"><canvas id="chartAnexo3"></canvas></div>
+                            <div class="clasif-panel" id="clasif-a3"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -633,11 +668,35 @@ function fijar(id, valor) {
 function vincularIndicadores() {
     const T = DATOS_FUENTE.totales, K = DATOS_FUENTE.kpi;
 
-    fijar('kpi1-val', K.general.toFixed(1).replace('.', ',') + '%');
-    fijar('kpi2-val', K.anexo1.toFixed(1).replace('.', ',') + '%');
-    fijar('kpi3-val', K.anexo3.toFixed(1).replace('.', ',') + '%');
-    // El Anexo 4 sale de la hoja de indicadores: aprobados sobre el total.
-    fijar('kpi4-val', K.anexo4.toFixed(1).replace('.', ',') + '%');
+    // Con una facultad elegida, las tres primeras tarjetas cuentan solo esa.
+    // El Anexo 4 no se desglosa por facultad —sus indicadores son
+    // institucionales—, asi que se queda como esta y no finge un filtro.
+    const sel = facultadSel
+        ? DATOS_FUENTE.facultades.find(f => f.codigo === facultadSel)
+        : null;
+    const pc = v => v.toFixed(1).replace('.', ',') + '%';
+
+    fijar('kpi1-val', pc(sel ? sel.pctGeneral : K.general));
+    fijar('kpi2-val', pc(sel ? sel.pctAnexo1  : K.anexo1));
+    fijar('kpi3-val', pc(sel ? sel.pctAnexo3  : K.anexo3));
+    // El Anexo 4 sale de la celda F36 de RESUMEN_EJECUTIVO_A4.
+    fijar('kpi4-val', pc(K.anexo4));
+
+    // Deja claro que las cifras son de una facultad y no del conjunto.
+    const rotulo = document.getElementById('sello-seleccion');
+    if (rotulo) {
+        rotulo.textContent = sel ? sel.sigla : '';
+        rotulo.hidden = !sel;
+    }
+    const quitar = document.getElementById('quitar-seleccion');
+    if (quitar) quitar.hidden = !sel;
+
+    fijar('sub-a1', DATOS_FUENTE.facultades.length + ' facultades | ' +
+          DATOS_FUENTE.facultades.reduce((a, f) => a + f.procesos, 0) + ' procesos | ' +
+          (T.prodConf + T.prodObs + T.prodSin) + ' productos registrados');
+    fijar('sub-a3', DATOS_FUENTE.facultades.length + ' facultades | ' +
+          (T.fichComp + T.fichIncomp + T.fichSin) + ' fichas | ' +
+          T.fichComp + ' completas');
 
     vincularVariaciones();
 
@@ -800,24 +859,32 @@ function switchAnexoTab(target) {
 // ============================================================
 function renderFacultyList() {
     const list = document.getElementById('faculty-list');
-    list.innerHTML = faculties.map(f => `
-        <li class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition group" onclick="toggleFaculty('${f.code}')">
-            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold text-blue-300 group-hover:bg-blue-500/20 transition">${f.code.split('_')[1]}</div>
+    // Sin seleccion todas cuentan, y ninguna se destaca sobre las demas: el
+    // tablero esta hablando de las veinte. Con una elegida, esa se marca y el
+    // resto se apaga, igual que sus barras.
+    list.innerHTML = faculties.map(f => {
+        const activa = !facultadSel || f.code === facultadSel;
+        return `
+        <li class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition group ${f.code === facultadSel ? 'bg-white/10' : ''}"
+            style="opacity:${activa ? 1 : .38}"
+            onclick="seleccionarFacultad('${f.code}')"
+            title="${f.code === facultadSel ? 'Quitar el filtro' : 'Ver solo ' + f.name}">
+            <div class="w-8 h-8 rounded-lg ${f.code === facultadSel ? 'bg-blue-500/30' : 'bg-white/10'} flex items-center justify-center text-xs font-bold text-blue-300 group-hover:bg-blue-500/20 transition">${f.sigla}</div>
             <div class="flex-1 min-w-0">
                 <div class="text-xs font-semibold truncate">${f.name}</div>
                 <div class="text-[10px] text-white/40">${f.processes} procesos</div>
             </div>
             <div class="w-2 h-2 rounded-full ${f.processes > 9 ? 'bg-emerald-400' : (f.processes > 6 ? 'bg-amber-400' : 'bg-rose-400')}"></div>
-        </li>
-    `).join('');
+        </li>`;
+    }).join('');
 }
 
-function toggleFaculty(code) {
-    // Funcionalidad de filtro por facultad - puede expandirse
-    console.log('Filtrar por facultad:', code);
-}
+/** Se conserva el nombre por si algo del HTML antiguo aun lo llama. */
+function toggleFaculty(code) { seleccionarFacultad(code); }
 
 function resetAllFilters() {
+    facultadSel = null;
+    aplicarSeleccion();
     resetDbFilters();
     document.getElementById('filterFacultyA1').value = '';
     document.getElementById('filterProcessA1').value = '';
@@ -885,21 +952,46 @@ function initCharts() {
     const ctx3 = document.getElementById('chartAnexo3');
     if (!ctx1 || !ctx3) return;
 
-    // Las doce primeras facultades de la relacion oficial, con el
-    // porcentaje que la fuente da a cada una en su anexo.
-    const doce = DATOS_FUENTE.facultades.slice(0, 12);
-    const labels = doce.map(f => f.codigo);
-    const data1 = doce.map(f => f.pctAnexo1);
-    const data3 = doce.map(f => f.pctAnexo3);
+    // Las veinte facultades, no las doce primeras: el panel de filtros deja
+    // elegir cualquiera de ellas, y una barra que no existe no se puede
+    // resaltar.
+    const labels = DATOS_FUENTE.facultades.map(f => f.sigla);
+    const data1 = DATOS_FUENTE.facultades.map(f => f.pctAnexo1);
+    const data3 = DATOS_FUENTE.facultades.map(f => f.pctAnexo3);
 
-    const commonOptions = {
+    const opciones = (clave) => ({
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: {
+                title: (t) => DATOS_FUENTE.facultades[t[0].dataIndex].nombre,
+                label: (t) => t.parsed.y.toFixed(1).replace('.', ',') + '%'
+            } },
+            lineaReferencia: { clave }
+        },
+        onClick: (ev, elementos) => {
+            if (!elementos.length) return;
+            seleccionarFacultad(DATOS_FUENTE.facultades[elementos[0].index].codigo);
+        },
         scales: {
-            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Outfit' }, callback: v => v + '%' } },
-            x: { grid: { display: false }, ticks: { font: { family: 'Outfit', size: 10 } } }
+            y: {
+                beginAtZero: true, max: 100,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                // El eje venia estrecho y los porcentajes se apelotonaban
+                // contra las barras. Se le reserva un ancho minimo y se
+                // separan las etiquetas de la linea del eje.
+                afterFit: (escala) => { escala.width = Math.max(escala.width, 62); },
+                ticks: {
+                    font: { family: 'Outfit', size: 11 }, padding: 10,
+                    stepSize: 20, callback: v => v + ' %'
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { font: { family: 'Outfit', size: 9 }, maxRotation: 60, minRotation: 45 }
+            }
         }
-    };
+    });
 
     // Un refresco vuelve a pasar por aqui. Chart.js se niega a montar un
     // segundo grafico sobre el mismo lienzo, asi que se retira el anterior.
@@ -908,15 +1000,156 @@ function initCharts() {
 
     chart1 = new Chart(ctx1, {
         type: 'bar',
-        data: { labels, datasets: [{ data: data1, backgroundColor: '#3b82f6', borderRadius: 6, barThickness: 22 }] },
-        options: commonOptions
+        data: { labels, datasets: [{ data: data1, borderRadius: 6, maxBarThickness: 26,
+                                     backgroundColor: coloresBarras('pctAnexo1', '#3b82f6') }] },
+        options: opciones('pctAnexo1'),
+        plugins: [PLUGIN_LINEA]
     });
 
     chart3 = new Chart(ctx3, {
         type: 'bar',
-        data: { labels, datasets: [{ data: data3, backgroundColor: '#14b8a6', borderRadius: 6, barThickness: 22 }] },
-        options: commonOptions
+        data: { labels, datasets: [{ data: data3, borderRadius: 6, maxBarThickness: 26,
+                                     backgroundColor: coloresBarras('pctAnexo3', '#14b8a6') }] },
+        options: opciones('pctAnexo3'),
+        plugins: [PLUGIN_LINEA]
     });
+}
+
+// ============================================================
+// SELECCION DE FACULTAD Y RESALTADO CRUZADO
+// ------------------------------------------------------------
+// Sin seleccion, el tablero habla de las veinte facultades y las
+// barras van a color pleno. Al elegir una, las tres tarjetas de
+// cabecera pasan a contar solo esa, su barra conserva el color,
+// las demas se atenuan y una linea discontinua prolonga su altura
+// para poder compararla de un vistazo con el resto.
+// ============================================================
+
+// null = todas. Guarda el codigo de facultad, no su posicion: la fuente puede
+// reordenarse entre refrescos y una posicion dejaria seleccionada a otra.
+let facultadSel = null;
+
+const COLOR_A1 = '#3b82f6';
+const COLOR_A3 = '#14b8a6';
+
+/** Color de cada barra: pleno el de la elegida, translucido el resto. */
+function coloresBarras(clave, color) {
+    return DATOS_FUENTE.facultades.map(f =>
+        (!facultadSel || f.codigo === facultadSel) ? color : color + '33');
+}
+
+/**
+ * Dibuja la linea discontinua a la altura de la facultad elegida. Va como
+ * plugin propio y no como libreria de anotaciones: es una linea, y no merece
+ * otra dependencia de CDN que ademas podria no llegar.
+ */
+const PLUGIN_LINEA = {
+    id: 'lineaReferencia',
+    afterDatasetsDraw(grafico, args, opciones) {
+        if (!facultadSel) return;
+        const i = DATOS_FUENTE.facultades.findIndex(f => f.codigo === facultadSel);
+        if (i === -1) return;
+        const valor = DATOS_FUENTE.facultades[i][opciones.clave];
+        if (typeof valor !== 'number') return;
+
+        const { ctx, chartArea, scales } = grafico;
+        const y = scales.y.getPixelForValue(valor);
+        const color = opciones.clave === 'pctAnexo1' ? COLOR_A1 : COLOR_A3;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([5, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = color;
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+
+        // La cifra, pegada al borde derecho, sobre un fondo que la despega de
+        // las barras que pueda cruzar.
+        const texto = valor.toFixed(1).replace('.', ',') + ' %';
+        ctx.setLineDash([]);
+        ctx.font = '700 11px Outfit, sans-serif';
+        const ancho = ctx.measureText(texto).width + 10;
+        const alto = 16;
+        const x = chartArea.right - ancho;
+        const yCaja = Math.min(Math.max(y - alto / 2, chartArea.top), chartArea.bottom - alto);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(x, yCaja, ancho, alto, 4)
+                      : ctx.rect(x, yCaja, ancho, alto);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(texto, x + ancho / 2, yCaja + alto / 2);
+        ctx.restore();
+    }
+};
+
+/** Elegir la que ya estaba elegida vuelve a la vista de las veinte. */
+function seleccionarFacultad(codigo) {
+    facultadSel = (facultadSel === codigo) ? null : codigo;
+    aplicarSeleccion();
+}
+
+function aplicarSeleccion() {
+    vincularIndicadores();
+    renderFacultyList();
+    pintarClasificaciones();
+
+    [[chart1, 'pctAnexo1', COLOR_A1], [chart3, 'pctAnexo3', COLOR_A3]]
+      .forEach(([grafico, clave, color]) => {
+        if (!grafico) return;
+        grafico.data.datasets[0].backgroundColor = coloresBarras(clave, color);
+        grafico.update();
+    });
+    avisarAltura();
+}
+
+// ============================================================
+// PANELES DE CLASIFICACION
+// ------------------------------------------------------------
+// Un solo cuadro por grafico, evaluando unicamente los datos de
+// su anexo. Los tres tramos no cubren todo el rango —entre el 50
+// y el 80 no hay grupo— asi que una facultad puede no aparecer en
+// ninguno: es lo pedido, y por eso el cuadro no dice «resto».
+// ============================================================
+const TRAMOS = [
+    { titulo: 'Facultades que están en el 100%',   color: '#10b981', prueba: v => v >= 100 },
+    { titulo: 'Facultades con avance mayor al 80%', color: '#f59e0b', prueba: v => v > 80 && v < 100 },
+    { titulo: 'Facultades con avance menor al 50%', color: '#f43f5e', prueba: v => v < 50 }
+];
+
+function pintarClasificaciones() {
+    pintarClasificacion('clasif-a1', 'pctAnexo1');
+    pintarClasificacion('clasif-a3', 'pctAnexo3');
+}
+
+function pintarClasificacion(id, clave) {
+    const caja = document.getElementById(id);
+    if (!caja) return;
+
+    caja.innerHTML = TRAMOS.map(tramo => {
+        const dentro = DATOS_FUENTE.facultades
+            .filter(f => typeof f[clave] === 'number' && tramo.prueba(f[clave]))
+            .sort((a, b) => b[clave] - a[clave]);
+
+        const cuerpo = dentro.length
+            ? dentro.map(f => `<div class="clasif-item${f.codigo === facultadSel ? ' sel' : ''}"
+                    onclick="seleccionarFacultad('${f.codigo}')"
+                    title="${f.nombre} · ${f[clave].toFixed(1).replace('.', ',')}%">${f.sigla}</div>`).join('')
+            : '<div class="clasif-vacio">Ninguna</div>';
+
+        return `<div class="clasif-grupo">
+            <div class="clasif-titulo">
+                <span class="clasif-punto" style="background:${tramo.color}"></span>
+                ${tramo.titulo}
+                <span class="clasif-cuenta">${dentro.length}</span>
+            </div>
+            <div class="clasif-cuerpo">${cuerpo}</div>
+        </div>`;
+    }).join('');
 }
 
 // ============================================================
@@ -1208,6 +1441,7 @@ function pintarTodo() {
      ['indicadores',           vincularIndicadores],
      ['mini barras',           renderMiniBars],
      ['graficos',              initCharts],
+     ['paneles de clasificacion', pintarClasificaciones],
      ['filtros Anexo 1',       populateAnexo1Filters],
      ['filtros Anexo 3',       populateAnexo3Filters],
      ['filtros base de datos', populateDbFilters],
