@@ -355,3 +355,37 @@ acabarían discrepando por un redondeo, y nadie sabría cuál creer.
 
 Con un solo registro no hay tendencia que trazar: el tablero lo dice en lugar
 de dibujar una línea de un punto.
+
+### Los nombres de hoja del encargo y los del libro
+
+El encargo del panel de detalle nombraba tres hojas y en el libro hay dos:
+
+| Lo pedido | Lo que existe |
+|---|---|
+| `OBSERVACIONES_DE_PRODUCTOS_A1` | `DETALLADO_PRODUCTOS_A1` |
+| `OBSERVACIONES_DE_PROCESOS_A1` | `OBSERVACIONES_DE_PROCESO_A1` (en singular) |
+| `OBSERVACIONES_DE_PROCESOS` | — no existe |
+
+Los procesos de Nivel 0 y los subprocesos **comparten hoja** y se distinguen
+por su columna `NIVEL`, que es lo que `Tablero.gs` traduce a las entidades
+`Proceso` y `SubProceso`. El efecto en el tablero es el pedido —cada tarjeta
+proyecta datos distintos—, pero salen de dos hojas y no de tres.
+
+### El desglose de procesos y subprocesos
+
+`RESUMEN_EJECUTIVO_A1` trae en las columnas 11-13 los procesos de Nivel 0
+conformes, observados y sin registrar, y en las 14-16 los mismos tres de los
+subprocesos. Se leía la fila entera y solo se usaba el total: las tarjetas de
+«Procesos» y «SubProcesos» salían siempre en cero. Ahora cada facultad los
+lleva en `procesosN0` y `subprocesos`, y los totales del tablero son su suma.
+
+### Fase 1 en el historial
+
+`% Avance Fase 1` sale del último registro de `HISTORIAL_REVISIONES` cuya
+columna B diga «Fase 1» — registrado con `registrarRevision('Fase 1', pct)`.
+Mientras nadie lo escriba, se calcula como hasta ahora: el promedio de las
+facultades con avance.
+
+«Fase 1» se comprueba **antes** que los anexos al clasificar el historial:
+lleva un 1 en el nombre y, si no, se colaría como Anexo 1 y falsearía las dos
+series.

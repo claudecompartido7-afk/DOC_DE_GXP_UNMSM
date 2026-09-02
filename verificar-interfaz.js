@@ -355,6 +355,140 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('las subidas se rotulan en verde sobre el grafico', colores.verde > 20, colores);
   ok('y la caida del tercer punto, en rojo', colores.rojo > 20, colores);
 
+  console.log('\nSincronizacion del filtro lateral con las tarjetas');
+  // Se inyecta un desglose conocido para poder comprobar cifras exactas.
+  await pag.evaluate(() => {
+    DATOS_FUENTE.facultades.forEach((f, i) => {
+      f.procesosN0  = { conformes: 5 + i, observados: 3, sinRegistrar: 1, total: 9 + i };
+      f.subprocesos = { conformes: 10 + i, observados: 4, sinRegistrar: 0, total: 14 + i };
+    });
+    facultadSel = null; derivarDeLaFuente(); aplicarSeleccion();
+  });
+  const global = await pag.evaluate(() => ['prod-conf','proc-conf','sub-conf','prod-obs']
+      .map(i => document.getElementById(i).textContent));
+  // Se elige una facultad que SI tenga productos conformes en los datos, para
+  // que la comprobacion de la tabla mida el filtro y no la falta de registros.
+  const facPrueba = await pag.evaluate(() => {
+    const con = allData.find(d => d.entity === 'Producto' && d.status === 'CONFORME');
+    return con ? con.faculty : DATOS_FUENTE.facultades[0].codigo;
+  });
+  await pag.evaluate(c => seleccionarFacultad(c), facPrueba);
+  await pag.waitForTimeout(350);
+  await pag.evaluate(c => { window.__facPrueba = c; }, facPrueba);
+  const deFO = await pag.evaluate(() => {
+    const f = DATOS_FUENTE.facultades.find(x => x.codigo === window.__facPrueba);
+    return {
+      leidos: ['prod-conf','prod-obs','prod-sin','proc-conf','proc-obs','proc-sin',
+               'sub-conf','sub-obs','sub-sin']
+              .map(i => document.getElementById(i).textContent),
+      esperados: [f.productos.conformes, f.productos.observados, f.productos.sinRegistrar,
+                  f.procesosN0.conformes, f.procesosN0.observados, f.procesosN0.sinRegistrar,
+                  f.subprocesos.conformes, f.subprocesos.observados, f.subprocesos.sinRegistrar]
+                 .map(String),
+      denominador: document.querySelector('.status-filter[data-block="procesos"] .m-den').textContent,
+      totalProc: f.procesosN0.total
+    };
+  });
+  ok('las tres tarjetas pasan a las cifras de la facultad',
+     JSON.stringify(deFO.leidos) === JSON.stringify(deFO.esperados), deFO);
+  ok('y no son las del conjunto',
+     JSON.stringify(deFO.leidos.slice(0,1)) !== JSON.stringify(global.slice(0,1)),
+     [deFO.leidos[0], global[0]]);
+  ok('el denominador «/ de N» sigue al filtro, no se queda fijo',
+     deFO.denominador === '/ de ' + deFO.totalProc, deFO.denominador);
+
+  console.log('\nLa tabla de detalle sigue al filtro y cambia de origen');
+  const tabla = async () => pag.evaluate(() => ({
+    titulo: document.getElementById('tableTitleA1').textContent,
+    pie: document.getElementById('dataFooterA1').textContent,
+    filas: [...document.querySelectorAll('#productRowsA1 tr')]
+             .map(tr => tr.children[0] ? tr.children[0].textContent : ''),
+    selector: document.getElementById('filterFacultyA1').value,
+    alerta: document.getElementById('productRowsA1').closest('table')
+              .classList.contains('col-obs-alerta'),
+    fondoObs: (() => {
+      const c = document.querySelector('#productRowsA1 tr td:nth-child(10)');
+      return c ? getComputedStyle(c).backgroundColor : null;
+    })()
+  }));
+
+  await pag.evaluate(() => filterByStatus('producto', 'CONFORME'));
+  await pag.waitForTimeout(250);
+  let t = await tabla();
+  ok('la tabla muestra solo la facultad elegida',
+     t.filas.length > 0 && t.filas.every(f => f === facPrueba), t.filas.slice(0, 4));
+  ok('el desplegable de la tabla refleja el panel lateral',
+     t.selector === facPrueba, t.selector);
+  ok('y el titulo lo dice', t.titulo.includes(facPrueba), t.titulo);
+
+  await pag.evaluate(() => { facultadSel = null; aplicarSeleccion(); });
+  await pag.waitForTimeout(250);
+  const limpio = await tabla();
+  ok('al quitar la seleccion el desplegable se vacia con ella',
+     limpio.selector === '' && !limpio.titulo.includes('_'),
+     [limpio.selector, limpio.titulo]);
+
+  // Cada tarjeta debe cambiar el ORIGEN de la tabla, no solo el rotulo.
+  for (const [bloque, rotulo, hoja] of [
+      ['producto', 'Productos', 'DETALLADO_PRODUCTOS_A1'],
+      ['procesos', 'Procesos', 'OBSERVACIONES_DE_PROCESO_A1'],
+      ['subprocesos', 'Subprocesos', 'OBSERVACIONES_DE_PROCESO_A1']]) {
+    await pag.evaluate(b => filterByStatus(b, 'CONFORME'), bloque);
+    await pag.waitForTimeout(220);
+    const r = await pag.evaluate(b => {
+      const entidad = ORIGEN_TABLA[b].entidad;
+      const enTabla = document.getElementById('visibleCountA1').textContent;
+      const esperados = allData.filter(d => d.entity === entidad && d.status === 'CONFORME').length;
+      return { enTabla: Number(enTabla), esperados,
+               titulo: document.getElementById('tableTitleA1').textContent,
+               pie: document.getElementById('dataFooterA1').textContent };
+    }, bloque);
+    ok('«' + rotulo + '» proyecta sus propios registros, no los de productos',
+       r.enTabla === r.esperados && r.esperados > 0, r);
+    ok('  y el titulo y el origen lo dicen: ' + hoja,
+       r.titulo.includes(rotulo) && r.pie.includes(hoja), [r.titulo, r.pie.slice(0, 60)]);
+  }
+
+  console.log('\nResaltado de la columna de observaciones');
+  await pag.evaluate(() => filterByStatus('producto', 'CONFORME'));
+  await pag.waitForTimeout(220);
+  const conforme = await tabla();
+  ok('en CONFORME la columna no se resalta', !conforme.alerta, conforme.alerta);
+  for (const estado of ['OBSERVADO', 'SIN REGISTRAR']) {
+    await pag.evaluate(e => filterByStatus('producto', e), estado);
+    await pag.waitForTimeout(220);
+    const r = await tabla();
+    ok('en ' + estado + ' la columna se marca', r.alerta, r.alerta);
+    if (r.fondoObs) {
+      const m = r.fondoObs.match(/\d+/g).map(Number);
+      ok('  y el fondo es amarillo', m[0] > 240 && m[1] > 230 && m[2] < 210, r.fondoObs);
+    }
+  }
+  await pag.evaluate(() => filterByStatus('producto', 'CONFORME'));
+  await pag.waitForTimeout(200);
+  ok('al volver a CONFORME el resaltado se quita solo', !(await tabla()).alerta);
+
+  console.log('\nPanel de filtros: nombre completo y dos metricas');
+  const panel = await pag.evaluate(() => {
+    const li = document.querySelector('#faculty-list li');
+    const nom = li.querySelector('.nombre-facultad');
+    const met = li.querySelector('.metricas-facultad');
+    return {
+      texto: nom.textContent,
+      completo: nom.textContent === DATOS_FUENTE.facultades[0].nombre,
+      truncado: getComputedStyle(nom).textOverflow === 'ellipsis' ||
+                nom.scrollWidth > nom.clientWidth + 1,
+      metricas: met.textContent.replace(/\s+/g, ' ').trim(),
+      conTruncate: [...document.querySelectorAll('#faculty-list .truncate')].length
+    };
+  });
+  ok('el nombre aparece entero', panel.completo, panel.texto);
+  ok('y no se corta con puntos suspensivos',
+     !panel.truncado && panel.conTruncate === 0, panel);
+  ok('debajo van las dos metricas por separado',
+     /proc\. nivel 0/.test(panel.metricas) && /subprocesos/.test(panel.metricas),
+     panel.metricas);
+
   console.log('\nResponsivo');
   const pantallas = [
     ['movil pequeno', 360, 740], ['movil', 414, 896], ['tableta vertical', 768, 1024],
