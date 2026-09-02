@@ -67,6 +67,13 @@
         .mini-bar:hover { opacity: 1; transform: scaleY(1.1); }
         .mini-bar-container { display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-top: 12px; }
 
+        /* ===== LINEA DE TENDENCIA DE CADA TARJETA ===== */
+        /* Alto fijo y position:relative porque Chart.js dimensiona el lienzo
+           contra su contenedor; sin alto, en un flex se estira sin fin. */
+        .tendencia { position: relative; height: 96px; width: 100%; }
+        .tendencia-vacia { font-size: 11.5px; color: #94a3b8; font-style: italic; }
+        @media (max-width: 1023px) { .tendencia { height: 108px; } }
+
         /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -202,6 +209,22 @@
         .empty-state { padding: 40px; text-align: center; color: var(--muted); }
         .empty-state i { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
 
+        /* ===== TARJETAS DE GRAFICO ===== */
+        /* El alto va en una variable y no en un atributo style, para poder
+           cambiarlo por tamaño de pantalla: en un movil 380 px dejan el
+           lienzo en una franja, y el panel de clasificacion no cabe al lado. */
+        .tarjeta-grafico { height: var(--alto-grafico, 380px); }
+        .lienzo-grafico { flex: 1 1 auto; min-height: 0; }
+
+        @media (max-width: 1023px) {
+            .tarjeta-grafico { --alto-grafico: auto; min-height: 540px; }
+            .lienzo-grafico  { min-height: 240px; }
+        }
+        @media (max-width: 640px) {
+            .tarjeta-grafico { min-height: 500px; }
+            .lienzo-grafico  { min-height: 210px; }
+        }
+
         /* ===== PANEL DE CLASIFICACION JUNTO A CADA GRAFICO ===== */
         .clasif-panel {
             width: 232px; flex: 0 0 232px; overflow-y: auto; padding-right: 4px;
@@ -223,16 +246,32 @@
         .clasif-item:hover { color: #0f1a2e; }
         .clasif-item.sel { color: #0f1a2e; font-weight: 700; }
         .clasif-vacio { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 5px; }
-        @media (max-width: 1280px) {
+        @media (max-width: 1280px) and (min-width: 1024px) {
             .clasif-panel { width: 180px; flex: 0 0 180px; padding-left: 12px; }
+        }
+        /* Debajo del grafico: sin borde lateral, y los cuatro tramos en
+           rejilla para que no encadenen una lista larguisima. */
+        @media (max-width: 1023px) {
+            .clasif-panel {
+                width: auto; flex: 0 0 auto; max-height: 260px;
+                border-left: 0; border-top: 1px solid rgba(15, 26, 46, .10);
+                padding-left: 0; padding-top: 14px;
+                display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px 18px; align-content: start;
+            }
+            .clasif-grupo + .clasif-grupo { margin-top: 0; }
+            .clasif-cuerpo { flex-direction: row; flex-wrap: wrap; gap: 2px 8px; }
+        }
+        @media (max-width: 420px) {
+            .clasif-panel { grid-template-columns: minmax(0, 1fr); max-height: 300px; }
         }
     </style>
 <base target="_blank">
 </head>
-<body class="text-corp-textmain h-screen flex overflow-hidden selection:bg-corp-blue selection:text-white">
+<body class="text-corp-textmain min-h-screen lg:h-screen flex flex-col lg:flex-row lg:overflow-hidden selection:bg-corp-blue selection:text-white">
 
     <!-- SIDEBAR -->
-    <aside class="w-20 bg-white/30 flex flex-col items-center py-8 gap-10 border-r border-white/60 z-10 backdrop-blur-sm shrink-0">
+    <aside class="hidden lg:flex w-20 bg-white/30 flex-col items-center py-8 gap-10 border-r border-white/60 z-10 backdrop-blur-sm shrink-0">
         <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-corp-dark text-2xl btn-depth">
             <i class="fa-solid fa-layer-group"></i>
         </div>
@@ -253,36 +292,36 @@
     </aside>
 
     <!-- MAIN -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header class="flex justify-between items-center px-8 pt-8 pb-6 shrink-0">
+    <main class="flex-1 flex flex-col lg:h-full lg:overflow-hidden relative min-w-0">
+        <header class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4 px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8 pb-4 lg:pb-6 shrink-0">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-white rounded-xl btn-depth"><i class="fa-solid fa-users text-2xl text-corp-dark"></i></div>
                 <div>
-                    <h1 class="text-3xl font-extrabold text-corp-dark tracking-tight">Gestion por Procesos <span class="font-light text-corp-textmuted">Panel de Control</span></h1>
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-corp-dark tracking-tight">Gestion por Procesos <span class="font-light text-corp-textmuted">Panel de Control</span></h1>
                     <p class="text-corp-textmuted text-sm mt-1 font-medium">Oficina de Racionalizacion OGPL UNMSM | <span id="sello-datos">Datos incrustados</span> <button onclick="refrescarTablero(true)" title="Actualizar ahora" class="ml-1 text-corp-blue hover:text-corp-dark transition align-middle"><i class="fa-solid fa-rotate text-xs"></i></button></p>
                 </div>
             </div>
-            <div class="flex items-center gap-6">
-                <div class="bg-white/50 p-1.5 rounded-full flex gap-1 btn-depth backdrop-blur-sm">
-                    <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="px-8 py-2.5 bg-corp-dark text-white rounded-full text-sm font-bold shadow-lg shadow-corp-dark/30 btn-depth-primary transition-all">Dashboard</button>
+            <div class="flex items-center gap-3 lg:gap-6 flex-wrap">
+                <div class="bg-white/50 p-1.5 rounded-full flex gap-1 btn-depth backdrop-blur-sm flex-wrap">
+                    <button id="btn-tab-dashboard" onclick="switchTab('dashboard')" class="px-4 sm:px-6 lg:px-8 py-2.5 bg-corp-dark text-white rounded-full text-xs sm:text-sm font-bold shadow-lg shadow-corp-dark/30 btn-depth-primary transition-all">Dashboard</button>
                     <button id="btn-tab-analisis" onclick="switchTab('analisis')" class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition-all btn-depth">Analisis</button>
                     <button id="btn-tab-database" onclick="switchTab('database')" class="px-8 py-2.5 bg-white text-corp-textmuted rounded-full text-sm font-bold hover:text-corp-dark transition-all btn-depth">Base de datos</button>
                 </div>
-                <div class="flex gap-4">
+                <div class="hidden sm:flex gap-4">
                     <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-corp-textmuted hover:text-corp-dark transition btn-depth"><i class="fa-regular fa-bell text-lg"></i></button>
                     <button class="w-12 h-12 bg-corp-dark text-white rounded-full flex items-center justify-center btn-depth-primary"><i class="fa-solid fa-house text-lg"></i></button>
                 </div>
             </div>
         </header>
 
-        <div class="flex gap-8 flex-1 px-8 pb-8 min-h-0">
+        <div class="flex flex-col lg:flex-row gap-5 lg:gap-8 flex-1 px-4 sm:px-6 lg:px-8 pb-6 lg:pb-8 min-h-0">
             <!-- FILTERS SIDEBAR -->
-            <aside class="w-72 rounded-[2rem] p-6 text-white flex flex-col dark-panel z-10 sticky top-0 shrink-0 overflow-hidden">
-                <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+            <aside class="w-full lg:w-72 max-h-[24rem] lg:max-h-none rounded-3xl lg:rounded-[2rem] p-5 lg:p-6 text-white flex flex-col dark-panel z-10 lg:sticky lg:top-0 shrink-0 overflow-hidden">
+                <div class="flex justify-between items-center mb-4 lg:mb-8 border-b border-white/10 pb-3 lg:pb-4">
                     <div class="flex items-center gap-3"><i class="fa-solid fa-filter text-xl text-blue-400"></i><span class="font-bold tracking-wide">Filtros</span></div>
                     <button class="text-white/50 hover:text-white transition" onclick="resetAllFilters()"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
-                <div class="mb-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div class="mb-4 lg:mb-8 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                     <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#14223c] pt-2 pb-2 z-10 backdrop-blur-md">
                         <h3 class="text-xs font-bold text-white/60 uppercase tracking-widest">FACULTADES</h3>
                         <button id="quitar-seleccion" hidden onclick="seleccionarFacultad(facultadSel)"
@@ -299,13 +338,13 @@
             </aside>
 
             <!-- ===== VISTA 1: DASHBOARD ===== -->
-            <div id="view-dashboard" class="view-section active flex-1 flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
-                <div class="grid grid-cols-4 gap-6">
+            <div id="view-dashboard" class="view-section active flex-1 flex-col gap-4 lg:gap-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar min-w-0">
+                <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 lg:gap-6">
                     <div class="glass-card p-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance Fase 1</h3>
                         <div class="flex items-end gap-3">
-                            <span id="kpi1-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">68.2%</span>
+                            <span id="kpi1-val" class="text-3xl lg:text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">68.2%</span>
                             <span id="sello-seleccion" hidden
                                   class="ml-2 align-middle text-[11px] font-bold text-corp-blue bg-corp-blue/10 rounded-full px-2 py-0.5"></span>
                             <span id="kpi1-var" class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
@@ -318,58 +357,58 @@
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance del Anexo 1 (Inventario)</h3>
                         <div class="flex items-end gap-3">
-                            <span id="kpi2-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">58.3%</span>
+                            <span id="kpi2-val" class="text-3xl lg:text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">58.3%</span>
                             <span id="kpi2-var" class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                                 <i class="fa-solid fa-minus"></i> —
                             </span>
                         </div>
-                        <div class="mini-bar-container mt-4" id="mini-bar-2"></div>
+                        <div class="tendencia mt-3" id="tend-caja-2"><canvas id="tend-anexo1"></canvas></div><div class="tendencia-vacia mt-3" id="tend-vacio-2" hidden></div>
                     </div>
                     <div class="glass-card p-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance del Anexo 3 (F. Caract.)</h3>
                         <div class="flex items-end gap-3">
-                            <span id="kpi3-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">89.6%</span>
+                            <span id="kpi3-val" class="text-3xl lg:text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">89.6%</span>
                             <span id="kpi3-var" class="text-sm font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                                 <i class="fa-solid fa-minus"></i> —
                             </span>
                         </div>
-                        <div class="mini-bar-container mt-4" id="mini-bar-3"></div>
+                        <div class="tendencia mt-3" id="tend-caja-3"><canvas id="tend-anexo3"></canvas></div><div class="tendencia-vacia mt-3" id="tend-vacio-3" hidden></div>
                     </div>
                     <div class="glass-card p-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-2.5 h-full bg-corp-dark rounded-r-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 class="text-sm font-bold text-corp-textmuted uppercase tracking-wider mb-2">% Avance de Anexo 4 (Indicadores)</h3>
                         <div class="flex items-end gap-3">
-                            <span id="kpi4-val" class="text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">42.1%</span>
+                            <span id="kpi4-val" class="text-3xl lg:text-4xl font-black tracking-tight text-corp-dark drop-shadow-sm">42.1%</span>
                             <span id="kpi4-var" class="text-sm font-bold text-rose-500 flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">
                                 <i class="fa-solid fa-minus"></i> —
                             </span>
                         </div>
-                        <div class="mini-bar-container mt-4" id="mini-bar-4"></div>
+                        <div class="tendencia mt-3" id="tend-caja-4"><canvas id="tend-anexo4"></canvas></div><div class="tendencia-vacia mt-3" id="tend-vacio-4" hidden></div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="glass-card p-6 flex flex-col relative" style="height:380px">
+                <div class="grid grid-cols-1 gap-4 lg:gap-6">
+                    <div class="glass-card tarjeta-grafico p-4 sm:p-6 flex flex-col relative">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 1</h2>
                                 <p class="text-sm font-medium text-corp-textmuted mt-1" id="sub-a1"></p>
                             </div>
                         </div>
-                        <div class="flex-1 min-h-0 flex gap-5">
-                            <div class="flex-1 relative min-w-0"><canvas id="chartAnexo1"></canvas></div>
+                        <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 lg:gap-5">
+                            <div class="lienzo-grafico relative min-w-0"><canvas id="chartAnexo1"></canvas></div>
                             <div class="clasif-panel" id="clasif-a1"></div>
                         </div>
                     </div>
-                    <div class="glass-card p-6 flex flex-col relative" style="height:380px">
+                    <div class="glass-card tarjeta-grafico p-4 sm:p-6 flex flex-col relative">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h2 class="text-lg font-bold text-corp-textmain flex items-center gap-2 drop-shadow-sm"><i class="fa-solid fa-chart-column text-corp-blue"></i> % Avance por Facultad del Anexo 3</h2>
                                 <p class="text-sm font-medium text-corp-textmuted mt-1" id="sub-a3"></p>
                             </div>
                         </div>
-                        <div class="flex-1 min-h-0 flex gap-5">
-                            <div class="flex-1 relative min-w-0"><canvas id="chartAnexo3"></canvas></div>
+                        <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 lg:gap-5">
+                            <div class="lienzo-grafico relative min-w-0"><canvas id="chartAnexo3"></canvas></div>
                             <div class="clasif-panel" id="clasif-a3"></div>
                         </div>
                     </div>
@@ -377,7 +416,7 @@
             </div>
 
             <!-- ===== VISTA 2: ANALISIS ===== -->
-            <div id="view-analisis" class="view-section flex-1 flex-col overflow-y-auto pr-2 custom-scrollbar">
+            <div id="view-analisis" class="view-section flex-1 flex-col lg:overflow-y-auto lg:pr-2 custom-scrollbar min-w-0">
                 <div class="switcher" role="tablist" aria-label="Anexos">
                     <button class="tab-ana active" data-target="anexo1" role="tab" onclick="switchAnexoTab('anexo1')">ANEXO 1</button>
                     <button class="tab-ana" data-target="anexo3" role="tab" onclick="switchAnexoTab('anexo3')">ANEXO 3</button>
@@ -513,7 +552,7 @@
             </div>
 
             <!-- ===== VISTA 3: BASE DE DATOS ===== -->
-            <div id="view-database" class="view-section flex-1 flex-col overflow-y-auto pr-2 custom-scrollbar">
+            <div id="view-database" class="view-section flex-1 flex-col lg:overflow-y-auto lg:pr-2 custom-scrollbar min-w-0">
                 <div class="db-header">
                     <div class="db-search-wrap">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -1454,6 +1493,174 @@ if (window.parent !== window) {
     if (window.ResizeObserver) new ResizeObserver(avisarAltura).observe(document.body);
 }
 
+
+// ============================================================
+// LINEAS DE TENDENCIA HISTORICA
+// ------------------------------------------------------------
+// Una por tarjeta de anexo, con TODOS los registros que
+// HISTORIAL_REVISIONES guarda para ese anexo, del primero al
+// ultimo. Sobre cada punto se rotula la variacion en puntos
+// porcentuales contra el registro inmediatamente anterior: es
+// lo que convierte la linea en una lectura de si subimos o
+// bajamos, y no solo de donde estamos.
+//
+// La variacion la calcula el servidor y viaja en la serie. Aqui
+// no se recalcula: dos aritmeticas separadas acaban discrepando,
+// y la tarjeta y su grafico dirian cosas distintas.
+// ============================================================
+
+const TENDENCIAS = {};   // clave de anexo -> instancia de Chart
+
+const COLOR_TEND = { anexo1: COLOR_A1, anexo3: COLOR_A3, anexo4: '#8b5cf6' };
+
+/** Fecha corta para el eje: «20/08». El detalle va en el tooltip. */
+function fechaCorta(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+/**
+ * Rotula la variacion sobre cada punto. Va como plugin propio en lugar de
+ * chartjs-plugin-datalabels por lo mismo que la linea de referencia: es un
+ * texto por punto, y no merece otra dependencia de CDN que ademas podria no
+ * llegar en la red de la universidad.
+ */
+const PLUGIN_VARIACION = {
+    id: 'rotuloVariacion',
+    afterDatasetsDraw(grafico, args, opciones) {
+        const puntos = grafico.getDatasetMeta(0).data;
+        const serie = opciones.serie || [];
+        const { ctx, chartArea } = grafico;
+
+        ctx.save();
+        ctx.font = '700 9.5px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+
+        serie.forEach((p, i) => {
+            if (p.variacion === null || p.variacion === undefined) return;
+            const punto = puntos[i];
+            if (!punto) return;
+
+            const sube = p.variacion >= 0;
+            const texto = (sube ? '+' : '') + p.variacion.toFixed(1).replace('.', ',');
+
+            // Encima del punto, salvo que no quepa: entonces debajo. Sin esto
+            // el primer valor alto quedaba recortado contra el borde.
+            const arriba = punto.y - 14 > chartArea.top;
+            const y = arriba ? punto.y - 9 : punto.y + 15;
+
+            ctx.fillStyle = sube ? '#059669' : '#e11d48';
+            ctx.fillText(texto, punto.x, y);
+        });
+        ctx.restore();
+    }
+};
+
+function pintarTendencias() {
+    [['anexo1', 2], ['anexo3', 3], ['anexo4', 4]].forEach(([clave, nCaja]) => {
+        const lienzo = document.getElementById('tend-' + clave);
+        const caja   = document.getElementById('tend-caja-' + nCaja);
+        const vacio  = document.getElementById('tend-vacio-' + nCaja);
+        if (!lienzo || !caja) return;
+
+        const h = (DATOS_FUENTE.historial || {})[clave];
+        const serie = (h && h.serie) || [];
+
+        // Con menos de dos puntos no hay tendencia que trazar. Se dice, en
+        // lugar de dibujar una linea de un punto que no significa nada.
+        if (typeof Chart === 'undefined' || serie.length < 2) {
+            if (TENDENCIAS[clave]) { TENDENCIAS[clave].destroy(); delete TENDENCIAS[clave]; }
+            caja.hidden = true;
+            if (vacio) {
+                vacio.hidden = false;
+                vacio.textContent = typeof Chart === 'undefined'
+                    ? 'Tendencia no disponible sin conexión.'
+                    : (serie.length === 1
+                        ? 'Una sola revisión registrada: aún no hay tendencia.'
+                        : 'Sin revisiones registradas para este anexo.');
+            }
+            return;
+        }
+
+        caja.hidden = false;
+        if (vacio) vacio.hidden = true;
+
+        const color = COLOR_TEND[clave];
+        const valores = serie.map(p => p.valor);
+        // Un margen sobre el rango real: pegar la linea a los bordes esconde
+        // los movimientos pequeños, que es justo lo que se quiere ver.
+        const min = Math.min(...valores), max = Math.max(...valores);
+        const aire = Math.max((max - min) * 0.35, 4);
+
+        if (TENDENCIAS[clave]) TENDENCIAS[clave].destroy();
+        TENDENCIAS[clave] = new Chart(lienzo, {
+            type: 'line',
+            data: {
+                labels: serie.map(p => fechaCorta(p.fecha)),
+                datasets: [{
+                    data: valores,
+                    borderColor: color,
+                    backgroundColor: color + '1f',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.25,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: serie.map((p, i) =>
+                        i === serie.length - 1 ? color : '#ffffff'),
+                    pointBorderColor: color,
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 14, bottom: 2 } },
+                plugins: {
+                    legend: { display: false },
+                    rotuloVariacion: { serie },
+                    tooltip: {
+                        displayColors: false,
+                        callbacks: {
+                            title: (t) => {
+                                const d = new Date(serie[t[0].dataIndex].fecha);
+                                return isNaN(d) ? '' : d.toLocaleString('es-PE',
+                                    { day: '2-digit', month: '2-digit', year: 'numeric',
+                                      hour: '2-digit', minute: '2-digit' });
+                            },
+                            label: (t) => {
+                                const p = serie[t.dataIndex];
+                                const v = p.valor.toFixed(1).replace('.', ',') + '%';
+                                if (p.variacion === null || p.variacion === undefined) {
+                                    return [v, 'primera revisión registrada'];
+                                }
+                                const sig = p.variacion >= 0 ? '+' : '';
+                                return [v, sig + p.variacion.toFixed(1).replace('.', ',') +
+                                           ' pp respecto de la anterior'];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: Math.max(0, min - aire), max: Math.min(100, max + aire),
+                        display: false, grid: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: {
+                            font: { family: 'Outfit', size: 9 }, color: '#94a3b8',
+                            maxRotation: 0, autoSkipPadding: 12
+                        }
+                    }
+                }
+            },
+            plugins: [PLUGIN_VARIACION]
+        });
+    });
+}
+
 function pintarTodo() {
     // Cada paso va aislado: que uno falle no debe dejar el resto del
     // dashboard en blanco, como ocurria cuando el CDN de Chart.js no
@@ -1461,6 +1668,7 @@ function pintarTodo() {
     [['listado de facultades', renderFacultyList],
      ['indicadores',           vincularIndicadores],
      ['mini barras',           renderMiniBars],
+     ['lineas de tendencia',   pintarTendencias],
      ['graficos',              initCharts],
      ['paneles de clasificacion', pintarClasificaciones],
      ['filtros Anexo 1',       populateAnexo1Filters],

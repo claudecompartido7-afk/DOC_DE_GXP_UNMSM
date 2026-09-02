@@ -342,3 +342,16 @@ tarjeta a una revisión que no era la suya, y rotulaba una fecha ajena.
 
 Con un solo registro no hay variación: la tarjeta lo dice, en vez de mostrar
 un 0 que se lee como «no ha avanzado».
+
+### La serie completa para las líneas de tendencia
+
+Cada anexo viaja además con `serie`: **todos** sus registros de
+`HISTORIAL_REVISIONES`, del primero al último, y en cada punto su variación
+contra el inmediatamente anterior.
+
+La variación se calcula aquí y no en el navegador a propósito. La tarjeta y su
+gráfico de tendencia muestran la misma cifra; con dos aritméticas separadas
+acabarían discrepando por un redondeo, y nadie sabría cuál creer.
+
+Con un solo registro no hay tendencia que trazar: el tablero lo dice en lugar
+de dibujar una línea de un punto.
