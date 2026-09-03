@@ -2149,17 +2149,40 @@ function horaCorta(iso) {
         { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
-/** Una peticion al endpoint, con la accion y las opciones que se le pasen. */
+/**
+ * Una peticion al endpoint.
+ *
+ * La respuesta se lee como TEXTO y luego se interpreta, en vez de con
+ * `r.json()` directamente. La diferencia importa: cuando la aplicacion web no
+ * esta publicada con acceso «Cualquier usuario», Google no devuelve un error
+ * sino la PAGINA DE INICIO DE SESION, en HTML y con estado 200. `r.json()`
+ * fallaba ahi con un «Unexpected token <» que no le dice nada a nadie. Ahora
+ * se reconoce ese caso y se explica qué hay que cambiar.
+ */
 function pedirAlServidor(cuerpo) {
     return fetch(GXP_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(Object.assign({ accion: 'tablero' }, cuerpo)),
         redirect: 'follow'
-    }).then(r => {
+    }).then(r => r.text().then(texto => {
         if (!r.ok) throw new Error('el servidor respondio ' + r.status);
-        return r.json();
-    });
+
+        try {
+            return JSON.parse(texto);
+        } catch (e) {
+            const t = texto.slice(0, 400);
+            if (/accounts\.google\.com|ServiceLogin|Iniciar sesión|Sign in/i.test(t)) {
+                throw new Error('el endpoint pide iniciar sesión — publique la ' +
+                    'aplicación web con «Quién tiene acceso: Cualquier usuario»');
+            }
+            if (/^\s*</.test(t)) {
+                throw new Error('el endpoint devolvió una página HTML y no datos — ' +
+                    'revise que la URL sea la del despliegue actual');
+            }
+            throw new Error('respuesta ilegible: ' + t.slice(0, 60));
+        }
+    }));
 }
 
 /** Mezcla lo que llegue sobre la fuente actual y repinta. */
@@ -2215,9 +2238,12 @@ function refrescarTablero(manual) {
             // Se avisa SIEMPRE, no solo cuando se pulsa el boton. Callarlo en
             // el refresco automatico es lo que dejaba la pantalla con datos
             // viejos y sin ninguna pista.
-            const motivo = String(e && e.message || e).slice(0, 60);
-            console.warn('[Tablero] No se pudo actualizar:', motivo);
-            sello('Sin conexion con la hoja · ' + motivo, 'text-red-600');
+            const motivo = String(e && e.message || e);
+            // El endpoint completo va al registro: si la URL es la equivocada,
+            // es lo primero que hay que poder comparar.
+            console.warn('[Tablero] No se pudo actualizar:', motivo,
+                         '\nEndpoint:', GXP_ENDPOINT);
+            sello('Sin conexión · ' + motivo, 'text-red-600');
             return false;
         })
         .then(r => { refrescando = false; return r; });
