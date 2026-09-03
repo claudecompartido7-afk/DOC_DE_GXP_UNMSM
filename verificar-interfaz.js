@@ -878,8 +878,37 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     sello: document.getElementById('sello-datos').textContent,
     clase: document.getElementById('sello-datos').className }));
   ok('un fallo en el refresco automatico tambien se avisa',
-     /Sin conexion/.test(caido.sello) && /red/.test(caido.clase), caido);
+     /Sin conexión/.test(caido.sello) && /red/.test(caido.clase), caido);
   ok('  y dice el motivo, no solo que fallo', /503/.test(caido.sello), caido.sello);
+  await pag.unroute(/script\.google\.com/);
+
+  // El caso mas comun de todos, y el que peor se explicaba: la aplicacion web
+  // no esta publicada como «Cualquier usuario». Google no devuelve un error
+  // sino su pagina de inicio de sesion, en HTML y con estado 200.
+  await pag.route(/script\.google\.com/, r => r.fulfill({ status: 200,
+    contentType: 'text/html',
+    body: '<!DOCTYPE html><html><head><title>Iniciar sesión</title></head>' +
+          '<body><form action="https://accounts.google.com/ServiceLogin">' +
+          '</form></body></html>' }));
+  await pag.evaluate(() => { refrescando = false; });
+  await pag.evaluate(() => refrescarTablero(false));
+  await pag.waitForTimeout(600);
+  const login = await pag.evaluate(() => document.getElementById('sello-datos').textContent);
+  ok('una pagina de inicio de sesion se reconoce y se explica',
+     /Cualquier usuario/.test(login), login);
+  ok('  y no como un «Unexpected token», que no dice nada',
+     !/Unexpected token/.test(login), login);
+  await pag.unroute(/script\.google\.com/);
+
+  // Otra pagina HTML cualquiera: URL de despliegue equivocada.
+  await pag.route(/script\.google\.com/, r => r.fulfill({ status: 200,
+    contentType: 'text/html', body: '<html><body>Se ha movido</body></html>' }));
+  await pag.evaluate(() => { refrescando = false; });
+  await pag.evaluate(() => refrescarTablero(false));
+  await pag.waitForTimeout(600);
+  const html = await pag.evaluate(() => document.getElementById('sello-datos').textContent);
+  ok('otra pagina HTML apunta a la URL del despliegue',
+     /página HTML/.test(html) && /despliegue actual/.test(html), html);
   await pag.unroute(/script\.google\.com/);
 
   console.log('\nResponsivo');

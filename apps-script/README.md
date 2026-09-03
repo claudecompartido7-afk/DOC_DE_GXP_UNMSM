@@ -515,3 +515,27 @@ explicación.
 
 `probarTablero()` mide el tamaño de las dos partes y avisa si la respuesta se
 ha vuelto muy grande.
+
+### Cuando `probarTablero()` funciona pero la web no
+
+Son dos entornos distintos. `probarTablero()` corre **en el editor, como usted**;
+la aplicación web responde **al navegador de cualquiera**. Que el primero lea el
+libro sin problemas no dice nada del segundo.
+
+La causa más común, con diferencia: la aplicación web no está publicada con
+**«Quién tiene acceso: Cualquier usuario»**. Google entonces no devuelve un
+error sino su **página de inicio de sesión**, en HTML y con estado 200. El
+tablero lo reconoce y lo dice con esas palabras en la cabecera, en lugar del
+`Unexpected token <` que salía antes y no orientaba a nadie.
+
+La segunda: la URL de `GXP_ENDPOINT` en `Dashboard.html` no es la del
+despliegue vigente. Ocurre al crear un despliegue **nuevo** en vez de editar el
+existente con versión «Nueva»: la URL cambia y el tablero sigue llamando a la
+vieja.
+
+**La prueba que las distingue en un segundo:** abrir la URL del endpoint
+directamente en el navegador. `doGet()` responde con el diagnóstico en JSON.
+
+- Sale JSON → el despliegue es público y funciona; el problema está en otra parte.
+- Sale una pantalla de Google pidiendo iniciar sesión → es el acceso.
+- Sale «no se encuentra» → la URL no es la del despliegue vigente.
