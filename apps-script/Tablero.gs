@@ -5,34 +5,25 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *  Lee el libro «4_REVISIÓN_INTERNA DE_AVANCES_ACTIVIDADES» y devuelve, en la
  *  forma exacta que el Dashboard espera, lo que las auditorías de los anexos
- *  dejaron escrito en él. El tablero deja así de llevar sus cifras incrustadas:
- *  las pide cada vez, y cada corrida de `ejecutarAuditoriaAnexo1`,
- *  `ejecutarRevisionAnexo3` o `ejecutarRevisionAnexo4` se ve en la web sin
- *  volver a publicar nada.
+ *  dejaron escrito en él.
  *
- *  Se responde SIN sesión, a propósito: el tablero está publicado en la portada
- *  pública. Por eso aquí sólo salen cifras agregadas y el detalle de la revisión
- *  —lo mismo que ya viajaba incrustado en el HTML—, nunca las credenciales ni
- *  los paneles del área interna, que siguen exigiendo acceso en Codigo.gs.
- *
- *  Instalación
  *  ─────────────────────────────────────────────────────────────────────────────
- *   1. Pegar este archivo en el proyecto que publica la aplicación web.
- *   2. En `Codigo.gs`, dentro del PRIMER switch de `doPost` (el de las acciones
- *      sin credenciales), añadir:      case 'tablero': return responder(tablero());
- *   3. Volver a implementar con versión «Nueva».
- *
- *  `probarTablero()` desde el editor comprueba las hojas sin pasar por la web.
+ *  PARCHE ANEXO 3 (aplicado): las hojas RESUMEN_FICHAS_A3, DETALLE_REVISION_A3
+ *  y REGISTRO_MAESTRO_CODIGOS_A3 ya traen su columna ESTADO calculada
+ *  directamente (CONFORME/OBSERVADO/SIN REGISTRAR/CRITICO). El código anterior
+ *  traducía desde "Correcto/Observación/Incompleto" (formato viejo) y apuntaba
+ *  a columnas que ya no existen en esa posición, así que todo caía en 0 o en
+ *  Observado por defecto. Ver normalizarEstado_() y los tres forEach dentro de
+ *  recopilarRegistros_.
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
 const TABLERO = {
 
-  /** Libro donde las tres auditorías dejan sus hojas de resultado. */
   LIBRO_ID: '1oYBAHp-Bd0V8un5hUAWdK1jKbcbdsROH4IOyM0MAmFk',
 
   HOJAS: {
-    GENERAL:    'RESUMEN_GENERAL',              // Anexo 3 · % por facultad
+    GENERAL:    'RESUMEN_GENERAL',
     RESUMEN_A1: 'RESUMEN_EJECUTIVO_A1',
     PRODUCTOS:  'DETALLADO_PRODUCTOS_A1',
     PROCESOS:   'OBSERVACIONES_DE_PROCESO_A1',
@@ -45,46 +36,14 @@ const TABLERO = {
     CATALOGO:   'CODIFICACION_ DE_LAS_FACULTADES'
   },
 
-  /**
-   * Tope de filas de detalle que viajan al navegador.
-   *
-   * Estaba en 3000 y las hojas suman más: DETALLADO_PRODUCTOS_A1 ronda las
-   * 2900 filas y OBSERVACIONES_DE_PROCESO_A1 casi 1000, así que se perdían
-   * cientos de registros por el camino. Ahora cabe el libro entero con
-   * holgura; es un tope de seguridad, no un recorte de trabajo.
-   *
-   * Nada de esto afecta a los INDICADORES: se calculan sobre las hojas de
-   * resumen completas, no sobre este detalle.
-   *
-   * A cambio, la respuesta pasa de largo el máximo de la caché de Apps Script
-   * (100 KB por entrada), así que deja de guardarse y cada consulta relee el
-   * libro. Es el precio de no perder filas, y `probarTablero()` lo dice.
-   */
   MAX_REGISTROS: 25000,
 
-  /**
-   * Celda de `RESUMEN_EJECUTIVO_A4` que lleva el avance del Anexo 4 según la
-   * última versión del historial de revisión. Manda sobre el recuento de
-   * indicadores aprobados: la hoja pondera, y contar filas no.
-   */
   CELDA_PCT_A4: 'F36',
 
-  /**
-   * Celda de `HISTORIAL_REVISIONES` con el avance de Fase 1 de la última
-   * versión registrada. Es el respaldo de la búsqueda por «Fase 1» en la
-   * columna B: si esa búsqueda no da con la fila —porque la fecha está escrita
-   * de una forma que no se reconoce, o el rótulo cambió— se lee esta celda en
-   * lugar de dejar la tarjeta con el promedio calculado.
-   */
   CELDA_PCT_FASE1: 'C14',
 
-  /** Segundos que se guarda la respuesta antes de volver a leer el libro. */
   CACHE_SEG: 60,
 
-  /**
-   * Catálogo oficial, con la numeración corregida de la OGPL: FII es F17,
-   * FPSIC F18, FIEE F19 y FISI F20. El orden es el de la relación.
-   */
   FACULTADES: [
     ['FM',     'F01', 'FACULTAD DE MEDICINA'],
     ['FDCP',   'F02', 'FACULTAD DE DERECHO Y CIENCIA POLÍTICA'],
@@ -111,18 +70,8 @@ const TABLERO = {
 
 /* ══════════════════════ ACCIÓN PÚBLICA ══════════════════════ */
 
-/**
- * Respuesta que consume el Dashboard. Se sirve de la caché mientras no
- * caduque: veinte personas mirando el tablero no son veinte lecturas del libro.
- */
 function tablero(opciones) {
   const sinCache = opciones && opciones.sinCache;
-  // `detalle:false` devuelve SOLO los agregados: facultades, totales, KPI e
-  // historial. Es lo que alimenta las tarjetas, los rankings y los gráficos, y
-  // pesa unos pocos kilobytes. El detalle —decenas de miles de filas entre
-  // productos, procesos y campos— solo lo necesitan las tres tablas, y es lo
-  // que hacía que una única respuesta se volviera enorme y acabara fallando
-  // entera: sin nada en pantalla, en vez de con las tablas vacías.
   const conDetalle = !opciones || opciones.detalle !== false;
   const clave = conDetalle ? 'tablero_v1' : 'tablero_agregados_v1';
   const cache = CacheService.getScriptCache();
@@ -147,8 +96,6 @@ function tablero(opciones) {
     cache.put(clave, JSON.stringify(datos), TABLERO.CACHE_SEG);
     datos.enCache = true;
   } catch (e) {
-    // Supera el máximo de la caché (100 KB): se sirve igual, sin guardar. Con
-    // el libro completo esto es lo normal, no una avería.
     datos.enCache = false;
   }
   return datos;
@@ -171,7 +118,7 @@ function construirTablero_() {
   const pctA4Hoja= leerCeldaPct_(libro, TABLERO.HOJAS.A4, TABLERO.CELDA_PCT_A4);
   const histor   = leerHoja_(libro, TABLERO.HOJAS.HISTORIAL);
 
-  const catalogo = leerCatalogo_(libro);   // fija también CATALOGO_VIGENTE
+  const catalogo = leerCatalogo_(libro);
   const porSigla = indexarPorSigla_(general, resA1, resA3, catalogo);
   const facultades = catalogo.map(function (f, i) {
     return facultadDe_(f[0], f[1] + '_' + f[0], f[2], i + 1, porSigla[f[0]] || {});
@@ -179,14 +126,9 @@ function construirTablero_() {
 
   const registros = recopilarRegistros_(productos, procesos, fichas, campos, codigos);
 
-  // El detalle del Anexo 3 se lee después de armar el catálogo, así que sus
-  // recuentos se acoplan aquí en lugar de dentro de `facultadDe_`.
   facultades.forEach(function (f) {
     const extra = registros.porFacultad[f.codigo] || {};
     const vacio = { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 };
-    // `fichas` ya existe con el desglose de RESUMEN_EJECUTIVO_A3 —completas,
-    // incompletas, sin producto— del que sale el KPI del Anexo 3. El recuento
-    // por estado va aparte, en `fichasEstado`, para no romper esa aritmética.
     f.fichasEstado = extra.fichas  || vacio;
     f.campos       = extra.campos  || vacio;
     f.codigos      = extra.codigos || { conformes: 0, observados: 0, total: 0 };
@@ -214,21 +156,12 @@ function construirTablero_() {
   };
 }
 
-/** Devuelve las filas de una hoja sin su encabezado; [] si la hoja no existe. */
 function leerHoja_(libro, nombre) {
   const hoja = buscarHoja_(libro, nombre);
   if (!hoja || hoja.getLastRow() < 2) return [];
   return hoja.getDataRange().getValues().slice(1);
 }
 
-/**
- * Localiza una pestaña sin exigir que el nombre coincida carácter a carácter.
- *
- * Hace falta: la hoja del catálogo se llama `CODIFICACION_ DE_LAS_FACULTADES`,
- * con un espacio suelto detrás del guion bajo. Comparar literalmente haría que
- * el día que alguien lo corrija —o lo mueva de sitio— el tablero se quedara sin
- * catálogo sin decir por qué. Se comparan letras y dígitos, y nada más.
- */
 function buscarHoja_(libro, nombre) {
   const exacta = libro.getSheetByName(nombre);
   if (exacta) return exacta;
@@ -245,15 +178,6 @@ function esqueleto_(s) {
   return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
-/**
- * Cruza por sigla las tres hojas de resumen. Cada una aporta una parte:
- * RESUMEN_GENERAL los porcentajes, RESUMEN_EJECUTIVO_A1 los productos y los
- * procesos, RESUMEN_EJECUTIVO_A3 las fichas.
- *
- * Se descartan las filas que no son de facultad —la de TOTAL y la leyenda que
- * el auditor del Anexo 1 escribe al pie— comprobando la sigla contra el
- * catálogo, que es el único juez de qué es una facultad.
- */
 function indexarPorSigla_(general, resA1, resA3, catalogo) {
   const validas = {};
   catalogo.forEach(function (f) { validas[f[0]] = true; });
@@ -284,9 +208,6 @@ function indexarPorSigla_(general, resA1, resA3, catalogo) {
       sinRegistrar: num_(f[5])
     };
     c.procesos = num_(f[9]);
-    // Columnas 11-13 y 14-16 del resumen: el desglose que las tarjetas de
-    // «Procesos» y «SubProcesos» necesitan. Se leía la fila entera y solo se
-    // usaba el total, así que esas dos tarjetas salían siempre en cero.
     c.procesosN0 = {
       conformes:    num_(f[10]),
       observados:   num_(f[11]),
@@ -297,7 +218,6 @@ function indexarPorSigla_(general, resA1, resA3, catalogo) {
       observados:   num_(f[14]),
       sinRegistrar: num_(f[15])
     };
-    // Si RESUMEN_GENERAL no existe todavía, el avance del Anexo 1 se toma aquí.
     if (c.pctAnexo1 === null) c.pctAnexo1 = pct_(f[6]);
   });
 
@@ -316,7 +236,6 @@ function indexarPorSigla_(general, resA1, resA3, catalogo) {
   return mapa;
 }
 
-/** Una facultad del catálogo, completada con lo que el libro tenga de ella. */
 function facultadDe_(sigla, codigo, nombre, orden, d) {
   const productos = d.productos || { total: 0, conformes: 0, observados: 0, sinRegistrar: 0 };
   const cero = function () { return { conformes: 0, observados: 0, sinRegistrar: 0, total: 0 }; };
@@ -344,11 +263,6 @@ function facultadDe_(sigla, codigo, nombre, orden, d) {
   };
 }
 
-/**
- * La clasificación que colorea el listado. Se respeta la que escribió el
- * auditor cuando la hay; si la hoja aún no se ha generado, se deduce del
- * avance para que el tablero no quede en gris.
- */
 function clasificar_(estado, pct) {
   const e = String(estado || '').toLowerCase();
   if (e.indexOf('crítico') !== -1 || e.indexOf('critico') !== -1) return 'Crítico';
@@ -358,41 +272,37 @@ function clasificar_(estado, pct) {
   return pct >= 90 ? 'Conforme' : (pct >= 50 ? 'Observación' : 'Crítico');
 }
 
-/** Los totales del encabezado salen de las facultades, no de la fila TOTAL. */
 /**
- * Cómo se traduce la columna CLASIFICACIÓN de DETALLE_REVISION_A3 a los cuatro
- * estados de la tarjeta «Fichas / Campos».
- *
- * El auditor del Anexo 3 escribe cinco rótulos y la tarjeta pide cuatro
- * estados, así que la correspondencia hay que decidirla y dejarla escrita:
- *
- *   Correcto    -> Conforme       el campo está y está bien
- *   Observación -> Observado      está, pero hay algo que corregir
- *   Incompleto  -> Sin Registrar  la columna es «¿CAMPO COMPLETO?»: no está
- *   Crítico     -> Crítico
- *   Opcional    -> no cuenta      no era exigible, no es un acierto ni un fallo
+ * ── PARCHE ──────────────────────────────────────────────────────────────
+ * Lee la columna ESTADO de cualquiera de las tres hojas del Anexo 3 y la
+ * normaliza a uno de los cuatro estados que usan las tarjetas. Usa
+ * coincidencia parcial (indexOf), no comparación exacta: así no importa si
+ * la hoja escribe "Observado", "Observada" u "OBSERVACIÓN". Devuelve null
+ * solo cuando el valor no encaja con nada reconocible (celda vacía,
+ * "Opcional", "N/A"...).
  */
-const CLASIFICACION_A3 = {
-  'CORRECTO':    'CONFORME',
-  'OBSERVACION': 'OBSERVADO',
-  'INCOMPLETO':  'SIN REGISTRAR',
-  'CRITICO':     'CRITICO'
-};
-
-/** El estado de una fila de DETALLE_REVISION_A3 según su clasificación. */
-function estadoDeCampo_(clasificacion) {
-  const c = String(clasificacion || '').trim().toUpperCase()
+function normalizarEstado_(valor) {
+  const c = String(valor || '').trim().toUpperCase()
               .replace(/[ÁÀÄÂ]/g, 'A').replace(/[ÉÈËÊ]/g, 'E')
               .replace(/[ÍÌÏÎ]/g, 'I').replace(/[ÓÒÖÔ]/g, 'O')
               .replace(/[ÚÙÜÛ]/g, 'U');
-  return CLASIFICACION_A3[c] || null;
+  if (!c) return null;
+  if (c.indexOf('CRITIC') !== -1)                        return 'CRITICO';
+  if (c.indexOf('CONFORME') !== -1)                       return 'CONFORME';
+  if (c.indexOf('SIN REGIS') !== -1)                      return 'SIN REGISTRAR';
+  if (c.indexOf('OBSERVAD') !== -1 ||
+      c.indexOf('OBSERVACION') !== -1)                    return 'OBSERVADO';
+  return null;
 }
 
-/** «Sí» / «No» de la columna ¿DENOMINACIÓN CONSISTENTE? del maestro. */
-function estadoDeCodigo_(consistente) {
-  const v = String(consistente || '').trim().toUpperCase();
-  if (!v) return null;
-  return /^S/.test(v) ? 'CONFORME' : 'OBSERVADO';
+/**
+ * ── PARCHE ──────────────────────────────────────────────────────────────
+ * Códigos solo distingue Conforme/Observado en los totales (codConf/codObs).
+ */
+function estadoDeCodigo_(estadoCelda) {
+  const c = normalizarEstado_(estadoCelda);
+  if (!c) return null;
+  return c === 'CONFORME' ? 'CONFORME' : 'OBSERVADO';
 }
 
 function sumarTotales_(facultades) {
@@ -432,13 +342,6 @@ function sumarTotales_(facultades) {
   return t;
 }
 
-/**
- * Los cuatro indicadores de cabecera.
- *
- * El avance de los anexos se pondera por volumen —una facultad con 281
- * productos no puede pesar lo mismo que una con 62—, que es el criterio de la
- * fórmula del Centro de Documentación: (conformes + ½ observados) ÷ total.
- */
 function calcularKpi_(facultades, t, anexo4, historial, pctFase1Celda) {
   const totalProd = t.prodConf + t.prodObs + t.prodSin;
   const totalFich = t.fichComp + t.fichIncomp + t.fichSin;
@@ -451,22 +354,11 @@ function calcularKpi_(facultades, t, anexo4, historial, pctFase1Celda) {
     ? redondear_(conAvance.reduce(function (a, f) { return a + f.pctGeneral; }, 0) / conAvance.length)
     : 0;
 
-  // HISTORIAL_REVISIONES es la cifra que la OGPL da por buena para cada anexo:
-  // la escribe el propio auditor al terminar. Manda sobre lo que se recalcula
-  // aquí desde las hojas de resumen, que puede diferir si alguien editó una a
-  // mano después de la corrida. Si un anexo no está en el historial todavía,
-  // se queda con el cálculo, que es mejor que un hueco.
   const delHistorial = function (clave, calculado) {
     const h = historial && historial[clave];
     return h && h.actual ? h.actual.valor : calculado;
   };
 
-  // Fase 1, en orden de preferencia:
-  //   1. La fila «Fase 1» más reciente del historial. Es la única que trae
-  //      fecha, así que es la única con la que la tarjeta puede mostrar su
-  //      variación y su línea de tendencia.
-  //   2. La celda C14 a secas, para cuando la búsqueda no da con la fila.
-  //   3. El promedio de las facultades con avance.
   const fase1 = (historial && historial.fase1 && historial.fase1.actual)
     ? historial.fase1.actual.valor
     : (pctFase1Celda === null || pctFase1Celda === undefined ? general : pctFase1Celda);
@@ -476,13 +368,7 @@ function calcularKpi_(facultades, t, anexo4, historial, pctFase1Celda) {
     anexo1: delHistorial('anexo1', a1),
     anexo3: delHistorial('anexo3', a3),
     anexo4: delHistorial('anexo4', anexo4.pct),
-
-    // Lo que dan las hojas por su cuenta, al margen del historial. No lo pinta
-    // ninguna tarjeta: está para que `probarTablero()` pueda enseñar las dos
-    // cifras cuando no coinciden, que es justo cuando alguien quiere saberlo.
     hojas: { general: general, anexo1: a1, anexo3: a3, anexo4: anexo4.pctContado },
-
-    // De dónde salió cada cifra de Fase 1, para poder decirlo en el diagnóstico.
     origenFase1: (historial && historial.fase1 && historial.fase1.actual)
       ? 'la fila «Fase 1» más reciente de ' + TABLERO.HOJAS.HISTORIAL
       : (pctFase1Celda === null || pctFase1Celda === undefined
@@ -492,28 +378,11 @@ function calcularKpi_(facultades, t, anexo4, historial, pctFase1Celda) {
   };
 }
 
-/**
- * El historial visto anexo por anexo: su último registro, el anterior y la
- * diferencia en puntos porcentuales.
- *
- * Se ordena por fecha DENTRO de cada anexo, no por corridas conjuntas. Importa:
- * los tres auditores se ejecutan por separado, así que la revisión anterior del
- * Anexo 4 puede ser de otro día que la del Anexo 1, y agruparlas por momento
- * haría que una tarjeta se comparase contra una revisión que no es la suya.
- */
 function historialPorAnexo_(filas) {
   const porAnexo = { fase1: [], anexo1: [], anexo3: [], anexo4: [] };
 
   filas.forEach(function (f, i) {
-    // Una fecha que no se puede interpretar NO descarta la fila. Antes sí, y
-    // en silencio: una columna A escrita como texto —«28/08/2026 09:00»— hacía
-    // desaparecer registros que estaban perfectamente ahí, sin que nada lo
-    // dijera. Se conserva la fila y, a falta de fecha, manda su orden en la
-    // hoja, que es el orden en que se registraron.
     const fecha = fechaDeCelda_(f[0]);
-
-    // «Fase 1» se comprueba ANTES que los anexos: lleva un 1 en el nombre y si
-    // no, se colaría como Anexo 1 y falsearía las dos series.
     const texto = String(f[1] || '');
     const clave = /fase\s*1/i.test(texto) ? 'fase1'
                 : /4/.test(texto) ? 'anexo4'
@@ -533,9 +402,6 @@ function historialPorAnexo_(filas) {
 
   const salida = {};
   Object.keys(porAnexo).forEach(function (clave) {
-    // Por fecha cuando la hay; a igualdad, o sin fecha, por su posición en la
-    // hoja. Así «el último registro» sigue siendo el de más abajo aunque la
-    // columna A esté vacía o mal escrita.
     const lista = porAnexo[clave].sort(function (a, b) {
       if (a.fecha && b.fecha && a.fecha !== b.fecha) return a.fecha < b.fecha ? -1 : 1;
       return a.orden - b.orden;
@@ -543,9 +409,6 @@ function historialPorAnexo_(filas) {
     const actual   = lista.length ? lista[lista.length - 1] : null;
     const anterior = lista.length > 1 ? lista[lista.length - 2] : null;
 
-    // La serie completa, con la variación de cada punto contra el anterior.
-    // Se calcula aquí y no en el navegador para que el gráfico de tendencia y
-    // la tarjeta no puedan discrepar: una sola aritmética, un solo resultado.
     const serie = lista.map(function (p, i) {
       return {
         fecha: p.fecha,
@@ -568,16 +431,14 @@ function historialPorAnexo_(filas) {
 /* ── Detalle de la revisión ─────────────────────────────────────────────── */
 
 /**
- * Junta en una sola lista el detalle de las tres hojas, con la forma que la
- * vista de base de datos y las dos tablas de análisis esperan.
+ * ── PARCHE ──────────────────────────────────────────────────────────────
+ * Los tres bloques fichas/campos/codigos ahora leen la columna ESTADO real
+ * de cada hoja en vez de columnas que ya no existían en esa posición.
  */
 function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
   const filas = [];
   const cobertura = { Producto: {}, Proceso: {}, SubProceso: {}, Ficha: {},
                       Campo: {}, Codigo: {} };
-  // Recuento por facultad de las dos tarjetas nuevas del Anexo 3. Se lleva
-  // aquí porque es la única pasada que recorre el detalle, y contar dos veces
-  // lo mismo es cómo acaban discrepando la tarjeta y su tabla.
   const porFacultad = {};
   const anota = function (sigla, grupo, estado) {
     const f = codigoFacultad_(sigla);
@@ -615,7 +476,7 @@ function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
     });
   });
 
-  // OBSERVACIONES_DE_PROCESO_A1 — la columna NIVEL separa proceso de subproceso
+  // OBSERVACIONES_DE_PROCESO_A1
   procesos.forEach(function (f) {
     const nivel = texto_(f[3]);
     meter(/sub/i.test(nivel) ? 'SubProceso' : 'Proceso', {
@@ -627,46 +488,50 @@ function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
   });
 
   // RESUMEN_FICHAS_A3 — la tarjeta «Fichas»
+  // Columnas reales: 0 FACULTAD, 1 N°FICHA/PROCESO, 2 CÓDIGO, 3 %AVANCE,
+  // 4 PRODUCTOS FINALES, 5 CAMPOS/CELDAS FALTANTES, 6 ERRORES DE
+  // CODIFICACIÓN, 7 ESTADO, 8 OBSERVACIONES Y CORRECCIONES
   fichas.forEach(function (f) {
-    // Su columna CLASIFICACIÓN la escribe el mismo auditor y con los mismos
-    // rótulos que el detalle, así que la ficha se clasifica igual que el
-    // campo. Si esa columna viniera vacía, se recae en el «¿COMPLETA?» de
-    // toda la vida, que solo distingue dos estados.
-    const estado = estadoDeCampo_(f[10]) ||
-                   (/^s[ií]/i.test(texto_(f[4])) ? 'CONFORME' : 'OBSERVADO');
+    const estado = normalizarEstado_(f[7]);      // columna H · ESTADO
+    if (!estado) return;
     anota(f[0], 'fichas', estado);
     meter('Ficha', {
       anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: '',
-      process: texto_(f[2]), code: texto_(f[3]), name: texto_(f[2]),
-      type: texto_(f[10]), status: estado,
-      compliance: porcentajeTexto_(f[5]), criteria: texto_(f[9]),
-      observations: texto_(f[11])
+      process: texto_(f[1]), code: texto_(f[2]), name: texto_(f[1]),
+      type: '', status: estado,
+      compliance: porcentajeTexto_(f[3]), criteria: texto_(f[5]),
+      observations: texto_(f[8])
     });
   });
 
   // DETALLE_REVISION_A3 — la tarjeta «Fichas / Campos»
+  // Columnas reales: 0 FACULTAD, 1 N°FICHA/PROCESO, 2 SECCIÓN,
+  // 3 CAMPO REVISADO, 4 CELDA, 5 INFORMACIÓN, 6 ESTADO, 7 OBSERVACIÓN
+  // ESPECÍFICA
   campos.forEach(function (f) {
-    const estado = estadoDeCampo_(f[9]);
-    if (!estado) return;                       // «Opcional» no cuenta
+    const estado = normalizarEstado_(f[6]);      // columna G · ESTADO
+    if (!estado) return;
     anota(f[0], 'campos', estado);
     meter('Campo', {
-      anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: texto_(f[5]),
-      process: texto_(f[2]), code: texto_(f[7]), name: texto_(f[4]),
-      type: texto_(f[3]), status: estado, compliance: texto_(f[8]),
-      criteria: texto_(f[6]), observations: texto_(f[10])
+      anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: '',
+      process: texto_(f[1]), code: texto_(f[1]), name: texto_(f[3]),
+      type: texto_(f[2]), status: estado, compliance: '',
+      criteria: texto_(f[4]), observations: texto_(f[7])
     });
   });
 
   // REGISTRO_MAESTRO_CODIGOS_A3 — la tarjeta «Códigos»
+  // Columnas reales: 0 FACULTAD, 1 TIPO, 2 CÓDIGO, 3 DENOMINACIÓN,
+  // 4 FICHAS EN QUE APARECE, 5 ESTADO, 6 OBSERVACIÓN
   codigos.forEach(function (f) {
-    const estado = estadoDeCodigo_(f[6]);
+    const estado = estadoDeCodigo_(f[5]);        // columna F · ESTADO
     if (!estado) return;
     anota(f[0], 'codigos', estado);
     meter('Codigo', {
       anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: '',
-      process: texto_(f[5]), code: texto_(f[3]), name: texto_(f[4]),
-      type: texto_(f[2]), status: estado, compliance: texto_(f[6]),
-      criteria: '', observations: texto_(f[7])
+      process: texto_(f[1]), code: texto_(f[2]), name: texto_(f[3]),
+      type: texto_(f[1]), status: estado, compliance: '',
+      criteria: '', observations: texto_(f[6])
     });
   });
 
@@ -679,37 +544,16 @@ function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
            porFacultad: porFacultad };
 }
 
-/** El detalle nombra la facultad por su sigla; el tablero, por su código. */
 function codigoFacultad_(valor) {
   const s = String(valor || '').trim().toUpperCase();
-  if (/^F\d\d_/.test(s)) return s;                       // ya viene como F01_FM
+  if (/^F\d\d_/.test(s)) return s;
   const f = CATALOGO_VIGENTE.filter(function (x) { return x[0] === s; })[0];
   return f ? f[1] + '_' + f[0] : '';
 }
 
-/**
- * El catálogo que rige la corrida en curso. Lo fija `leerCatalogo_`, y hasta
- * entonces vale el del código: así `codigoFacultad_` funciona igual si alguna
- * vez se le llama antes de leer el libro.
- */
 let CATALOGO_VIGENTE = TABLERO.FACULTADES;
-
-/** De dónde salió el catálogo en la última lectura. Lo informa probarTablero. */
 let CATALOGO_ORIGEN = 'el catálogo escrito en Tablero.gs';
 
-/**
- * Catálogo de facultades desde la hoja `CODIFICACION_ DE_LAS_FACULTADES`, que
- * es donde la OGPL lo mantiene. Se prefiere al del código porque una
- * renumeración —como la que movió FII a F17 y FISI a F20— se hace ahí, y no
- * tendría que obligar a volver a publicar la aplicación web.
- *
- * Las columnas se localizan por su encabezado, no por su posición: añadir una
- * columna a la izquierda es lo más normal del mundo en una hoja que se edita a
- * mano, y no debería descolocar el tablero.
- *
- * Si la hoja falta, o no da las 20 facultades, se conserva el catálogo del
- * código: es preferible una numeración de hace un mes a un tablero vacío.
- */
 function leerCatalogo_(libro) {
   CATALOGO_ORIGEN = 'el catálogo escrito en Tablero.gs';
   CATALOGO_VIGENTE = TABLERO.FACULTADES;
@@ -743,7 +587,6 @@ function leerCatalogo_(libro) {
   const vistas = {};
   for (let f = 1; f < datos.length; f++) {
     const sigla = String(datos[f][iSigla] || '').trim().toUpperCase();
-    // El código puede venir como "F01" o como "F01_FM": interesa el número.
     const bruto = String(datos[f][iCodigo] || '').trim().toUpperCase();
     const m = bruto.match(/F\s*0*(\d{1,2})/);
     if (!sigla || !m || esTotal_(sigla) || vistas[sigla]) continue;
@@ -753,17 +596,12 @@ function leerCatalogo_(libro) {
                 iNombre === -1 ? sigla : String(datos[f][iNombre] || sigla).trim()]);
   }
 
-  // La hoja se edita a mano y trae más filas de las que son facultades: una de
-  // TOTAL, un pie, alguna repetida. Exigir un número exacto la descartaba
-  // entera y en silencio, que es peor que quedarse con alguna de más. Basta
-  // con que salgan las 20 y ninguna sigla se repita.
   if (filas.length < TABLERO.FACULTADES.length) {
     CATALOGO_ORIGEN += ' (la hoja solo dio ' + filas.length + ' facultades de ' +
                        TABLERO.FACULTADES.length + ')';
     return TABLERO.FACULTADES;
   }
 
-  // El orden del tablero es el del número de formulario, no el de la hoja.
   filas.sort(function (a, b) { return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0); });
   CATALOGO_VIGENTE = filas;
   CATALOGO_ORIGEN = 'la hoja ' + hoja.getName() + ' (' + filas.length + ' facultades)';
@@ -772,28 +610,16 @@ function leerCatalogo_(libro) {
 
 /* ── Anexo 4 e histórico ────────────────────────────────────────────────── */
 
-/**
- * Indicadores del Anexo 4. La hoja no tiene todavía un formato cerrado, así
- * que se busca el estado en cualquier columna en lugar de fiarlo a una
- * posición: si mañana se le añade una columna, esto sigue contando bien.
- */
 function leerAnexo4_(filas, pctDeLaHoja) {
   let aprobados = 0, total = 0;
 
   filas.forEach(function (f) {
-    // La hoja cierra con una fila de totales, y contarla como un indicador más
-    // desplaza el porcentaje sin que nada lo delate. Tampoco cuentan las filas
-    // en blanco que quedan al final de una hoja editada a mano.
     if (esTotal_(primeraCelda_(f)) || f.join('').trim() === '') return;
     total++;
     const linea = f.join(' ').toLowerCase();
     if (/aprobado|conforme|cumple|validado/.test(linea)) aprobados++;
   });
 
-  // El porcentaje sale de la celda cuando la hoja lo tiene calculado: allí está
-  // ponderado, mientras que contar aprobados sobre el total trata por igual a
-  // indicadores que no pesan lo mismo. El recuento se conserva como respaldo y
-  // porque el tablero muestra «N de M» junto al porcentaje.
   const contado = total ? redondear_((aprobados / total) * 100) : 0;
 
   return {
@@ -807,26 +633,16 @@ function leerAnexo4_(filas, pctDeLaHoja) {
   };
 }
 
-/**
- * Lee una celda suelta como porcentaje. Devuelve null si la hoja o la celda no
- * dan un número, para que quien llame decida con qué respaldo sigue en lugar
- * de quedarse con un cero que parece un dato.
- */
 function leerCeldaPct_(libro, nombreHoja, celda) {
   try {
     const hoja = buscarHoja_(libro, nombreHoja);
     if (!hoja) return null;
     return pct_(hoja.getRange(celda).getValue());
   } catch (e) {
-    return null;      // la celda cae fuera de la hoja, o no se puede leer
+    return null;
   }
 }
 
-/**
- * Primera celda con algo escrito. El rótulo de una fila de cierre no siempre
- * cae en la columna A: la hoja del Anexo 4 la deja en blanco y escribe
- * «TOTAL DE INDICADORES» en la siguiente.
- */
 function primeraCelda_(fila) {
   for (let i = 0; i < fila.length; i++) {
     const v = String(fila[i] === null || fila[i] === undefined ? '' : fila[i]).trim();
@@ -835,11 +651,6 @@ function primeraCelda_(fila) {
   return '';
 }
 
-/**
- * Fecha de una celda, o null. Además de lo que `new Date` entiende, admite el
- * formato en que se escribe a mano en el Perú —«28/08/2026», día primero—,
- * que `new Date` interpreta al revés o directamente rechaza.
- */
 function fechaDeCelda_(v) {
   if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
 
@@ -857,17 +668,11 @@ function fechaDeCelda_(v) {
   return isNaN(d.getTime()) ? null : d;
 }
 
-/** Reconoce las filas de cierre que las hojas llevan al pie. */
 function esTotal_(valor) {
   return /^(TOTAL|TOTALES|PROMEDIO|GENERAL|RESUMEN|SUMA|LEYENDA)\b/i
            .test(String(valor || '').trim());
 }
 
-/**
- * HISTORIAL_REVISIONES, agrupado por momento de corrida. El tablero compara la
- * última con la anterior para pintar la variación, así que bastan las dos
- * últimas; se devuelven en orden cronológico.
- */
 function leerHistorial_(filas, anexo4) {
   const porFecha = {};
   filas.forEach(function (f) {
@@ -907,11 +712,6 @@ function num_(v) {
   return isNaN(n) ? 0 : n;
 }
 
-/**
- * Los avances se escriben con formato 0.0%, así que la celda vale 0.813 y no
- * 81.3. Un número menor o igual a 1 se toma por fracción; por encima ya viene
- * en puntos porcentuales. El texto "81.3%" también se admite.
- */
 function pct_(v) {
   if (v === null || v === undefined || v === '' || v === '—') return null;
   if (typeof v === 'number') return redondear_(v <= 1 ? v * 100 : v);
@@ -931,10 +731,6 @@ function redondear_(n) { return Math.round(n * 10) / 10; }
 
 /* ══════════════════════ COMPROBACIÓN DESDE EL EDITOR ══════════════════════ */
 
-/**
- * Ejecútese desde el editor para ver, sin pasar por la web, qué hojas
- * encuentra y qué cifras saca de ellas. Ver › Registros muestra el resultado.
- */
 function probarTablero() {
   const libro = SpreadsheetApp.openById(TABLERO.LIBRO_ID);
   const lineas = ['════════ TABLERO EN VIVO ════════',
@@ -951,8 +747,6 @@ function probarTablero() {
                       : '  — NO EXISTE: ejecute la auditoría que la genera'));
   });
 
-  // Sin esto, ver nueve hojas listadas y once en el libro parece que falta
-  // algo. No falta: el tablero no necesita las otras dos.
   const sobrantes = libro.getSheets()
     .map(function (h) { return h.getName(); })
     .filter(function (n) { return !usadas[n]; });
@@ -982,8 +776,6 @@ function probarTablero() {
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  ¡+' + d.recorte + ' RECORTADOS! Suba TABLERO.MAX_REGISTROS'
                          : '  (ninguno recortado: viaja el libro entero)'));
-  // El tamaño es la sospecha numero uno cuando «no sale nada»: una respuesta
-  // demasiado grande falla entera y el tablero cae a sus datos incrustados.
   const kb = function (obj) { return Math.round(JSON.stringify(obj).length / 1024); };
   const pesoTotal = kb(d);
   const pesoAgregados = pesoTotal - kb(d.registros);
@@ -1005,8 +797,6 @@ function probarTablero() {
     ? 'no cabe (>100 KB), cada consulta relee el libro — es lo esperado con el detalle completo'
     : 'guardada ' + TABLERO.CACHE_SEG + ' s'));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
-  // Volcado literal de la hoja: cuando una fila «no aparece», lo que hace
-  // falta es ver qué pone exactamente y cómo se ha clasificado, no adivinarlo.
   lineas.push('');
   lineas.push('HISTORIAL_REVISIONES, fila por fila (columnas A, B y C):');
   const hojaHist = buscarHoja_(libro, TABLERO.HOJAS.HISTORIAL);
