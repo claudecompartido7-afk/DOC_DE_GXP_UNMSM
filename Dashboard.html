@@ -485,10 +485,7 @@
                                     <div class="metric status-filter inactive-status" data-status="OBSERVADO" data-block="producto" onclick="filterByStatus('producto','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="prod-obs">26</div><div class="m-den">/ de 231</div><div class="m-change">11.3% del total</div></div>
                                     <div class="metric status-filter inactive-status" data-status="SIN REGISTRAR" data-block="producto" onclick="filterByStatus('producto','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="prod-sin">30</div><div class="m-den">/ de 231</div><div class="m-change">13.0% del total</div></div>
                                 </div>
-                                <div class="ranking-box" id="ranking-producto"></div><strong>175</strong></div>
-                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:11%"></div></div><strong>26</strong></div>
-                                    <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:13%"></div></div><strong>30</strong></div>
-                                </div></div>
+                                <div class="ranking-box" id="ranking-producto"></div>
                             </div>
                         </article>
 
@@ -500,10 +497,7 @@
                                     <div class="metric status-filter" data-status="OBSERVADO" data-block="procesos" onclick="filterByStatus('procesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="proc-obs">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
                                     <div class="metric status-filter" data-status="SIN REGISTRAR" data-block="procesos" onclick="filterByStatus('procesos','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="proc-sin">2</div><div class="m-den">/ de 16</div><div class="m-change">12.5% del total</div></div>
                                 </div>
-                                <div class="ranking-box" id="ranking-procesos"></div><strong>12</strong></div>
-                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:12%"></div></div><strong>2</strong></div>
-                                    <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:12%"></div></div><strong>2</strong></div>
-                                </div></div>
+                                <div class="ranking-box" id="ranking-procesos"></div>
                             </div>
                         </article>
 
@@ -515,10 +509,7 @@
                                     <div class="metric status-filter" data-status="OBSERVADO" data-block="subprocesos" onclick="filterByStatus('subprocesos','OBSERVADO')" role="button" tabindex="0"><div class="m-title">Observados</div><div class="m-num" id="sub-obs">3</div><div class="m-den">/ de 14</div><div class="m-change">21.4% del total</div></div>
                                     <div class="metric status-filter" data-status="SIN REGISTRAR" data-block="subprocesos" onclick="filterByStatus('subprocesos','SIN REGISTRAR')" role="button" tabindex="0"><div class="m-title">Sin Registrar</div><div class="m-num" id="sub-sin">1</div><div class="m-den">/ de 14</div><div class="m-change">7.1% del total</div></div>
                                 </div>
-                                <div class="ranking-box" id="ranking-subprocesos"></div><strong>10</strong></div>
-                                    <div class="bar-row"><span>Observados</span><div class="track"><div class="fill" style="width:21%"></div></div><strong>3</strong></div>
-                                    <div class="bar-row"><span>Sin registrar</span><div class="track"><div class="fill green" style="width:7%"></div></div><strong>1</strong></div>
-                                </div></div>
+                                <div class="ranking-box" id="ranking-subprocesos"></div>
                             </div>
                         </article>
                     </div>
@@ -1312,15 +1303,28 @@ const TRAMOS = [
 ];
 
 /**
- * El color de un avance. Es la MISMA lista que rotula los tramos del panel de
- * la derecha, a proposito: barra y cuadrante leen de aqui, asi que no pueden
- * decir cosas distintas. Cambiar un umbral o un color en TRAMOS los mueve a
- * los dos a la vez.
+ * PALETA DE LAS BARRAS · «% Avance por Facultad» del Anexo 1 y del Anexo 3.
+ *
+ * Tres tramos, no cuatro, y con la paleta corporativa: el gris pizarra del
+ * bloque intermedio quita peso visual a propósito, para que el ojo vaya
+ * directo a los extremos —lo que va muy bien y lo que va muy mal—.
+ *
+ * OJO: el panel de clasificacion de la derecha sigue con sus CUATRO tramos,
+ * que es lo que se pidio para el. Asi que barra y cuadrante ya no comparten
+ * color: el 100% y el 85% son la misma barra verde abeto pero dos filas
+ * distintas del panel. Es deliberado; si se prefiere volver a que coincidan,
+ * basta con hacer que TRAMOS lea de aqui.
  */
+const PALETA_BARRAS = [
+    { desde: 80, color: '#1C4E43' },   // verde abeto: solidez y control
+    { desde: 50, color: '#94A3B8' },   // gris pizarra: neutro, resta peso
+    { desde: -1, color: '#A84641' }    // rojo terracota: critico, sin estridencia
+];
+
+/** Color de una barra segun su avance. */
 function colorDeAvance(v) {
-    if (typeof v !== 'number') return '#94a3b8';        // sin dato: gris
-    const tramo = TRAMOS.filter(t => t.prueba(v))[0];
-    return tramo ? tramo.color : '#94a3b8';
+    if (typeof v !== 'number') return '#94A3B8';
+    return PALETA_BARRAS.filter(t => v >= t.desde)[0].color;
 }
 
 function pintarClasificaciones() {
