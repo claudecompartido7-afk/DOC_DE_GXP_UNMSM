@@ -299,7 +299,17 @@
 
         /* ===== PESTAÑA ANEXO 3: tres bloques arriba ===== */
         .anexo3-layout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-        .anexo3-metrics.cuatro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        /* Los estados van en una sola fila, uno al lado del otro, sean dos o
+           cuatro. `auto-fit` los repartiria en dos filas en cuanto no cupieran;
+           con `repeat(N, 1fr)` se estrechan pero no bajan. */
+        .anexo3-metrics.lineal { display: grid; grid-auto-flow: column;
+            grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+        .anexo3-metrics.lineal .big-metric { padding: 10px 8px; min-width: 0; }
+        .anexo3-metrics.lineal .big-metric h4 { font-size: 9.5px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; }
+        .anexo3-metrics.lineal .big-metric .n { font-size: 20px; }
+        .anexo3-metrics.lineal .big-metric .den,
+        .anexo3-metrics.lineal .big-metric .chg { font-size: 8.5px; white-space: nowrap; }
         @media (max-width: 1400px) { .anexo3-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         @media (max-width: 900px)  { .anexo3-layout { grid-template-columns: minmax(0, 1fr); } }
 
@@ -545,10 +555,10 @@
                 <section class="panel-ana" id="panel-anexo3" role="tabpanel">
                     <div class="anexo3-layout">
                         <article class="anexo3-card">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Fichas / Campos</h3><span class="entity-tag">ANEXO 3</span></div>
-                            <div class="anexo3-metrics cuatro">
-                                <div class="big-metric status-filter" data-status="CONFORME" data-block="fichas" onclick="filterByStatusA3('fichas','CONFORME')" role="button" tabindex="0"><h4>Conformes</h4><div class="n" id="fich-comp">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
-                                <div class="big-metric status-filter" data-status="OBSERVADO" data-block="fichas" onclick="filterByStatusA3('fichas','OBSERVADO')" role="button" tabindex="0"><h4>Observados</h4><div class="n" id="fich-incomp">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Fichas</h3><span class="entity-tag">ANEXO 3</span></div>
+                            <div class="anexo3-metrics lineal">
+                                <div class="big-metric status-filter" data-status="CONFORME" data-block="fichas" onclick="filterByStatusA3('fichas','CONFORME')" role="button" tabindex="0"><h4>Conformes</h4><div class="n" id="fich-conf">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                                <div class="big-metric status-filter" data-status="OBSERVADO" data-block="fichas" onclick="filterByStatusA3('fichas','OBSERVADO')" role="button" tabindex="0"><h4>Observados</h4><div class="n" id="fich-obs">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
                                 <div class="big-metric status-filter" data-status="SIN REGISTRAR" data-block="fichas" onclick="filterByStatusA3('fichas','SIN REGISTRAR')" role="button" tabindex="0"><h4>Sin Registrar</h4><div class="n" id="fich-sin">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
                                 <div class="big-metric status-filter" data-status="CRITICO" data-block="fichas" onclick="filterByStatusA3('fichas','CRITICO')" role="button" tabindex="0"><h4>Crítico</h4><div class="n" id="fich-crit">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
                             </div>
@@ -556,18 +566,23 @@
                         </article>
 
                         <article class="anexo3-card">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Códigos</h3><span class="entity-tag">ANEXO 3</span></div>
-                            <div class="anexo3-metrics">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Campos</h3><span class="entity-tag">ANEXO 3</span></div>
+                            <div class="anexo3-metrics lineal">
+                                <div class="big-metric status-filter" data-status="CONFORME" data-block="campos" onclick="filterByStatusA3('campos','CONFORME')" role="button" tabindex="0"><h4>Conformes</h4><div class="n" id="camp-conf">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                                <div class="big-metric status-filter" data-status="OBSERVADO" data-block="campos" onclick="filterByStatusA3('campos','OBSERVADO')" role="button" tabindex="0"><h4>Observados</h4><div class="n" id="camp-obs">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                                <div class="big-metric status-filter" data-status="SIN REGISTRAR" data-block="campos" onclick="filterByStatusA3('campos','SIN REGISTRAR')" role="button" tabindex="0"><h4>Sin Registrar</h4><div class="n" id="camp-sin">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                                <div class="big-metric status-filter" data-status="CRITICO" data-block="campos" onclick="filterByStatusA3('campos','CRITICO')" role="button" tabindex="0"><h4>Crítico</h4><div class="n" id="camp-crit">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
+                            </div>
+                            <div class="ranking-box" id="ranking-campos"></div>
+                        </article>
+
+                        <article class="anexo3-card">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Denominación</h3><span class="entity-tag">ANEXO 3</span></div>
+                            <div class="anexo3-metrics lineal">
                                 <div class="big-metric status-filter" data-status="CONFORME" data-block="codigos" onclick="filterByStatusA3('codigos','CONFORME')" role="button" tabindex="0"><h4>Conformes</h4><div class="n" id="cod-conf">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
                                 <div class="big-metric status-filter" data-status="OBSERVADO" data-block="codigos" onclick="filterByStatusA3('codigos','OBSERVADO')" role="button" tabindex="0"><h4>Observados</h4><div class="n" id="cod-obs">0</div><div class="den">/ de 0</div><div class="chg">0% del total</div></div>
                             </div>
                             <div class="ranking-box" id="ranking-codigos"></div>
-                        </article>
-
-                        <article class="anexo3-card">
-                            <h3 style="margin:0;font-size:13px; font-weight:800; color:#1e293b;">Ranking de F. Completas por Facultad - Anexo 3</h3>
-                            <p style="margin:4px 0 18px;font-size:9px;color:#8797aa">Porcentaje de Fichas Completas | Facultades</p>
-                            <div class="rank-list" id="ranking-anexo3"></div>
                         </article>
                     </div>
 
@@ -750,7 +765,9 @@ derivarDeLaFuente();
 // ============================================================
 function fijar(id, valor) {
     const el = document.getElementById(id);
-    if (el) el.textContent = valor;
+    // Un dato que no llega se muestra como 0, no como «undefined» ni «NaN».
+    if (el) el.textContent = (valor === undefined || valor === null ||
+                              (typeof valor === 'number' && isNaN(valor))) ? 0 : valor;
 }
 
 function vincularIndicadores() {
@@ -805,45 +822,56 @@ function vincularIndicadores() {
             subConf:  (sel.subprocesos || {}).conformes || 0,
             subObs:   (sel.subprocesos || {}).observados || 0,
             subSin:   (sel.subprocesos || {}).sinRegistrar || 0,
-            fichComp: (sel.campos || {}).conformes || 0,
-            fichIncomp: (sel.campos || {}).observados || 0,
-            fichSin: (sel.campos || {}).sinRegistrar || 0,
-            fichCrit: (sel.campos || {}).critico || 0,
+            fichConf: (sel.fichasEstado || {}).conformes || 0,
+            fichObs:  (sel.fichasEstado || {}).observados || 0,
+            fichSinReg: (sel.fichasEstado || {}).sinRegistrar || 0,
+            fichCrit: (sel.fichasEstado || {}).critico || 0,
+            campConf: (sel.campos || {}).conformes || 0,
+            campObs:  (sel.campos || {}).observados || 0,
+            campSin:  (sel.campos || {}).sinRegistrar || 0,
+            campCrit: (sel.campos || {}).critico || 0,
             codConf: (sel.codigos || {}).conformes || 0,
             codObs:  (sel.codigos || {}).observados || 0 }
         : { prodConf: T.prodConf, prodObs: T.prodObs, prodSin: T.prodSin,
             procConf: T.procConf, procObs: T.procObs, procSin: T.procSin,
             subConf: T.subConf, subObs: T.subObs, subSin: T.subSin,
-            // «Fichas / Campos» cuenta CAMPOS de DETALLE_REVISION_A3, no las
-            // fichas de RESUMEN_FICHAS_A3: son dos cosas distintas y antes la
-            // tarjeta mezclaba el rotulo de una con las cifras de la otra.
-            fichComp: T.campConf, fichIncomp: T.campObs,
-            fichSin: T.campSin, fichCrit: T.campCrit,
-            codConf: T.codConf, codObs: T.codObs };
+            // Cada tarjeta cuenta lo suyo y de su hoja: las fichas de
+            // RESUMEN_FICHAS_A3, los campos de DETALLE_REVISION_A3 y las
+            // denominaciones de REGISTRO_MAESTRO_CODIGOS_A3.
+            // Con `|| 0` a proposito: quien todavia tenga el Tablero.gs
+            // anterior no recibe estos totales, y sin la guarda la tarjeta
+            // pintaba «/ de NaN», que parece una averia y no un cero.
+            fichConf: T.fichConf || 0, fichObs: T.fichObs || 0,
+            fichSinReg: T.fichSinReg || 0, fichCrit: T.fichCrit || 0,
+            campConf: T.campConf || 0, campObs: T.campObs || 0,
+            campSin: T.campSin || 0, campCrit: T.campCrit || 0,
+            codConf: T.codConf || 0, codObs: T.codObs || 0 };
 
     fijar('prod-conf', cuenta.prodConf); fijar('prod-obs', cuenta.prodObs); fijar('prod-sin', cuenta.prodSin);
     fijar('proc-conf', cuenta.procConf); fijar('proc-obs', cuenta.procObs); fijar('proc-sin', cuenta.procSin);
     fijar('sub-conf',  cuenta.subConf);  fijar('sub-obs',  cuenta.subObs);  fijar('sub-sin',  cuenta.subSin);
-    fijar('fich-comp', cuenta.fichComp); fijar('fich-incomp', cuenta.fichIncomp);
-    fijar('fich-sin', cuenta.fichSin);   fijar('fich-crit', cuenta.fichCrit);
-    fijar('cod-conf', cuenta.codConf);   fijar('cod-obs', cuenta.codObs);
+    fijar('fich-conf', cuenta.fichConf); fijar('fich-obs',  cuenta.fichObs);
+    fijar('fich-sin',  cuenta.fichSinReg); fijar('fich-crit', cuenta.fichCrit);
+    fijar('camp-conf', cuenta.campConf); fijar('camp-obs',  cuenta.campObs);
+    fijar('camp-sin',  cuenta.campSin);  fijar('camp-crit', cuenta.campCrit);
+    fijar('cod-conf',  cuenta.codConf);  fijar('cod-obs',   cuenta.codObs);
 
     // Los denominadores y los porcentajes de cada tarjeta, que hasta ahora
     // eran texto fijo en el HTML y no cambiaban con nada.
     ajustarDenominadores('producto',    [cuenta.prodConf, cuenta.prodObs, cuenta.prodSin]);
     ajustarDenominadores('procesos',    [cuenta.procConf, cuenta.procObs, cuenta.procSin]);
     ajustarDenominadores('subprocesos', [cuenta.subConf,  cuenta.subObs,  cuenta.subSin]);
-    ajustarDenominadores('fichas',  [cuenta.fichComp, cuenta.fichIncomp,
-                                     cuenta.fichSin, cuenta.fichCrit]);
+    ajustarDenominadores('fichas',  [cuenta.fichConf, cuenta.fichObs,
+                                     cuenta.fichSinReg, cuenta.fichCrit]);
+    ajustarDenominadores('campos',  [cuenta.campConf, cuenta.campObs,
+                                     cuenta.campSin, cuenta.campCrit]);
     ajustarDenominadores('codigos', [cuenta.codConf, cuenta.codObs]);
 
     pintarBarras('producto',    [cuenta.prodConf, cuenta.prodObs, cuenta.prodSin]);
     pintarBarras('procesos',    [cuenta.procConf, cuenta.procObs, cuenta.procSin]);
     pintarBarras('subprocesos', [cuenta.subConf,  cuenta.subObs,  cuenta.subSin]);
-    pintarBarras('fichas',      [cuenta.fichComp, cuenta.fichIncomp, cuenta.fichSin]);
-    pintarRankingAnexo3();
+    pintarBarras('fichas',      [cuenta.fichConf, cuenta.fichObs, cuenta.fichSinReg]);
 
-    pintarRanking();
 }
 
 
@@ -943,7 +971,9 @@ function vincularVariaciones() {
  * facultad habrian quedado contradiciendo al numero de al lado.
  */
 function ajustarDenominadores(bloque, valores) {
-    const total = valores.reduce((a, b) => a + b, 0);
+    // Un valor ausente suma NaN y arrastra al total entero, que es como
+    // acababa saliendo «/ de NaN» en pantalla.
+    const total = valores.reduce((a, b) => a + (Number(b) || 0), 0);
     const cajas = document.querySelectorAll('.status-filter[data-block="' + bloque + '"]');
     cajas.forEach((caja, i) => {
         const den = caja.querySelector('.m-den, .den');
@@ -970,23 +1000,6 @@ function pintarBarras(bloque, valores) {
     });
 }
 
-// Ranking de fichas completas: se ordena por el % de Anexo 3 de la
-// fuente, de mayor a menor, y se muestran las ocho primeras.
-function pintarRanking() {
-    const cont = document.getElementById('ranking-anexo3');
-    if (!cont) return;
-    const orden = [...DATOS_FUENTE.facultades].sort((a, b) => b.pctAnexo3 - a.pctAnexo3).slice(0, 8);
-    const tope = orden.length ? orden[0].pctAnexo3 : 100;
-    cont.innerHTML = orden.map((f, i) => {
-        const clase = i === 0 ? 'dark' : (i >= 5 ? 'green' : '');
-        const ancho = tope ? (f.pctAnexo3 * 100 / tope) : 0;
-        return '<div class="rank-row" style="grid-template-columns:70px 1fr 52px">' +
-               '<span>' + f.codigo + '</span>' +
-               '<div class="rank-track" style="height:12px">' +
-               '<div class="rank-fill ' + clase + '" style="width:' + ancho.toFixed(1) + '%"></div></div>' +
-               '<strong>' + f.pctAnexo3.toFixed(1).replace('.', ',') + '%</strong></div>';
-    }).join('');
-}
 
 // ============================================================
 // NAVEGACION ENTRE VISTAS
@@ -1492,11 +1505,22 @@ const RANKING = {
     producto:    { campo: 'productos',   rotulo: 'Productos',   unidad: 'productos' },
     procesos:    { campo: 'procesosN0',  rotulo: 'Procesos',    unidad: 'procesos' },
     subprocesos: { campo: 'subprocesos', rotulo: 'SubProcesos', unidad: 'subprocesos' },
-    // Anexo 3. Aqui el orden es SIEMPRE descendente, tambien en Observados:
-    // se pidio asi para estas dos tarjetas, al reves que en el Anexo 1, donde
-    // en Observados el puesto 1 es quien menos tiene.
-    fichas:      { campo: 'campos',  rotulo: 'Fichas',  unidad: 'campos',  orden: 'desc' },
-    codigos:     { campo: 'codigos', rotulo: 'Codigos', unidad: 'codigos', orden: 'desc' }
+    // Anexo 3. El puesto 1 es siempre el mejor desempeño para ese indicador:
+    // en Conformes, quien mas tiene; en Observados, Sin Registrar y Critico,
+    // quien menos, porque ahi el cero es el ideal.
+    fichas:  { campo: 'fichasEstado', rotulo: 'Fichas',       unidad: 'fichas' },
+    campos:  { campo: 'campos',       rotulo: 'Campos',       unidad: 'campos' },
+    codigos: { campo: 'codigos',      rotulo: 'Denominación', unidad: 'denominaciones' }
+};
+
+/**
+ * La tarjeta «Fichas» es la excepcion: su ranking NO sale del recuento de
+ * estados sino de la columna «% AVANCE» de RESUMEN_EJECUTIVO_A3, que es el
+ * `pctAnexo3` de cada facultad. Se pidio asi expresamente: es la unica metrica
+ * de esa tarjeta que usa esa hoja, y por eso el orden no cambia con el estado.
+ */
+const RANKING_POR_AVANCE = {
+    fichas: { campo: 'pctAnexo3', unidad: '%', hoja: 'RESUMEN_EJECUTIVO_A3' }
 };
 
 const RANKING_METRICA = {
@@ -1508,29 +1532,8 @@ const RANKING_METRICA = {
 
 function pintarRankings() {
     Object.keys(RANKING).forEach(pintarRankingDe);
-    pintarRankingAnexo3();
 }
 
-/**
- * El grafico de barras «Ranking de F. Completas por Facultad», que llevaba
- * ocho facultades inventadas escritas en el HTML. Ahora sale de la fuente.
- */
-function pintarRankingAnexo3() {
-    const caja = document.getElementById('ranking-anexo3');
-    if (!caja) return;
-    const lista = [...DATOS_FUENTE.facultades]
-        .sort((a, b) => b.pctAnexo3 - a.pctAnexo3);
-    caja.innerHTML = lista.map(f => {
-        const pct = Math.max(0, Math.min(100, f.pctAnexo3 || 0));
-        return '<div class="rank-row" style="grid-template-columns:70px 1fr 52px;cursor:pointer"' +
-               ' onclick="seleccionarFacultad(\'' + f.codigo + '\')" title="' + f.nombre + '">' +
-               '<span>' + f.codigo + '</span>' +
-               '<div class="rank-track" style="height:12px">' +
-               '<div class="rank-fill" style="width:' + pct + '%;background:' +
-               colorDeAvance(f.pctAnexo3) + '"></div></div>' +
-               '<strong>' + pct.toFixed(0) + '%</strong></div>';
-    }).join('');
-}
 
 function pintarRankingDe(bloque) {
     const caja = document.getElementById('ranking-' + bloque);
@@ -1541,7 +1544,7 @@ function pintarRankingDe(bloque) {
     // pulsado nada en ella, el de Conformes, que es el estado de partida.
     const marcada = document.querySelector(
         '.status-filter[data-block="' + bloque + '"].active-status');
-    const enA3 = (bloque === 'fichas' || bloque === 'codigos');
+    const enA3 = !!ORIGEN_TABLA_A3[bloque];
     const estado = (marcada && marcada.dataset.status) ||
                    (enA3 ? (a3EntityFilter === bloque ? a3StatusFilter : 'CONFORME')
                          : (a1EntityFilter === bloque ? a1StatusFilter : 'CONFORME'));
@@ -1549,6 +1552,33 @@ function pintarRankingDe(bloque) {
     // Una tarjeta puede fijar su propio sentido de ordenacion para todos sus
     // estados; si no lo hace, manda el de la metrica.
     const met = cfg.orden ? Object.assign({}, base, { orden: cfg.orden }) : base;
+
+    // Excepcion de «Fichas»: ordena por el % de avance de RESUMEN_EJECUTIVO_A3
+    // y no por el recuento del estado elegido. El titulo si sigue al estado.
+    const porAvance = RANKING_POR_AVANCE[bloque];
+    if (porAvance) {
+        const orden = DATOS_FUENTE.facultades
+            .map(f => ({ codigo: f.codigo, nombre: f.nombre,
+                         valor: typeof f[porAvance.campo] === 'number' ? f[porAvance.campo] : 0 }))
+            .sort((a, b) => b.valor - a.valor || a.nombre.localeCompare(b.nombre));
+        caja.innerHTML =
+            '<div class="ranking-titulo">Ranking de Facultades · ' +
+                cfg.rotulo + ' ' + met.rotulo + '</div>' +
+            '<div class="ranking-criterio">Por el % de avance de ' + porAvance.hoja +
+                ', de mayor a menor.</div>' +
+            '<div class="ranking-lista">' +
+            orden.map((f, i) =>
+                '<div class="ranking-fila' + (f.codigo === facultadSel ? ' sel' : '') + '"' +
+                ' onclick="seleccionarFacultad(\'' + f.codigo + '\')"' +
+                ' title="' + f.nombre + '">' +
+                    '<span class="ranking-pos">' + (i + 1) + '.</span>' +
+                    '<span class="ranking-nombre">' + f.nombre + '</span>' +
+                    '<span class="ranking-valor">' + f.valor.toFixed(1).replace('.', ',') +
+                        '<span class="ranking-unidad">%</span></span>' +
+                '</div>').join('') +
+            '</div>';
+        return;
+    }
 
     const lista = DATOS_FUENTE.facultades
         .map(f => ({ codigo: f.codigo, nombre: f.nombre,
@@ -1658,17 +1688,23 @@ function populateAnexo3Filters() {
  * REGISTRO_MAESTRO_CODIGOS_A3.
  */
 const ORIGEN_TABLA_A3 = {
-    fichas:  { entidad: 'Campo',  rotulo: 'Fichas / Campos', hoja: 'DETALLE_REVISION_A3',
-               titulo: 'Detalle de Fichas / Campos' },
-    codigos: { entidad: 'Codigo', rotulo: 'Codigos',         hoja: 'REGISTRO_MAESTRO_CODIGOS_A3',
-               titulo: 'Detalle de Codigos' }
+    fichas:  { entidad: 'Ficha',  rotulo: 'Fichas',       hoja: 'RESUMEN_FICHAS_A3',
+               titulo: 'Detalle de Fichas' },
+    campos:  { entidad: 'Campo',  rotulo: 'Campos',       hoja: 'DETALLE_REVISION_A3',
+               titulo: 'Detalle de Campos' },
+    codigos: { entidad: 'Codigo', rotulo: 'Denominación', hoja: 'REGISTRO_MAESTRO_CODIGOS_A3',
+               titulo: 'Detalle de Denominación' }
 };
 
 // Cabeceras propias de cada origen: las dos hojas no tienen las mismas
 // columnas, y dejar la de fichas para los codigos rotularia mal cada dato.
 const COLUMNAS_A3 = {
-    fichas:  ['FACULTAD', 'FILA', 'N° FICHA / PROCESO', 'CODIGO ENCONTRADO', 'CAMPO REVISADO',
-              'SECCION', 'ESTADO', '¿CAMPO COMPLETO?', 'CELDA', 'OBSERVACION ESPECIFICA'],
+    fichas:  ['FACULTAD', '', 'N° FICHA / PROCESO', 'CODIGO', 'NOMBRE FICHA',
+              'CLASIFICACION', 'ESTADO', '% DE AVANCE', 'HALLAZGOS CRITICOS',
+              'OBSERVACIONES Y CORRECCIONES'],
+    campos:  ['FACULTAD', 'N° DE FILA', 'N° FICHA / PROCESO', 'CODIGO ENCONTRADO',
+              'CAMPO REVISADO', 'SECCION', 'ESTADO', '¿CAMPO COMPLETO?', 'CELDA',
+              'OBSERVACION ESPECIFICA'],
     codigos: ['FACULTAD', '', 'FICHAS EN QUE APARECE', 'CODIGO', 'DENOMINACION',
               'TIPO', 'ESTADO', '¿DENOMINACION CONSISTENTE?', '', 'OBSERVACION']
 };
@@ -1686,8 +1722,7 @@ function filterByStatusA3(bloque, status) {
 
     // Solo la pulsada queda marcada, en las DOS tarjetas del anexo: si no,
     // quedaban dos subcategorias resaltadas y no se sabia cual mandaba.
-    document.querySelectorAll('.big-metric[data-block="fichas"], ' +
-                              '.big-metric[data-block="codigos"]').forEach(m => {
+    document.querySelectorAll('#panel-anexo3 .big-metric[data-block]').forEach(m => {
         const activa = m.dataset.block === bloque && m.dataset.status === status;
         m.classList.toggle('active-status', activa);
         m.classList.toggle('inactive-status', !activa);

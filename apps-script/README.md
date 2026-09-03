@@ -446,14 +446,27 @@ lo que se pidió para él. Barra y cuadrante ya no comparten color: el 100 % y e
 deliberado; para volver a que coincidan, basta con que `TRAMOS` lea de
 `PALETA_BARRAS`.
 
-### El Anexo 3: campos y códigos
-
-La pestaña ANEXO 3 se alimenta ahora de dos hojas que el tablero no leía:
+### El Anexo 3: tres tarjetas, tres hojas
 
 | Tarjeta | Hoja | Estados |
 |---|---|---|
-| Fichas / Campos | `DETALLE_REVISION_A3` | Conformes · Observados · Sin Registrar · Crítico |
-| Códigos | `REGISTRO_MAESTRO_CODIGOS_A3` | Conformes · Observados |
+| Fichas | `RESUMEN_FICHAS_A3` | Conformes · Observados · Sin Registrar · Crítico |
+| Campos | `DETALLE_REVISION_A3` | Conformes · Observados · Sin Registrar · Crítico |
+| Denominación | `REGISTRO_MAESTRO_CODIGOS_A3` | Conformes · Observados |
+
+**Una excepción deliberada.** El ranking de la tarjeta «Fichas» no sale de sus
+propios recuentos sino de la columna `% AVANCE` de `RESUMEN_EJECUTIVO_A3` —el
+`pctAnexo3` de cada facultad—, ordenado de mayor a menor. Es la única métrica
+de esa tarjeta que usa esa hoja, así que su orden **no cambia** al elegir otro
+estado; solo cambia el título. Lo fija `RANKING_POR_AVANCE`.
+
+Las fichas se clasifican por su columna `CLASIFICACIÓN`, que el mismo auditor
+escribe con los mismos rótulos que el detalle. Si viniera vacía, se recae en el
+`¿COMPLETA?` de siempre, que solo distingue dos estados.
+
+El desglose por estado va en `fichasEstado`, aparte del `fichas`
+—completas/incompletas/sin producto de `RESUMEN_EJECUTIVO_A3`— del que sale el
+KPI del Anexo 3, para no tocar esa aritmética.
 
 **Cómo se traduce la clasificación.** El auditor del Anexo 3 escribe cinco
 rótulos en la columna `CLASIFICACIÓN` y la tarjeta pide cuatro estados, así que

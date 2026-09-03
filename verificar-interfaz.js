@@ -133,7 +133,7 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('ninguna tarjeta vive fuera de una vista', arbol.huerfanas === 0, arbol.huerfanas);
   ok('las tarjetas y las dos tablas estan DENTRO de Analisis',
      arbol.analisis.tarjetas >= 3 && arbol.analisis.paneles === 2 &&
-     arbol.analisis.rankA1 === 3 && arbol.analisis.rankA3 === 2, arbol.analisis);
+     arbol.analisis.rankA1 === 3 && arbol.analisis.rankA3 === 3, arbol.analisis);
   ok('la Base de datos no contiene nada de Analisis',
      arbol.database.tarjetas === 0 && arbol.database.rankings === 0, arbol.database);
 
@@ -643,109 +643,145 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     }
   }
 
-  console.log('\nAnexo 3: Fichas / Campos y Codigos');
-  // Se inyecta un desglose conocido, como con los procesos del Anexo 1.
+  console.log('\nAnexo 3: Fichas, Campos y Denominacion');
   await pag.evaluate(() => {
     DATOS_FUENTE.facultades.forEach((f, i) => {
-      f.campos  = { conformes: 20 + i, observados: 8, sinRegistrar: 4, critico: 2, total: 34 + i };
-      f.codigos = { conformes: 15 + i, observados: 5, total: 20 + i };
+      f.fichasEstado = { conformes: 12 - (i % 5), observados: 6, sinRegistrar: 3, critico: 1, total: 22 };
+      f.campos  = { conformes: 40 - i, observados: 8, sinRegistrar: 4, critico: 2, total: 54 };
+      f.codigos = { conformes: 30 - i, observados: 5, total: 35 };
     });
     DATOS_FUENTE.totales = Object.assign({}, DATOS_FUENTE.totales, {
-      campConf: 500, campObs: 160, campSin: 80, campCrit: 40, codConf: 350, codObs: 100
-    });
-    // Registros de las dos entidades nuevas, para la tabla.
+      fichConf: 210, fichObs: 120, fichSinReg: 60, fichCrit: 20,
+      campConf: 610, campObs: 350, campSin: 80, campCrit: 40,
+      codConf: 410, codObs: 100 });
     DATOS_FUENTE.registros = DATOS_FUENTE.registros.concat(
-      [['Campo','CONFORME'], ['Campo','OBSERVADO'], ['Campo','SIN REGISTRAR'],
-       ['Campo','CRITICO'], ['Campo','CRITICO'],
-       ['Codigo','CONFORME'], ['Codigo','CONFORME'], ['Codigo','OBSERVADO']]
+      [['Ficha','CONFORME'], ['Ficha','OBSERVADO'], ['Ficha','CRITICO'],
+       ['Campo','CONFORME'], ['Campo','OBSERVADO'], ['Campo','SIN REGISTRAR'], ['Campo','CRITICO'],
+       ['Codigo','CONFORME'], ['Codigo','OBSERVADO']]
       .map(([entity, status], i) => ({
         id: 90000 + i, entity, status, anexo: 'Anexo 3',
         faculty: DATOS_FUENTE.facultades[0].codigo, process: 'p', code: 'c' + i,
         name: 'n' + i, type: 't', compliance: '', criteria: '', observations: 'obs', row: '' })));
-    derivarDeLaFuente(); aplicarSeleccion(); switchTab('analisis');
+    derivarDeLaFuente(); aplicarSeleccion(); switchTab('analisis'); switchAnexoTab('anexo3');
   });
-  await pag.waitForTimeout(400);
+  await pag.waitForTimeout(450);
 
   const a3 = await pag.evaluate(() => {
-    const rot = sel => [...document.querySelectorAll(sel + ' h4')].map(h => h.textContent);
+    const rot = b => [...document.querySelectorAll('.big-metric[data-block="' + b + '"] h4')]
+                       .map(h => h.textContent);
+    const enUnaFila = b => {
+      const cajas = [...document.querySelectorAll('.big-metric[data-block="' + b + '"]')];
+      const tops = new Set(cajas.map(c => Math.round(c.getBoundingClientRect().top)));
+      return { estados: cajas.length, filas: tops.size };
+    };
     return {
-      tituloFichas: [...document.querySelectorAll('.anexo3-card h3')].map(h => h.textContent),
-      estadosFichas: rot('.big-metric[data-block="fichas"]'),
-      estadosCodigos: rot('.big-metric[data-block="codigos"]'),
-      cifras: ['fich-comp','fich-incomp','fich-sin','fich-crit','cod-conf','cod-obs']
-        .map(i => document.getElementById(i).textContent),
-      rankings: !!document.getElementById('ranking-fichas') &&
-                !!document.getElementById('ranking-codigos'),
-      cuantificacion: document.querySelectorAll('#panel-anexo3 .chart-box').length,
-      bloquesArriba: document.querySelectorAll('#panel-anexo3 .anexo3-layout > .anexo3-card').length,
-      rankA3: document.querySelectorAll('#ranking-anexo3 .rank-row').length
+      titulos: [...document.querySelectorAll('#panel-anexo3 .anexo3-card h3')].map(h => h.textContent),
+      bloques: document.querySelectorAll('#panel-anexo3 .anexo3-layout > .anexo3-card').length,
+      graficoFuera: !document.getElementById('ranking-anexo3'),
+      fichas: rot('fichas'), campos: rot('campos'), codigos: rot('codigos'),
+      lineaFichas: enUnaFila('fichas'), lineaCampos: enUnaFila('campos'),
+      lineaCodigos: enUnaFila('codigos'),
+      cifras: ['fich-conf','fich-obs','fich-sin','fich-crit',
+               'camp-conf','camp-obs','camp-sin','camp-crit',
+               'cod-conf','cod-obs'].map(i => document.getElementById(i).textContent),
+      rankings: ['fichas','campos','codigos'].every(b => !!document.getElementById('ranking-' + b)),
+      cuantificacion: document.querySelectorAll('#panel-anexo3 .chart-box').length
     };
   });
-  ok('la tarjeta se llama «Fichas / Campos»',
-     a3.tituloFichas[0] === 'Fichas / Campos', a3.tituloFichas);
-  ok('y la nueva, «Códigos»', a3.tituloFichas[1] === 'Códigos', a3.tituloFichas);
-  ok('Fichas / Campos tiene los cuatro estados renombrados',
-     JSON.stringify(a3.estadosFichas) ===
-     JSON.stringify(['Conformes','Observados','Sin Registrar','Crítico']), a3.estadosFichas);
-  ok('Códigos tiene solo dos',
-     JSON.stringify(a3.estadosCodigos) === JSON.stringify(['Conformes','Observados']),
-     a3.estadosCodigos);
-  ok('las seis cifras salen de la fuente, no del HTML',
-     JSON.stringify(a3.cifras) === JSON.stringify(['500','160','80','40','350','100']),
-     a3.cifras);
-  ok('no queda ningun «grafico de cuantificacion»', a3.cuantificacion === 0, a3.cuantificacion);
-  ok('los dos rankings existen', a3.rankings);
-  ok('arriba conviven TRES bloques', a3.bloquesArriba === 3, a3.bloquesArriba);
-  ok('el grafico de ranking sale de la fuente, no de las 8 filas inventadas',
-     a3.rankA3 === 20, a3.rankA3);
+  ok('arriba hay TRES tarjetas y ningun grafico',
+     a3.bloques === 3 && a3.graficoFuera, [a3.bloques, a3.graficoFuera]);
+  ok('se llaman Fichas, Campos y Denominación',
+     JSON.stringify(a3.titulos) === JSON.stringify(['Fichas','Campos','Denominación']), a3.titulos);
+  ok('Fichas y Campos tienen los cuatro estados',
+     JSON.stringify(a3.fichas) === JSON.stringify(['Conformes','Observados','Sin Registrar','Crítico']) &&
+     JSON.stringify(a3.campos) === JSON.stringify(a3.fichas), [a3.fichas, a3.campos]);
+  ok('Denominación tiene dos',
+     JSON.stringify(a3.codigos) === JSON.stringify(['Conformes','Observados']), a3.codigos);
+  ok('los cuatro estados van en UNA sola fila, no en cuadricula 2x2',
+     a3.lineaFichas.filas === 1 && a3.lineaCampos.filas === 1 && a3.lineaCodigos.filas === 1,
+     [a3.lineaFichas, a3.lineaCampos, a3.lineaCodigos]);
+  ok('las diez cifras salen de la fuente',
+     JSON.stringify(a3.cifras) === JSON.stringify(
+       ['210','120','60','20','610','350','80','40','410','100']), a3.cifras);
+  ok('los tres rankings existen y no queda cuantificacion',
+     a3.rankings && a3.cuantificacion === 0, a3);
 
-  console.log('\n  La tabla del Anexo 3 cambia de origen');
-  for (const [bloque, estado, titulo, hoja] of [
-      ['fichas', 'CONFORME', 'Detalle de Fichas / Campos', 'DETALLE_REVISION_A3'],
-      ['fichas', 'CRITICO', 'Detalle de Fichas / Campos', 'DETALLE_REVISION_A3'],
-      ['codigos', 'OBSERVADO', 'Detalle de Codigos', 'REGISTRO_MAESTRO_CODIGOS_A3']]) {
+  // Con un Tablero.gs antiguo no llegan estos totales. La tarjeta debe
+  // mostrar ceros, no «NaN», que se lee como una averia.
+  const sinTotales = await pag.evaluate(() => {
+    const previo = DATOS_FUENTE.totales;
+    DATOS_FUENTE.facultades.forEach(f => { delete f.fichasEstado; });
+    DATOS_FUENTE.totales = { prodConf: 1, prodObs: 1, prodSin: 0 };
+    derivarDeLaFuente(); vincularIndicadores();
+    const leer = ['fich-conf','fich-obs','fich-sin','fich-crit','cod-conf']
+      .map(i => document.getElementById(i).textContent);
+    const den = [...document.querySelectorAll('.big-metric[data-block="fichas"] .den')]
+      .map(d => d.textContent);
+    DATOS_FUENTE.totales = previo;
+    return { leer, den };
+  });
+  ok('sin esos totales muestra ceros, no NaN ni undefined',
+     sinTotales.leer.every(v => v === '0') &&
+     sinTotales.den.every(d => !/NaN|undefined/.test(d)), sinTotales);
+  await pag.evaluate(() => {
+    DATOS_FUENTE.facultades.forEach((f, i) => {
+      f.fichasEstado = { conformes: 12 - (i % 5), observados: 6, sinRegistrar: 3, critico: 1, total: 22 };
+    });
+    derivarDeLaFuente(); aplicarSeleccion();
+  });
+  await pag.waitForTimeout(200);
+
+  console.log('\n  El ranking de Fichas sale de RESUMEN_EJECUTIVO_A3');
+  await pag.evaluate(() => filterByStatusA3('fichas', 'CRITICO'));
+  await pag.waitForTimeout(200);
+  const rF = await pag.evaluate(() => {
+    const caja = document.getElementById('ranking-fichas');
+    return { titulo: caja.querySelector('.ranking-titulo').textContent,
+             criterio: caja.querySelector('.ranking-criterio').textContent,
+             vals: [...caja.querySelectorAll('.ranking-valor')]
+                     .map(v => parseFloat(v.textContent.replace(',', '.'))),
+             pct: DATOS_FUENTE.facultades.map(f => f.pctAnexo3).sort((a, b) => b - a) };
+  });
+  ok('el titulo sigue al estado elegido',
+     rF.titulo.includes('Fichas') && rF.titulo.includes('Crítico'), rF.titulo);
+  ok('pero ordena por el % de avance, no por el recuento del estado',
+     JSON.stringify(rF.vals) === JSON.stringify(rF.pct), [rF.vals.slice(0,4), rF.pct.slice(0,4)]);
+  ok('y lo dice en el criterio', /RESUMEN_EJECUTIVO_A3/.test(rF.criterio), rF.criterio);
+
+  console.log('\n  Campos y Denominacion: mejor desempeño en el puesto 1');
+  for (const [bloque, estado, orden] of [['campos','CONFORME','desc'],
+      ['campos','CRITICO','asc'], ['codigos','OBSERVADO','asc']]) {
     await pag.evaluate(([b, e]) => filterByStatusA3(b, e), [bloque, estado]);
+    await pag.waitForTimeout(150);
+    const r = await pag.evaluate(b => [...document.querySelectorAll(
+      '#ranking-' + b + ' .ranking-valor')].map(v => Number(v.textContent.replace(/\D+.*$/, ''))), bloque);
+    ok('  ' + bloque + ' · ' + estado + ': ordena ' +
+       (orden === 'desc' ? 'de mayor a menor' : 'de menor a mayor, 0 es lo ideal'),
+       r.every((v, i) => i === 0 || (orden === 'desc' ? r[i-1] >= v : r[i-1] <= v)) && r.length === 20,
+       r.slice(0, 5));
+  }
+
+  console.log('\n  La tabla cambia con las tres tarjetas');
+  for (const [bloque, titulo, hoja, col] of [
+      ['fichas', 'Detalle de Fichas', 'RESUMEN_FICHAS_A3', 'NOMBRE FICHA'],
+      ['campos', 'Detalle de Campos', 'DETALLE_REVISION_A3', 'CAMPO REVISADO'],
+      ['codigos', 'Detalle de Denominación', 'REGISTRO_MAESTRO_CODIGOS_A3', 'DENOMINACION']]) {
+    await pag.evaluate(b => filterByStatusA3(b, 'CONFORME'), bloque);
     await pag.waitForTimeout(200);
-    const r = await pag.evaluate(([b, e]) => ({
+    const r = await pag.evaluate(b => ({
       titulo: document.getElementById('tableTitleA3').textContent,
       pie: document.getElementById('dataFooterA3').textContent,
       enTabla: Number(document.getElementById('visibleCountA3').textContent),
       esperados: allData.filter(d => d.entity === ORIGEN_TABLA_A3[b].entidad &&
-                                     d.status === e).length,
+                                     d.status === 'CONFORME').length,
       cabecera: [...document.querySelectorAll('#dataTableA3 thead th')].map(t => t.textContent),
-      alerta: document.getElementById('productRowsA3').closest('table')
-                .classList.contains('col-obs-alerta'),
       marcadas: document.querySelectorAll('#panel-anexo3 .active-status').length
-    }), [bloque, estado]);
-    ok(bloque + ' · ' + estado + ': el titulo es «' + titulo + '»',
-       r.titulo.startsWith(titulo), r.titulo);
-    ok('  proyecta los registros de ' + hoja,
+    }), bloque);
+    ok('  ' + bloque + ': se titula «' + titulo + '»', r.titulo.startsWith(titulo), r.titulo);
+    ok('    y proyecta ' + hoja,
        r.enTabla === r.esperados && r.esperados > 0 && r.pie.includes(hoja), r);
-    ok('  la cabecera es la de esa hoja',
-       r.cabecera.includes(bloque === 'codigos' ? 'DENOMINACION' : 'CAMPO REVISADO'),
-       r.cabecera);
-    ok('  solo una subcategoria queda marcada en las dos tarjetas',
-       r.marcadas === 1, r.marcadas);
-    if (estado !== 'CONFORME') ok('  y se resalta la columna de observaciones', r.alerta);
-  }
-
-  console.log('\n  Rankings del Anexo 3');
-  for (const [bloque, estado, rotulo] of [['fichas','CONFORME','Fichas Conformes'],
-      ['fichas','CRITICO','Fichas Crítico'], ['codigos','OBSERVADO','Codigos Observados']]) {
-    await pag.evaluate(([b, e]) => filterByStatusA3(b, e), [bloque, estado]);
-    await pag.waitForTimeout(150);
-    const r = await pag.evaluate(b => {
-      const caja = document.getElementById('ranking-' + b);
-      return { titulo: caja.querySelector('.ranking-titulo').textContent,
-               vals: [...caja.querySelectorAll('.ranking-valor')]
-                       .map(v => Number(v.textContent.replace(/\D+.*$/, ''))) };
-    }, bloque);
-    ok('  «' + rotulo + '»: el titulo cambia',
-       r.titulo.includes(rotulo.split(' ')[0]) && r.titulo.includes(estado === 'CRITICO'
-         ? 'Crítico' : rotulo.split(' ')[1]), r.titulo);
-    ok('    y ordena de mayor a menor, como se pidio para el Anexo 3',
-       r.vals.every((v, i) => i === 0 || r.vals[i-1] >= v) && r.vals.length === 20,
-       r.vals.slice(0, 5));
+    ok('    con la cabecera de esa hoja', r.cabecera.includes(col), r.cabecera);
+    ok('    y solo una subcategoria marcada en las tres tarjetas', r.marcadas === 1, r.marcadas);
   }
   await pag.evaluate(() => { filterByStatusA3('fichas', 'CONFORME'); switchTab('dashboard'); });
   await pag.waitForTimeout(300);
