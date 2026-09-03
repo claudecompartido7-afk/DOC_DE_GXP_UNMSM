@@ -1508,20 +1508,15 @@ const RANKING = {
     // Anexo 3. El puesto 1 es siempre el mejor desempeño para ese indicador:
     // en Conformes, quien mas tiene; en Observados, Sin Registrar y Critico,
     // quien menos, porque ahi el cero es el ideal.
+    // Un solo origen para toda la tarjeta: los cuatro recuentos y el ranking
+    // salen de RESUMEN_FICHAS_A3. Antes el ranking era la excepcion y ordenaba
+    // por el % de avance de RESUMEN_EJECUTIVO_A3, lo que obligaba a explicar en
+    // pantalla por que no cambiaba al elegir otro estado.
     fichas:  { campo: 'fichasEstado', rotulo: 'Fichas',       unidad: 'fichas' },
     campos:  { campo: 'campos',       rotulo: 'Campos',       unidad: 'campos' },
     codigos: { campo: 'codigos',      rotulo: 'Denominación', unidad: 'denominaciones' }
 };
 
-/**
- * La tarjeta «Fichas» es la excepcion: su ranking NO sale del recuento de
- * estados sino de la columna «% AVANCE» de RESUMEN_EJECUTIVO_A3, que es el
- * `pctAnexo3` de cada facultad. Se pidio asi expresamente: es la unica metrica
- * de esa tarjeta que usa esa hoja, y por eso el orden no cambia con el estado.
- */
-const RANKING_POR_AVANCE = {
-    fichas: { campo: 'pctAnexo3', unidad: '%', hoja: 'RESUMEN_EJECUTIVO_A3' }
-};
 
 const RANKING_METRICA = {
     'CONFORME':      { clave: 'conformes',    rotulo: 'Conformes',     orden: 'desc' },
@@ -1553,32 +1548,6 @@ function pintarRankingDe(bloque) {
     // estados; si no lo hace, manda el de la metrica.
     const met = cfg.orden ? Object.assign({}, base, { orden: cfg.orden }) : base;
 
-    // Excepcion de «Fichas»: ordena por el % de avance de RESUMEN_EJECUTIVO_A3
-    // y no por el recuento del estado elegido. El titulo si sigue al estado.
-    const porAvance = RANKING_POR_AVANCE[bloque];
-    if (porAvance) {
-        const orden = DATOS_FUENTE.facultades
-            .map(f => ({ codigo: f.codigo, nombre: f.nombre,
-                         valor: typeof f[porAvance.campo] === 'number' ? f[porAvance.campo] : 0 }))
-            .sort((a, b) => b.valor - a.valor || a.nombre.localeCompare(b.nombre));
-        caja.innerHTML =
-            '<div class="ranking-titulo">Ranking de Facultades · ' +
-                cfg.rotulo + ' ' + met.rotulo + '</div>' +
-            '<div class="ranking-criterio">Por el % de avance de ' + porAvance.hoja +
-                ', de mayor a menor.</div>' +
-            '<div class="ranking-lista">' +
-            orden.map((f, i) =>
-                '<div class="ranking-fila' + (f.codigo === facultadSel ? ' sel' : '') + '"' +
-                ' onclick="seleccionarFacultad(\'' + f.codigo + '\')"' +
-                ' title="' + f.nombre + '">' +
-                    '<span class="ranking-pos">' + (i + 1) + '.</span>' +
-                    '<span class="ranking-nombre">' + f.nombre + '</span>' +
-                    '<span class="ranking-valor">' + f.valor.toFixed(1).replace('.', ',') +
-                        '<span class="ranking-unidad">%</span></span>' +
-                '</div>').join('') +
-            '</div>';
-        return;
-    }
 
     const lista = DATOS_FUENTE.facultades
         .map(f => ({ codigo: f.codigo, nombre: f.nombre,

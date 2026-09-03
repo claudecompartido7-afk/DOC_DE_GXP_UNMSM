@@ -731,22 +731,39 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   });
   await pag.waitForTimeout(200);
 
-  console.log('\n  El ranking de Fichas sale de RESUMEN_EJECUTIVO_A3');
-  await pag.evaluate(() => filterByStatusA3('fichas', 'CRITICO'));
-  await pag.waitForTimeout(200);
-  const rF = await pag.evaluate(() => {
-    const caja = document.getElementById('ranking-fichas');
-    return { titulo: caja.querySelector('.ranking-titulo').textContent,
-             criterio: caja.querySelector('.ranking-criterio').textContent,
-             vals: [...caja.querySelectorAll('.ranking-valor')]
-                     .map(v => parseFloat(v.textContent.replace(',', '.'))),
-             pct: DATOS_FUENTE.facultades.map(f => f.pctAnexo3).sort((a, b) => b - a) };
-  });
-  ok('el titulo sigue al estado elegido',
-     rF.titulo.includes('Fichas') && rF.titulo.includes('Crítico'), rF.titulo);
-  ok('pero ordena por el % de avance, no por el recuento del estado',
-     JSON.stringify(rF.vals) === JSON.stringify(rF.pct), [rF.vals.slice(0,4), rF.pct.slice(0,4)]);
-  ok('y lo dice en el criterio', /RESUMEN_EJECUTIVO_A3/.test(rF.criterio), rF.criterio);
+  console.log('\n  El ranking de Fichas sale de su propia hoja');
+  // Un solo origen para toda la tarjeta. Antes ordenaba por el % de avance de
+  // RESUMEN_EJECUTIVO_A3 y no cambiaba al elegir otro estado; ahora sigue al
+  // estado como las otras dos.
+  const porEstado = [];
+  for (const [estado, orden] of [['CONFORME','desc'], ['OBSERVADO','asc'],
+                                 ['SIN REGISTRAR','asc'], ['CRITICO','asc']]) {
+    await pag.evaluate(e => filterByStatusA3('fichas', e), estado);
+    await pag.waitForTimeout(150);
+    const r = await pag.evaluate(e => {
+      const caja = document.getElementById('ranking-fichas');
+      const clave = RANKING_METRICA[e].clave;
+      return {
+        titulo: caja.querySelector('.ranking-titulo').textContent,
+        criterio: caja.querySelector('.ranking-criterio').textContent,
+        vals: [...caja.querySelectorAll('.ranking-valor')]
+                .map(v => Number(v.textContent.replace(/\D+.*$/, ''))),
+        deLaHoja: DATOS_FUENTE.facultades.map(f => f.fichasEstado[clave])
+      };
+    }, estado);
+    porEstado.push(r.vals.join(','));
+    ok('  ' + estado + ': el titulo lo dice', r.titulo.includes('Fichas'), r.titulo);
+    ok('    las cifras son los recuentos de RESUMEN_FICHAS_A3, no un porcentaje',
+       JSON.stringify([...r.vals].sort((a,b)=>a-b)) ===
+       JSON.stringify([...r.deLaHoja].sort((a,b)=>a-b)), [r.vals.slice(0,4), r.deLaHoja.slice(0,4)]);
+    ok('    ordena ' + (orden === 'desc' ? 'de mayor a menor' : 'de menor a mayor'),
+       r.vals.every((v, i) => i === 0 || (orden === 'desc' ? r.vals[i-1] >= v : r.vals[i-1] <= v)),
+       r.vals.slice(0, 5));
+    ok('    y ya no menciona RESUMEN_EJECUTIVO_A3',
+       !/RESUMEN_EJECUTIVO_A3/.test(r.criterio), r.criterio);
+  }
+  ok('  el ranking CAMBIA al elegir otro estado, como las otras dos tarjetas',
+     new Set(porEstado).size > 1, porEstado.map(p => p.slice(0, 30)));
 
   console.log('\n  Campos y Denominacion: mejor desempeño en el puesto 1');
   for (const [bloque, estado, orden] of [['campos','CONFORME','desc'],
