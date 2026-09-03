@@ -454,11 +454,11 @@ deliberado; para volver a que coincidan, basta con que `TRAMOS` lea de
 | Campos | `DETALLE_REVISION_A3` | Conformes · Observados · Sin Registrar · Crítico |
 | Denominación | `REGISTRO_MAESTRO_CODIGOS_A3` | Conformes · Observados |
 
-**Una excepción deliberada.** El ranking de la tarjeta «Fichas» no sale de sus
-propios recuentos sino de la columna `% AVANCE` de `RESUMEN_EJECUTIVO_A3` —el
-`pctAnexo3` de cada facultad—, ordenado de mayor a menor. Es la única métrica
-de esa tarjeta que usa esa hoja, así que su orden **no cambia** al elegir otro
-estado; solo cambia el título. Lo fija `RANKING_POR_AVANCE`.
+Cada tarjeta tiene **un solo origen**, ranking incluido: el de «Fichas» sale de
+los recuentos de `RESUMEN_FICHAS_A3` y sigue al estado elegido, igual que los
+otros dos. Hubo una versión en que ordenaba por el `% AVANCE` de
+`RESUMEN_EJECUTIVO_A3` y entonces no cambiaba al pulsar otro estado, lo que
+obligaba a explicarlo en pantalla.
 
 Las fichas se clasifican por su columna `CLASIFICACIÓN`, que el mismo auditor
 escribe con los mismos rótulos que el detalle. Si viniera vacía, se recae en el
