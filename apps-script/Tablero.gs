@@ -117,10 +117,18 @@ const TABLERO = {
  */
 function tablero(opciones) {
   const sinCache = opciones && opciones.sinCache;
+  // `detalle:false` devuelve SOLO los agregados: facultades, totales, KPI e
+  // historial. Es lo que alimenta las tarjetas, los rankings y los gráficos, y
+  // pesa unos pocos kilobytes. El detalle —decenas de miles de filas entre
+  // productos, procesos y campos— solo lo necesitan las tres tablas, y es lo
+  // que hacía que una única respuesta se volviera enorme y acabara fallando
+  // entera: sin nada en pantalla, en vez de con las tablas vacías.
+  const conDetalle = !opciones || opciones.detalle !== false;
+  const clave = conDetalle ? 'tablero_v1' : 'tablero_agregados_v1';
   const cache = CacheService.getScriptCache();
 
   if (!sinCache) {
-    const guardado = cache.get('tablero_v1');
+    const guardado = cache.get(clave);
     if (guardado) {
       const previo = JSON.parse(guardado);
       previo.deCache = true;
@@ -130,8 +138,13 @@ function tablero(opciones) {
 
   const datos = construirTablero_();
 
+  if (!conDetalle) {
+    datos.registros = [];
+    datos.soloAgregados = true;
+  }
+
   try {
-    cache.put('tablero_v1', JSON.stringify(datos), TABLERO.CACHE_SEG);
+    cache.put(clave, JSON.stringify(datos), TABLERO.CACHE_SEG);
     datos.enCache = true;
   } catch (e) {
     // Supera el máximo de la caché (100 KB): se sirve igual, sin guardar. Con
@@ -969,6 +982,25 @@ function probarTablero() {
   lineas.push('Registros de detalle: ' + d.registros.length +
               (d.recorte ? '  ¡+' + d.recorte + ' RECORTADOS! Suba TABLERO.MAX_REGISTROS'
                          : '  (ninguno recortado: viaja el libro entero)'));
+  // El tamaño es la sospecha numero uno cuando «no sale nada»: una respuesta
+  // demasiado grande falla entera y el tablero cae a sus datos incrustados.
+  const kb = function (obj) { return Math.round(JSON.stringify(obj).length / 1024); };
+  const pesoTotal = kb(d);
+  const pesoAgregados = pesoTotal - kb(d.registros);
+  lineas.push('');
+  lineas.push('TAMAÑO DE LA RESPUESTA');
+  lineas.push('  Agregados (tarjetas, rankings, gráficos): ' + pesoAgregados + ' KB');
+  lineas.push('  Detalle (las tres tablas): ' + kb(d.registros) + ' KB  ·  ' +
+              d.registros.length + ' filas');
+  lineas.push('  TOTAL: ' + pesoTotal + ' KB');
+  if (pesoTotal > 8000) {
+    lineas.push('  ⚠ MUY GRANDE. La web pide los agregados aparte, así que las');
+    lineas.push('    tarjetas se llenarán igual, pero el detalle puede no llegar.');
+    lineas.push('    Baje TABLERO.MAX_REGISTROS si las tablas salen vacías.');
+  } else {
+    lineas.push('  Tamaño razonable: debería llegar entero.');
+  }
+  lineas.push('');
   lineas.push('Caché: ' + (d.enCache === false
     ? 'no cabe (>100 KB), cada consulta relee el libro — es lo esperado con el detalle completo'
     : 'guardada ' + TABLERO.CACHE_SEG + ' s'));

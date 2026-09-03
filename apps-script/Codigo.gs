@@ -73,7 +73,7 @@ function doPost(e) {
       // El tablero está publicado en la portada pública, así que se sirve sin
       // credenciales. Devuelve sólo cifras de avance y el detalle de la
       // revisión; los paneles del área interna siguen exigiendo sesión abajo.
-      case 'tablero':   return responder(tablero());
+      case 'tablero':   return responder(tablero(datos));
     }
 
     // Todo lo demás toca datos internos o escribe en los documentos.
