@@ -38,6 +38,8 @@ const TABLERO = {
     PROCESOS:   'OBSERVACIONES_DE_PROCESO_A1',
     RESUMEN_A3: 'RESUMEN_EJECUTIVO_A3',
     FICHAS:     'RESUMEN_FICHAS_A3',
+    DETALLE_A3: 'DETALLE_REVISION_A3',
+    MAESTRO_A3: 'REGISTRO_MAESTRO_CODIGOS_A3',
     A4:         'RESUMEN_EJECUTIVO_A4',
     HISTORIAL:  'HISTORIAL_REVISIONES',
     CATALOGO:   'CODIFICACION_ DE_LAS_FACULTADES'
@@ -150,6 +152,8 @@ function construirTablero_() {
   const productos= leerHoja_(libro, TABLERO.HOJAS.PRODUCTOS);
   const procesos = leerHoja_(libro, TABLERO.HOJAS.PROCESOS);
   const fichas   = leerHoja_(libro, TABLERO.HOJAS.FICHAS);
+  const campos   = leerHoja_(libro, TABLERO.HOJAS.DETALLE_A3);
+  const codigos  = leerHoja_(libro, TABLERO.HOJAS.MAESTRO_A3);
   const indic    = leerHoja_(libro, TABLERO.HOJAS.A4);
   const pctA4Hoja= leerCeldaPct_(libro, TABLERO.HOJAS.A4, TABLERO.CELDA_PCT_A4);
   const histor   = leerHoja_(libro, TABLERO.HOJAS.HISTORIAL);
@@ -160,7 +164,16 @@ function construirTablero_() {
     return facultadDe_(f[0], f[1] + '_' + f[0], f[2], i + 1, porSigla[f[0]] || {});
   });
 
-  const registros = recopilarRegistros_(productos, procesos, fichas);
+  const registros = recopilarRegistros_(productos, procesos, fichas, campos, codigos);
+
+  // El detalle del Anexo 3 se lee después de armar el catálogo, así que sus
+  // recuentos se acoplan aquí en lugar de dentro de `facultadDe_`.
+  facultades.forEach(function (f) {
+    const extra = registros.porFacultad[f.codigo] || {};
+    f.campos  = extra.campos  ||
+      { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 };
+    f.codigos = extra.codigos || { conformes: 0, observados: 0, total: 0 };
+  });
   const totales   = sumarTotales_(facultades);
   const anexo4    = leerAnexo4_(indic, pctA4Hoja);
   const revisiones= leerHistorial_(histor, anexo4);
@@ -329,11 +342,49 @@ function clasificar_(estado, pct) {
 }
 
 /** Los totales del encabezado salen de las facultades, no de la fila TOTAL. */
+/**
+ * Cómo se traduce la columna CLASIFICACIÓN de DETALLE_REVISION_A3 a los cuatro
+ * estados de la tarjeta «Fichas / Campos».
+ *
+ * El auditor del Anexo 3 escribe cinco rótulos y la tarjeta pide cuatro
+ * estados, así que la correspondencia hay que decidirla y dejarla escrita:
+ *
+ *   Correcto    -> Conforme       el campo está y está bien
+ *   Observación -> Observado      está, pero hay algo que corregir
+ *   Incompleto  -> Sin Registrar  la columna es «¿CAMPO COMPLETO?»: no está
+ *   Crítico     -> Crítico
+ *   Opcional    -> no cuenta      no era exigible, no es un acierto ni un fallo
+ */
+const CLASIFICACION_A3 = {
+  'CORRECTO':    'CONFORME',
+  'OBSERVACION': 'OBSERVADO',
+  'INCOMPLETO':  'SIN REGISTRAR',
+  'CRITICO':     'CRITICO'
+};
+
+/** El estado de una fila de DETALLE_REVISION_A3 según su clasificación. */
+function estadoDeCampo_(clasificacion) {
+  const c = String(clasificacion || '').trim().toUpperCase()
+              .replace(/[ÁÀÄÂ]/g, 'A').replace(/[ÉÈËÊ]/g, 'E')
+              .replace(/[ÍÌÏÎ]/g, 'I').replace(/[ÓÒÖÔ]/g, 'O')
+              .replace(/[ÚÙÜÛ]/g, 'U');
+  return CLASIFICACION_A3[c] || null;
+}
+
+/** «Sí» / «No» de la columna ¿DENOMINACIÓN CONSISTENTE? del maestro. */
+function estadoDeCodigo_(consistente) {
+  const v = String(consistente || '').trim().toUpperCase();
+  if (!v) return null;
+  return /^S/.test(v) ? 'CONFORME' : 'OBSERVADO';
+}
+
 function sumarTotales_(facultades) {
   const t = { prodConf: 0, prodObs: 0, prodSin: 0,
               procConf: 0, procObs: 0, procSin: 0,
               subConf: 0, subObs: 0, subSin: 0,
-              fichComp: 0, fichIncomp: 0, fichSin: 0 };
+              fichComp: 0, fichIncomp: 0, fichSin: 0,
+              campConf: 0, campObs: 0, campSin: 0, campCrit: 0,
+              codConf: 0, codObs: 0 };
   facultades.forEach(function (f) {
     t.prodConf   += f.productos.conformes;
     t.prodObs    += f.productos.observados;
@@ -347,6 +398,13 @@ function sumarTotales_(facultades) {
     t.fichComp   += f.fichas.completas;
     t.fichIncomp += f.fichas.incompletas;
     t.fichSin    += f.fichas.sinProducto;
+    const c = f.campos  || {}, k = f.codigos || {};
+    t.campConf   += c.conformes    || 0;
+    t.campObs    += c.observados   || 0;
+    t.campSin    += c.sinRegistrar || 0;
+    t.campCrit   += c.critico      || 0;
+    t.codConf    += k.conformes    || 0;
+    t.codObs     += k.observados   || 0;
   });
   return t;
 }
@@ -490,9 +548,28 @@ function historialPorAnexo_(filas) {
  * Junta en una sola lista el detalle de las tres hojas, con la forma que la
  * vista de base de datos y las dos tablas de análisis esperan.
  */
-function recopilarRegistros_(productos, procesos, fichas) {
+function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
   const filas = [];
-  const cobertura = { Producto: {}, Proceso: {}, SubProceso: {}, Ficha: {} };
+  const cobertura = { Producto: {}, Proceso: {}, SubProceso: {}, Ficha: {},
+                      Campo: {}, Codigo: {} };
+  // Recuento por facultad de las dos tarjetas nuevas del Anexo 3. Se lleva
+  // aquí porque es la única pasada que recorre el detalle, y contar dos veces
+  // lo mismo es cómo acaban discrepando la tarjeta y su tabla.
+  const porFacultad = {};
+  const anota = function (sigla, grupo, estado) {
+    const f = codigoFacultad_(sigla);
+    if (!f) return;
+    if (!porFacultad[f]) porFacultad[f] = {
+      campos:  { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 },
+      codigos: { conformes: 0, observados: 0, total: 0 }
+    };
+    const caja = porFacultad[f][grupo];
+    caja.total++;
+    if (estado === 'CONFORME')           caja.conformes++;
+    else if (estado === 'OBSERVADO')     caja.observados++;
+    else if (estado === 'SIN REGISTRAR') caja.sinRegistrar++;
+    else if (estado === 'CRITICO')       caja.critico++;
+  };
   let id = 0, recortadas = 0;
 
   const meter = function (entidad, fila) {
@@ -538,12 +615,39 @@ function recopilarRegistros_(productos, procesos, fichas) {
     });
   });
 
+  // DETALLE_REVISION_A3 — la tarjeta «Fichas / Campos»
+  campos.forEach(function (f) {
+    const estado = estadoDeCampo_(f[9]);
+    if (!estado) return;                       // «Opcional» no cuenta
+    anota(f[0], 'campos', estado);
+    meter('Campo', {
+      anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: texto_(f[5]),
+      process: texto_(f[2]), code: texto_(f[7]), name: texto_(f[4]),
+      type: texto_(f[3]), status: estado, compliance: texto_(f[8]),
+      criteria: texto_(f[6]), observations: texto_(f[10])
+    });
+  });
+
+  // REGISTRO_MAESTRO_CODIGOS_A3 — la tarjeta «Códigos»
+  codigos.forEach(function (f) {
+    const estado = estadoDeCodigo_(f[6]);
+    if (!estado) return;
+    anota(f[0], 'codigos', estado);
+    meter('Codigo', {
+      anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: '',
+      process: texto_(f[5]), code: texto_(f[3]), name: texto_(f[4]),
+      type: texto_(f[2]), status: estado, compliance: texto_(f[6]),
+      criteria: '', observations: texto_(f[7])
+    });
+  });
+
   const cuenta = {};
   Object.keys(cobertura).forEach(function (k) {
     cuenta[k] = Object.keys(cobertura[k]).length;
   });
 
-  return { filas: filas, cobertura: cuenta, recorte: recortadas };
+  return { filas: filas, cobertura: cuenta, recorte: recortadas,
+           porFacultad: porFacultad };
 }
 
 /** El detalle nombra la facultad por su sigla; el tablero, por su código. */

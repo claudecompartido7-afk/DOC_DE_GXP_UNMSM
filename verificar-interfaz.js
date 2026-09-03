@@ -113,7 +113,9 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
       const v = document.getElementById(id);
       return { tarjetas: v.querySelectorAll('.entity-card').length,
                paneles: v.querySelectorAll('.data-panel').length,
-               rankings: v.querySelectorAll('.ranking-box').length };
+               rankings: v.querySelectorAll('.ranking-box').length,
+               rankA1: v.querySelectorAll('#panel-anexo1 .ranking-box').length,
+               rankA3: v.querySelectorAll('#panel-anexo3 .ranking-box').length };
     };
     return {
       hijosDeMain: hijos,
@@ -129,9 +131,9 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
      arbol.hijosDeMain.length === 2 && arbol.hijosDeMain[0] === 'header', arbol.hijosDeMain);
   ok('no hay tarjetas ni paneles colgando de <main>', arbol.sueltas === 0, arbol.sueltas);
   ok('ninguna tarjeta vive fuera de una vista', arbol.huerfanas === 0, arbol.huerfanas);
-  ok('las tres tarjetas y su tabla estan DENTRO de Analisis',
-     arbol.analisis.tarjetas >= 3 && arbol.analisis.paneles >= 1 &&
-     arbol.analisis.rankings === 3, arbol.analisis);
+  ok('las tarjetas y las dos tablas estan DENTRO de Analisis',
+     arbol.analisis.tarjetas >= 3 && arbol.analisis.paneles === 2 &&
+     arbol.analisis.rankA1 === 3 && arbol.analisis.rankA3 === 2, arbol.analisis);
   ok('la Base de datos no contiene nada de Analisis',
      arbol.database.tarjetas === 0 && arbol.database.rankings === 0, arbol.database);
 
@@ -640,6 +642,113 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
          ordenado && r.filas.length === 20, vals.slice(0, 5));
     }
   }
+
+  console.log('\nAnexo 3: Fichas / Campos y Codigos');
+  // Se inyecta un desglose conocido, como con los procesos del Anexo 1.
+  await pag.evaluate(() => {
+    DATOS_FUENTE.facultades.forEach((f, i) => {
+      f.campos  = { conformes: 20 + i, observados: 8, sinRegistrar: 4, critico: 2, total: 34 + i };
+      f.codigos = { conformes: 15 + i, observados: 5, total: 20 + i };
+    });
+    DATOS_FUENTE.totales = Object.assign({}, DATOS_FUENTE.totales, {
+      campConf: 500, campObs: 160, campSin: 80, campCrit: 40, codConf: 350, codObs: 100
+    });
+    // Registros de las dos entidades nuevas, para la tabla.
+    DATOS_FUENTE.registros = DATOS_FUENTE.registros.concat(
+      [['Campo','CONFORME'], ['Campo','OBSERVADO'], ['Campo','SIN REGISTRAR'],
+       ['Campo','CRITICO'], ['Campo','CRITICO'],
+       ['Codigo','CONFORME'], ['Codigo','CONFORME'], ['Codigo','OBSERVADO']]
+      .map(([entity, status], i) => ({
+        id: 90000 + i, entity, status, anexo: 'Anexo 3',
+        faculty: DATOS_FUENTE.facultades[0].codigo, process: 'p', code: 'c' + i,
+        name: 'n' + i, type: 't', compliance: '', criteria: '', observations: 'obs', row: '' })));
+    derivarDeLaFuente(); aplicarSeleccion(); switchTab('analisis');
+  });
+  await pag.waitForTimeout(400);
+
+  const a3 = await pag.evaluate(() => {
+    const rot = sel => [...document.querySelectorAll(sel + ' h4')].map(h => h.textContent);
+    return {
+      tituloFichas: [...document.querySelectorAll('.anexo3-card h3')].map(h => h.textContent),
+      estadosFichas: rot('.big-metric[data-block="fichas"]'),
+      estadosCodigos: rot('.big-metric[data-block="codigos"]'),
+      cifras: ['fich-comp','fich-incomp','fich-sin','fich-crit','cod-conf','cod-obs']
+        .map(i => document.getElementById(i).textContent),
+      rankings: !!document.getElementById('ranking-fichas') &&
+                !!document.getElementById('ranking-codigos'),
+      cuantificacion: document.querySelectorAll('#panel-anexo3 .chart-box').length,
+      bloquesArriba: document.querySelectorAll('#panel-anexo3 .anexo3-layout > .anexo3-card').length,
+      rankA3: document.querySelectorAll('#ranking-anexo3 .rank-row').length
+    };
+  });
+  ok('la tarjeta se llama «Fichas / Campos»',
+     a3.tituloFichas[0] === 'Fichas / Campos', a3.tituloFichas);
+  ok('y la nueva, «Códigos»', a3.tituloFichas[1] === 'Códigos', a3.tituloFichas);
+  ok('Fichas / Campos tiene los cuatro estados renombrados',
+     JSON.stringify(a3.estadosFichas) ===
+     JSON.stringify(['Conformes','Observados','Sin Registrar','Crítico']), a3.estadosFichas);
+  ok('Códigos tiene solo dos',
+     JSON.stringify(a3.estadosCodigos) === JSON.stringify(['Conformes','Observados']),
+     a3.estadosCodigos);
+  ok('las seis cifras salen de la fuente, no del HTML',
+     JSON.stringify(a3.cifras) === JSON.stringify(['500','160','80','40','350','100']),
+     a3.cifras);
+  ok('no queda ningun «grafico de cuantificacion»', a3.cuantificacion === 0, a3.cuantificacion);
+  ok('los dos rankings existen', a3.rankings);
+  ok('arriba conviven TRES bloques', a3.bloquesArriba === 3, a3.bloquesArriba);
+  ok('el grafico de ranking sale de la fuente, no de las 8 filas inventadas',
+     a3.rankA3 === 20, a3.rankA3);
+
+  console.log('\n  La tabla del Anexo 3 cambia de origen');
+  for (const [bloque, estado, titulo, hoja] of [
+      ['fichas', 'CONFORME', 'Detalle de Fichas / Campos', 'DETALLE_REVISION_A3'],
+      ['fichas', 'CRITICO', 'Detalle de Fichas / Campos', 'DETALLE_REVISION_A3'],
+      ['codigos', 'OBSERVADO', 'Detalle de Codigos', 'REGISTRO_MAESTRO_CODIGOS_A3']]) {
+    await pag.evaluate(([b, e]) => filterByStatusA3(b, e), [bloque, estado]);
+    await pag.waitForTimeout(200);
+    const r = await pag.evaluate(([b, e]) => ({
+      titulo: document.getElementById('tableTitleA3').textContent,
+      pie: document.getElementById('dataFooterA3').textContent,
+      enTabla: Number(document.getElementById('visibleCountA3').textContent),
+      esperados: allData.filter(d => d.entity === ORIGEN_TABLA_A3[b].entidad &&
+                                     d.status === e).length,
+      cabecera: [...document.querySelectorAll('#dataTableA3 thead th')].map(t => t.textContent),
+      alerta: document.getElementById('productRowsA3').closest('table')
+                .classList.contains('col-obs-alerta'),
+      marcadas: document.querySelectorAll('#panel-anexo3 .active-status').length
+    }), [bloque, estado]);
+    ok(bloque + ' · ' + estado + ': el titulo es «' + titulo + '»',
+       r.titulo.startsWith(titulo), r.titulo);
+    ok('  proyecta los registros de ' + hoja,
+       r.enTabla === r.esperados && r.esperados > 0 && r.pie.includes(hoja), r);
+    ok('  la cabecera es la de esa hoja',
+       r.cabecera.includes(bloque === 'codigos' ? 'DENOMINACION' : 'CAMPO REVISADO'),
+       r.cabecera);
+    ok('  solo una subcategoria queda marcada en las dos tarjetas',
+       r.marcadas === 1, r.marcadas);
+    if (estado !== 'CONFORME') ok('  y se resalta la columna de observaciones', r.alerta);
+  }
+
+  console.log('\n  Rankings del Anexo 3');
+  for (const [bloque, estado, rotulo] of [['fichas','CONFORME','Fichas Conformes'],
+      ['fichas','CRITICO','Fichas Crítico'], ['codigos','OBSERVADO','Codigos Observados']]) {
+    await pag.evaluate(([b, e]) => filterByStatusA3(b, e), [bloque, estado]);
+    await pag.waitForTimeout(150);
+    const r = await pag.evaluate(b => {
+      const caja = document.getElementById('ranking-' + b);
+      return { titulo: caja.querySelector('.ranking-titulo').textContent,
+               vals: [...caja.querySelectorAll('.ranking-valor')]
+                       .map(v => Number(v.textContent.replace(/\D+.*$/, ''))) };
+    }, bloque);
+    ok('  «' + rotulo + '»: el titulo cambia',
+       r.titulo.includes(rotulo.split(' ')[0]) && r.titulo.includes(estado === 'CRITICO'
+         ? 'Crítico' : rotulo.split(' ')[1]), r.titulo);
+    ok('    y ordena de mayor a menor, como se pidio para el Anexo 3',
+       r.vals.every((v, i) => i === 0 || r.vals[i-1] >= v) && r.vals.length === 20,
+       r.vals.slice(0, 5));
+  }
+  await pag.evaluate(() => { filterByStatusA3('fichas', 'CONFORME'); switchTab('dashboard'); });
+  await pag.waitForTimeout(300);
 
   console.log('\nTope de filas de la tabla de detalle');
   await pag.evaluate(() => { facultadSel = null; aplicarSeleccion();
