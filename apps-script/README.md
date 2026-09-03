@@ -429,3 +429,19 @@ En el navegador había un segundo tope, peor porque era invisible: la tabla de
 detalle pintaba **50 filas** mientras su pie decía «Total filtrado: 2.400
 registros». Ahora pinta bloques de 200, dice cuántas de cuántas, y ofrece un
 botón para seguir.
+
+### La paleta de las barras es de tres tramos, no de cuatro
+
+Las barras de «% Avance por Facultad» usan la paleta corporativa:
+
+| Avance | Color | Por qué |
+|---|---|---|
+| ≥ 80 % | `#1C4E43` verde abeto | solidez y control |
+| 50–79 % | `#94A3B8` gris pizarra | neutro: resta peso para que el ojo vaya a los extremos |
+| < 50 % | `#A84641` rojo terracota | crítico, sin la estridencia de un rojo de error |
+
+El panel de clasificación de la derecha conserva sus **cuatro** tramos, que es
+lo que se pidió para él. Barra y cuadrante ya no comparten color: el 100 % y el
+85 % son la misma barra verde abeto y dos filas distintas del panel. Es
+deliberado; para volver a que coincidan, basta con que `TRAMOS` lea de
+`PALETA_BARRAS`.

@@ -100,6 +100,64 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
   ok('Tailwind aplica sus clases (si no, el bloque responsivo no vale)',
      tailwindCargo, 'body.margin != 0: no se cargo el CSS');
 
+  console.log('\nEstructura: las vistas estan aisladas');
+  // Esto no lo cazaba nada. Un </div> de mas sacaba las tarjetas de Procesos,
+  // SubProcesos y la tabla FUERA de #view-analisis, dejandolas colgando de
+  // <main>: siempre visibles, tapando la Base de datos y robandole el alto a
+  // la fila, que se quedaba en 32 px. El parseo de HTML no lo detecta porque
+  // el documento sigue siendo «valido»; hay que mirar el arbol resultante.
+  const arbol = await pag.evaluate(() => {
+    const main = document.querySelector('main');
+    const hijos = [...main.children].map(e => e.tagName.toLowerCase() + (e.id ? '#' + e.id : ''));
+    const dentroDe = id => {
+      const v = document.getElementById(id);
+      return { tarjetas: v.querySelectorAll('.entity-card').length,
+               paneles: v.querySelectorAll('.data-panel').length,
+               rankings: v.querySelectorAll('.ranking-box').length };
+    };
+    return {
+      hijosDeMain: hijos,
+      sueltas: main.querySelectorAll(':scope > .entity-card, :scope > .data-panel').length,
+      analisis: dentroDe('view-analisis'),
+      database: dentroDe('view-database'),
+      // Ninguna tarjeta puede vivir fuera de una vista.
+      huerfanas: [...document.querySelectorAll('.entity-card, .data-panel')]
+        .filter(e => !e.closest('.view-section')).length
+    };
+  });
+  ok('<main> solo contiene la cabecera y la fila de contenido',
+     arbol.hijosDeMain.length === 2 && arbol.hijosDeMain[0] === 'header', arbol.hijosDeMain);
+  ok('no hay tarjetas ni paneles colgando de <main>', arbol.sueltas === 0, arbol.sueltas);
+  ok('ninguna tarjeta vive fuera de una vista', arbol.huerfanas === 0, arbol.huerfanas);
+  ok('las tres tarjetas y su tabla estan DENTRO de Analisis',
+     arbol.analisis.tarjetas >= 3 && arbol.analisis.paneles >= 1 &&
+     arbol.analisis.rankings === 3, arbol.analisis);
+  ok('la Base de datos no contiene nada de Analisis',
+     arbol.database.tarjetas === 0 && arbol.database.rankings === 0, arbol.database);
+
+  console.log('\nCambiar de pestaña no deja fantasmas');
+  for (const vista of ['dashboard', 'analisis', 'database']) {
+    await pag.evaluate(v => switchTab(v), vista);
+    await pag.waitForTimeout(220);
+    const r = await pag.evaluate(v => {
+      const visibles = [...document.querySelectorAll('.view-section')]
+        .filter(s => getComputedStyle(s).display !== 'none').map(s => s.id);
+      // ¿Se ve algo que pertenezca a otra vista?
+      const intrusos = [...document.querySelectorAll('.entity-card, .data-panel, .ranking-box')]
+        .filter(e => {
+          const suya = e.closest('.view-section');
+          const rect = e.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && suya && suya.id !== 'view-' + v;
+        }).length;
+      return { visibles, intrusos };
+    }, vista);
+    ok(vista + ': solo su vista esta visible',
+       r.visibles.length === 1 && r.visibles[0] === 'view-' + vista, r.visibles);
+    ok('  y no se cuela contenido de otra', r.intrusos === 0, r.intrusos);
+  }
+  await pag.evaluate(() => switchTab('dashboard'));
+  await pag.waitForTimeout(250);
+
   console.log('\nEstado por defecto');
   const porDefecto = await pag.evaluate(() => ({
     sel: facultadSel,
@@ -533,31 +591,29 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
       tramo: TRAMOS.findIndex(t => t.prueba(f.pctAnexo1))
     }));
   });
-  const esperado = i => ['#047857', '#34d399', '#f59e0b', '#e11d48'][i];
-  ok('cada barra toma el color de su tramo, no uno unico',
-     colores2.every(c => c.color === esperado(c.tramo)),
-     colores2.filter(c => c.color !== esperado(c.tramo)).slice(0, 3));
+  // Paleta corporativa de TRES tramos, distinta de los cuatro del panel.
+  const esperado = pct => pct >= 80 ? '#1C4E43' : (pct >= 50 ? '#94A3B8' : '#A84641');
+  ok('cada barra toma el color de su tramo de avance, no uno unico',
+     colores2.every(c => c.color === esperado(c.pct)),
+     colores2.filter(c => c.color !== esperado(c.pct)).slice(0, 3));
   ok('no queda ni una barra con el azul unico de antes',
      !colores2.some(c => c.color === '#3b82f6'));
   ok('hay mas de un color en el grafico',
      new Set(colores2.map(c => c.color)).size > 1,
      [...new Set(colores2.map(c => c.color))]);
-  const cien = colores2.filter(c => c.pct >= 100);
-  if (cien.length) ok('  el 100% va en verde intenso',
-     cien.every(c => c.color === '#047857'), cien.slice(0, 2));
+  const alto = colores2.filter(c => c.pct >= 80);
+  if (alto.length) ok('  del 80% para arriba, verde abeto #1C4E43',
+     alto.every(c => c.color === '#1C4E43'), alto.slice(0, 2));
+  const medio = colores2.filter(c => c.pct >= 50 && c.pct < 80);
+  if (medio.length) ok('  entre 50 y 79, gris pizarra #94A3B8',
+     medio.every(c => c.color === '#94A3B8'), medio.slice(0, 2));
   const bajo = colores2.filter(c => c.pct < 50);
-  if (bajo.length) ok('  por debajo del 50% va en rojo',
-     bajo.every(c => c.color === '#e11d48'), bajo.slice(0, 2));
-  ok('el color de la barra es el mismo que el del punto de su tramo',
-     await pag.evaluate(() => {
-       const f = DATOS_FUENTE.facultades[0];
-       const punto = [...document.querySelectorAll('#clasif-a1 .clasif-grupo')]
-         .map(g => g.querySelector('.clasif-punto').style.background);
-       const i = TRAMOS.findIndex(t => t.prueba(f.pctAnexo1));
-       const aHex = c => '#' + (c.match(/\d+/g) || []).map(n =>
-         Number(n).toString(16).padStart(2, '0')).join('');
-       return i >= 0 && aHex(punto[i]) === TRAMOS[i].color;
-     }));
+  if (bajo.length) ok('  por debajo del 50, rojo terracota #A84641',
+     bajo.every(c => c.color === '#A84641'), bajo.slice(0, 2));
+  ok('solo se usan los tres colores corporativos',
+     [...new Set(colores2.map(c => c.color))]
+       .every(c => ['#1C4E43', '#94A3B8', '#A84641'].includes(c)),
+     [...new Set(colores2.map(c => c.color))]);
 
   console.log('\nRanking de facultades en las tres tarjetas');
   for (const [bloque, rotulo] of [['producto','Productos'], ['procesos','Procesos'],
