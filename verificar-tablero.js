@@ -47,6 +47,25 @@ const hist      = [[new Date('2026-08-20T10:00:00Z'),'Anexo 1',78.2],
 const catalogo = [['N°','FACULTAD','SIGLA','CODIGO']].concat(
   FAC.map(([s,c],i) => [i+1, 'FACULTAD '+s, s, c]));
 
+// DETALLE_REVISION_A3: los cinco rotulos que escribe el auditor, incluido
+// «Opcional», que no debe contar ni como acierto ni como fallo.
+const camposA3 = [['FACULTAD','NOMBRE','N° FICHA / PROCESO','SECCION','CAMPO REVISADO',
+                   'N° DE FILA','CELDA','CODIGO ENCONTRADO','¿CAMPO COMPLETO?',
+                   'CLASIFICACION','OBSERVACION ESPECIFICA']];
+[['FM','Correcto'], ['FM','Correcto'], ['FM','Observación'], ['FM','Incompleto'],
+ ['FM','Crítico'], ['FM','Opcional'], ['FDCP','Correcto'], ['FDCP','Crítico']
+].forEach(([sig, clas], i) => camposA3.push(
+  [sig, 'FACULTAD ' + sig, '1. GESTION', 'Seccion A', 'Campo ' + i, 10 + i, 'B' + i,
+   'PE.01_F01', clas === 'Correcto' ? 'Sí' : 'No', clas, 'obs ' + i]));
+
+// REGISTRO_MAESTRO_CODIGOS_A3
+const codigosA3 = [['FACULTAD','NOMBRE','TIPO','CODIGO','DENOMINACION',
+                    'FICHAS EN QUE APARECE','¿DENOMINACION CONSISTENTE?','OBSERVACION']];
+[['FM','Sí'], ['FM','Sí'], ['FM','No'], ['FDCP','Sí'], ['FDCP','No'], ['FDCP','']
+].forEach(([sig, cons], i) => codigosA3.push(
+  [sig, 'FACULTAD ' + sig, 'Proceso', 'PE.0' + i + '_F01', 'DENOM ' + i,
+   '2 fichas', cons, 'obs ' + i]));
+
 const HOJAS_OK = {
   'RESUMEN_GENERAL': [['SIGLA']].concat(general),
   'RESUMEN_EJECUTIVO_A1': [['FACULTAD']].concat(resA1),
@@ -56,7 +75,9 @@ const HOJAS_OK = {
   'RESUMEN_FICHAS_A3': [['FACULTAD']].concat(fichas),
   'RESUMEN_EJECUTIVO_A4': [['CODIGO','INDICADOR','ESTADO']].concat(indic),
   'HISTORIAL_REVISIONES': [['FECHA_HORA','ANEXO','PORCENTAJE']].concat(hist),
-  'CODIFICACION_ DE_LAS_FACULTADES': catalogo
+  'CODIFICACION_ DE_LAS_FACULTADES': catalogo,
+  'DETALLE_REVISION_A3': camposA3,
+  'REGISTRO_MAESTRO_CODIGOS_A3': codigosA3
 };
 
 /** Ejecuta Tablero.gs contra un juego de hojas, en un contexto limpio. */
@@ -252,6 +273,42 @@ const sinF36 = correr(Object.assign({}, HOJAS_OK, {
 ok('sin historial ni F36 recae en el recuento de aprobados',
    sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
    sinF36.anexo4);
+
+console.log('\nAnexo 3: campos y codigos');
+const fmA3 = d.facultades.find(f => f.sigla === 'FM');
+ok('los campos salen de DETALLE_REVISION_A3, clasificados en cuatro estados',
+   fmA3.campos.conformes === 2 && fmA3.campos.observados === 1 &&
+   fmA3.campos.sinRegistrar === 1 && fmA3.campos.critico === 1, fmA3.campos);
+ok('«Opcional» no cuenta ni como acierto ni como fallo',
+   fmA3.campos.total === 5, fmA3.campos.total);   // 6 filas de FM, una opcional
+ok('«Incompleto» es Sin Registrar, no Observado',
+   fmA3.campos.sinRegistrar === 1 && fmA3.campos.observados === 1, fmA3.campos);
+ok('los codigos salen de REGISTRO_MAESTRO_CODIGOS_A3',
+   fmA3.codigos.conformes === 2 && fmA3.codigos.observados === 1, fmA3.codigos);
+ok('un «¿consistente?» vacio no se cuenta',
+   d.facultades.find(f => f.sigla === 'FDCP').codigos.total === 2,
+   d.facultades.find(f => f.sigla === 'FDCP').codigos);
+ok('los totales de campos y codigos cuadran con las facultades',
+   d.totales.campConf === d.facultades.reduce((a, f) => a + f.campos.conformes, 0) &&
+   d.totales.codObs === d.facultades.reduce((a, f) => a + f.codigos.observados, 0),
+   [d.totales.campConf, d.totales.codObs]);
+ok('el detalle trae las entidades Campo y Codigo',
+   d.registros.some(r => r.entity === 'Campo') &&
+   d.registros.some(r => r.entity === 'Codigo'),
+   [...new Set(d.registros.map(r => r.entity))]);
+ok('un campo critico llega a la tabla con estado CRITICO',
+   d.registros.some(r => r.entity === 'Campo' && r.status === 'CRITICO'));
+ok('los codigos no heredan estados que no tienen',
+   d.registros.filter(r => r.entity === 'Codigo')
+     .every(r => ['CONFORME','OBSERVADO'].includes(r.status)),
+   [...new Set(d.registros.filter(r => r.entity === 'Codigo').map(r => r.status))]);
+
+// Sin esas hojas, el tablero no debe romperse.
+const sinA3 = correr(Object.fromEntries(Object.entries(HOJAS_OK)
+  .filter(([k]) => k !== 'DETALLE_REVISION_A3' && k !== 'REGISTRO_MAESTRO_CODIGOS_A3')));
+ok('sin esas hojas las tarjetas quedan en cero y el resto se pinta igual',
+   sinA3.facultades.length === 20 && sinA3.totales.campConf === 0 &&
+   sinA3.facultades[0].campos.total === 0, sinA3.totales);
 
 console.log('\nDesglose de procesos y subprocesos por facultad');
 // El resumen del Anexo 1 trae en las columnas 11-13 los procesos de Nivel 0 y

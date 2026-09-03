@@ -445,3 +445,36 @@ lo que se pidió para él. Barra y cuadrante ya no comparten color: el 100 % y e
 85 % son la misma barra verde abeto y dos filas distintas del panel. Es
 deliberado; para volver a que coincidan, basta con que `TRAMOS` lea de
 `PALETA_BARRAS`.
+
+### El Anexo 3: campos y códigos
+
+La pestaña ANEXO 3 se alimenta ahora de dos hojas que el tablero no leía:
+
+| Tarjeta | Hoja | Estados |
+|---|---|---|
+| Fichas / Campos | `DETALLE_REVISION_A3` | Conformes · Observados · Sin Registrar · Crítico |
+| Códigos | `REGISTRO_MAESTRO_CODIGOS_A3` | Conformes · Observados |
+
+**Cómo se traduce la clasificación.** El auditor del Anexo 3 escribe cinco
+rótulos en la columna `CLASIFICACIÓN` y la tarjeta pide cuatro estados, así que
+la correspondencia hay que decidirla y dejarla escrita:
+
+| Rótulo del auditor | Estado de la tarjeta | Por qué |
+|---|---|---|
+| `Correcto` | Conforme | el campo está y está bien |
+| `Observación` | Observado | está, pero hay algo que corregir |
+| `Incompleto` | Sin Registrar | la columna es «¿CAMPO COMPLETO?»: no está |
+| `Crítico` | Crítico | |
+| `Opcional` | **no cuenta** | no era exigible: ni acierto ni fallo |
+
+En `REGISTRO_MAESTRO_CODIGOS_A3` manda la columna
+`¿DENOMINACIÓN CONSISTENTE?`: «Sí» es conforme, «No» observado, y una celda
+vacía no se cuenta.
+
+**El orden de los rankings es distinto aquí.** En el Anexo 1, Observados y Sin
+Registrar ordenan de menor a mayor porque 0 es lo ideal. En el Anexo 3 se pidió
+que las dos tarjetas ordenen **siempre de mayor a menor**, en todos sus
+estados. Lo fija `RANKING[bloque].orden`.
+
+Si alguna de las dos hojas falta, las tarjetas salen en cero y el resto del
+tablero se pinta igual.
