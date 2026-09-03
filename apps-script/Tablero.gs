@@ -170,9 +170,13 @@ function construirTablero_() {
   // recuentos se acoplan aquí en lugar de dentro de `facultadDe_`.
   facultades.forEach(function (f) {
     const extra = registros.porFacultad[f.codigo] || {};
-    f.campos  = extra.campos  ||
-      { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 };
-    f.codigos = extra.codigos || { conformes: 0, observados: 0, total: 0 };
+    const vacio = { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 };
+    // `fichas` ya existe con el desglose de RESUMEN_EJECUTIVO_A3 —completas,
+    // incompletas, sin producto— del que sale el KPI del Anexo 3. El recuento
+    // por estado va aparte, en `fichasEstado`, para no romper esa aritmética.
+    f.fichasEstado = extra.fichas  || vacio;
+    f.campos       = extra.campos  || vacio;
+    f.codigos      = extra.codigos || { conformes: 0, observados: 0, total: 0 };
   });
   const totales   = sumarTotales_(facultades);
   const anexo4    = leerAnexo4_(indic, pctA4Hoja);
@@ -383,6 +387,7 @@ function sumarTotales_(facultades) {
               procConf: 0, procObs: 0, procSin: 0,
               subConf: 0, subObs: 0, subSin: 0,
               fichComp: 0, fichIncomp: 0, fichSin: 0,
+              fichConf: 0, fichObs: 0, fichSinReg: 0, fichCrit: 0,
               campConf: 0, campObs: 0, campSin: 0, campCrit: 0,
               codConf: 0, codObs: 0 };
   facultades.forEach(function (f) {
@@ -398,6 +403,11 @@ function sumarTotales_(facultades) {
     t.fichComp   += f.fichas.completas;
     t.fichIncomp += f.fichas.incompletas;
     t.fichSin    += f.fichas.sinProducto;
+    const h = f.fichasEstado || {};
+    t.fichConf   += h.conformes    || 0;
+    t.fichObs    += h.observados   || 0;
+    t.fichSinReg += h.sinRegistrar || 0;
+    t.fichCrit   += h.critico      || 0;
     const c = f.campos  || {}, k = f.codigos || {};
     t.campConf   += c.conformes    || 0;
     t.campObs    += c.observados   || 0;
@@ -560,6 +570,7 @@ function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
     const f = codigoFacultad_(sigla);
     if (!f) return;
     if (!porFacultad[f]) porFacultad[f] = {
+      fichas:  { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 },
       campos:  { conformes: 0, observados: 0, sinRegistrar: 0, critico: 0, total: 0 },
       codigos: { conformes: 0, observados: 0, total: 0 }
     };
@@ -602,14 +613,19 @@ function recopilarRegistros_(productos, procesos, fichas, campos, codigos) {
     });
   });
 
-  // RESUMEN_FICHAS_A3
+  // RESUMEN_FICHAS_A3 — la tarjeta «Fichas»
   fichas.forEach(function (f) {
-    const completa = texto_(f[4]);
+    // Su columna CLASIFICACIÓN la escribe el mismo auditor y con los mismos
+    // rótulos que el detalle, así que la ficha se clasifica igual que el
+    // campo. Si esa columna viniera vacía, se recae en el «¿COMPLETA?» de
+    // toda la vida, que solo distingue dos estados.
+    const estado = estadoDeCampo_(f[10]) ||
+                   (/^s[ií]/i.test(texto_(f[4])) ? 'CONFORME' : 'OBSERVADO');
+    anota(f[0], 'fichas', estado);
     meter('Ficha', {
       anexo: 'Anexo 3', faculty: codigoFacultad_(f[0]), row: '',
       process: texto_(f[2]), code: texto_(f[3]), name: texto_(f[2]),
-      type: texto_(f[10]),
-      status: /^s[ií]/i.test(completa) ? 'CONFORME' : 'OBSERVADO',
+      type: texto_(f[10]), status: estado,
       compliance: porcentajeTexto_(f[5]), criteria: texto_(f[9]),
       observations: texto_(f[11])
     });

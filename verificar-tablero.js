@@ -33,7 +33,13 @@ const resA3 = FAC.map(([s]) => [s,'FACULTAD '+s, 16,16, 2, 12, 2, 1,'obs','En pr
 const productos = [['FM',7,'PE.01 GESTIÓN ESTRATÉGICA','PE.01.01.01_F01','PLAN ESTRATÉGICO','Final / Salida','CONFORME','100%','8/8','Cumple los 8 criterios.']];
 const procesos  = [['FM','PE.01','GESTIÓN ESTRATÉGICA','Nivel 0','Obligatorio',6,'CONFORME','100%','5/5',''],
                    ['FM','PE.01.01','PLANEAMIENTO','Subproceso','Obligatorio',7,'OBSERVADO','60%','3/5','Falta código']];
-const fichas    = [['FM','FACULTAD DE MEDICINA','1. GESTIÓN ESTRATÉGICA','PE.01_F01','NO',0.45,'2','campo X','err','3 críticos','Crítico','Faltan campos']];
+// RESUMEN_FICHAS_A3: su columna 10 (CLASIFICACION) lleva los mismos rotulos
+// que el detalle, asi que la ficha se clasifica igual que el campo.
+const fichas = [
+  ['FM','FACULTAD DE MEDICINA','1. GESTION','PE.01_F01','SI',0.95,'2','','','0','Correcto','ok'],
+  ['FM','FACULTAD DE MEDICINA','2. CALIDAD','PE.02_F01','NO',0.45,'2','campo X','err','3','Crítico','Faltan campos'],
+  ['FM','FACULTAD DE MEDICINA','3. INVEST.','PM.02_F01','NO',0.60,'1','','','1','Observación','revisar'],
+  ['FDCP','FACULTAD DE DERECHO','1. GESTION','PE.01_F02','NO',0.30,'0','','','2','Incompleto','falta']];
 const indic     = [['IND-01','Cobertura','Aprobado'],['IND-02','Plazos','Pendiente'],['IND-03','Calidad','Conforme']];
 const hist      = [[new Date('2026-08-20T10:00:00Z'),'Anexo 1',78.2],
                    [new Date('2026-08-20T10:00:00Z'),'Anexo 3',55.0],
@@ -157,8 +163,19 @@ ok('la ficha sale como Ficha', d.registros.some(r=>r.entity==='Ficha'));
 ok('la sigla se convierte en codigo de facultad',
    d.registros.every(r=>/^F\d\d_/.test(r.faculty)), d.registros.map(r=>r.faculty));
 ok('los id no se repiten', new Set(d.registros.map(r=>r.id)).size===d.registros.length);
-ok('la ficha NO completa queda OBSERVADO',
-   d.registros.find(r=>r.entity==='Ficha').status==='OBSERVADO');
+// La ficha ya no se clasifica por el «¿COMPLETA?» de Si/No sino por su
+// columna CLASIFICACION, que distingue cuatro estados en vez de dos.
+ok('la ficha marcada Crítico llega a la tabla como CRITICO',
+   d.registros.some(r => r.entity === 'Ficha' && r.status === 'CRITICO'),
+   d.registros.filter(r => r.entity === 'Ficha').map(r => r.status));
+// Sin esa columna se recae en el Si/No, que solo da dos estados.
+const sinClas = fichas.map(f => f.slice(0, 10).concat(['', f[11]]));
+const dSinClas = correr(Object.assign({}, HOJAS_OK,
+  { 'RESUMEN_FICHAS_A3': [['FACULTAD']].concat(sinClas) }));
+ok('sin CLASIFICACION recae en el «¿COMPLETA?» de toda la vida',
+   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado.conformes === 1 &&
+   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado.observados === 2,
+   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado);
 
 console.log('\nAnexo 4 e historico');
 ok('cuenta 2 aprobados de 3 indicadores',
@@ -273,6 +290,26 @@ const sinF36 = correr(Object.assign({}, HOJAS_OK, {
 ok('sin historial ni F36 recae en el recuento de aprobados',
    sinF36.kpi.anexo4 === sinF36.anexo4.pctContado && sinF36.kpi.anexo4 > 0,
    sinF36.anexo4);
+
+console.log('\nAnexo 3: fichas, campos y denominacion');
+const fmFich = d.facultades.find(f => f.sigla === 'FM');
+ok('las fichas se clasifican en cuatro estados desde su CLASIFICACION',
+   fmFich.fichasEstado.conformes === 1 && fmFich.fichasEstado.observados === 1 &&
+   fmFich.fichasEstado.critico === 1 && fmFich.fichasEstado.sinRegistrar === 0,
+   fmFich.fichasEstado);
+ok('«Incompleto» en una ficha tambien es Sin Registrar',
+   d.facultades.find(f => f.sigla === 'FDCP').fichasEstado.sinRegistrar === 1,
+   d.facultades.find(f => f.sigla === 'FDCP').fichasEstado);
+ok('el desglose de fichas va aparte del que alimenta el KPI',
+   fmFich.fichas.completas !== undefined && fmFich.fichasEstado.total === 3,
+   [fmFich.fichas, fmFich.fichasEstado]);
+ok('los registros de Ficha llevan el estado nuevo',
+   d.registros.filter(r => r.entity === 'Ficha')
+     .every(r => ['CONFORME','OBSERVADO','SIN REGISTRAR','CRITICO'].includes(r.status)),
+   [...new Set(d.registros.filter(r => r.entity === 'Ficha').map(r => r.status))]);
+ok('los totales de fichas por estado cuadran con las facultades',
+   d.totales.fichCrit === d.facultades.reduce((a, f) => a + f.fichasEstado.critico, 0),
+   d.totales.fichCrit);
 
 console.log('\nAnexo 3: campos y codigos');
 const fmA3 = d.facultades.find(f => f.sigla === 'FM');
