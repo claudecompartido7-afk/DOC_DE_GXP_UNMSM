@@ -87,7 +87,7 @@ const HOJAS_OK = {
 };
 
 /** Ejecuta Tablero.gs contra un juego de hojas, en un contexto limpio. */
-function correr(hojas) {
+function correr(hojas, opciones) {
   const ctx = {
     Logger: { log: () => {} },
     CacheService: { getScriptCache: () => ({ get: () => null, put: () => {} }) },
@@ -114,7 +114,8 @@ function correr(hojas) {
   });
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync('apps-script/Tablero.gs','utf8'), ctx);
-  return vm.runInContext('tablero({sinCache:true})', ctx);
+  ctx.__op = Object.assign({ sinCache: true }, opciones || {});
+  return vm.runInContext('tablero(__op)', ctx);
 }
 
 const d = correr(HOJAS_OK);
@@ -427,6 +428,37 @@ ok('si el rotulo no dice «Fase 1», recae en la celda C14',
    dCelda.kpi.general === 71.9, dCelda.kpi.general);
 ok('y deja constancia de que uso la celda',
    /C14/.test(dCelda.kpi.origenFase1), dCelda.kpi.origenFase1);
+
+console.log('\nRespuesta en dos tiempos');
+const soloAgr = correr(HOJAS_OK, { detalle: false });
+ok('los agregados vienen sin detalle',
+   soloAgr.soloAgregados === true && soloAgr.registros.length === 0,
+   [soloAgr.soloAgregados, soloAgr.registros.length]);
+ok('pero traen todo lo que pintan las tarjetas y los rankings',
+   soloAgr.facultades.length === 20 && soloAgr.totales && soloAgr.kpi &&
+   soloAgr.historial && soloAgr.facultades[0].campos !== undefined, {
+     facultades: soloAgr.facultades.length, hayKpi: !!soloAgr.kpi });
+ok('la peticion completa si trae el detalle', d.registros.length > 0, d.registros.length);
+
+// Con el volumen real el detalle es lo que pesa: se simulan 6000 filas de
+// productos, del orden de lo que tiene el libro. Es justo el caso que hacia
+// fallar la respuesta entera.
+const muchos = [['FACULTAD']];
+for (let i = 0; i < 6000; i++) {
+  muchos.push(['FM', 7 + i, 'PE.01 GESTION ESTRATEGICA', 'PE.01.' + i + '_F01',
+               'PRODUCTO NUMERO ' + i, 'Final / Salida (Programas, Planes, Servicio)',
+               'CONFORME', '100%', '8/8', 'Cumple los 8 criterios.']);
+}
+const conVolumen = Object.assign({}, HOJAS_OK, { 'DETALLADO_PRODUCTOS_A1': muchos });
+const grande = correr(conVolumen);
+const ligero = correr(conVolumen, { detalle: false });
+const kb = o => Math.round(JSON.stringify(o).length / 1024);
+ok('con volumen real, los agregados pesan una minima parte',
+   kb(ligero) < kb(grande) / 10, { agregados: kb(ligero) + ' KB', completa: kb(grande) + ' KB' });
+ok('y siguen trayendo las 20 facultades con sus cifras',
+   ligero.facultades.length === 20 && ligero.totales.prodConf === grande.totales.prodConf,
+   [ligero.facultades.length, ligero.totales.prodConf]);
+console.log('   (agregados ' + kb(ligero) + ' KB  vs  respuesta completa ' + kb(grande) + ' KB)');
 
 console.log('\nSerie completa para las lineas de tendencia');
 const dSerie = correr(Object.assign({}, HOJAS_OK, {

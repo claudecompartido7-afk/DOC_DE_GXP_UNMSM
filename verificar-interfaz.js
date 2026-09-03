@@ -826,6 +826,62 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
     ok('  con pocos registros no ofrece «ver mas»', !tope.hayBoton, tope.pie);
   }
 
+  console.log('\nLa peticion va en dos tiempos y los fallos se ven');
+  // Se simula el endpoint: la primera peticion pide agregados y la segunda el
+  // detalle. Antes iba todo junto y, si esa unica respuesta fallaba, la
+  // pantalla se quedaba con los datos incrustados sin decir nada.
+  const pedidas = [];
+  await pag.route(/script\.google\.com/, async ruta => {
+    const cuerpo = JSON.parse(ruta.request().postData() || '{}');
+    pedidas.push(cuerpo.detalle === false ? 'agregados' : 'detalle');
+    const base = await pag.evaluate(() => ({
+      ok: true, generado: new Date().toISOString(),
+      facultades: DATOS_FUENTE.facultades, totales: DATOS_FUENTE.totales,
+      kpi: DATOS_FUENTE.kpi, historial: DATOS_FUENTE.historial || {},
+      cobertura: {}, revisiones: DATOS_FUENTE.revisiones || [] }));
+    if (cuerpo.detalle === false) {
+      await ruta.fulfill({ contentType: 'application/json',
+        body: JSON.stringify(Object.assign(base, { registros: [], soloAgregados: true })) });
+    } else {
+      // El detalle falla, como cuando la respuesta es demasiado grande.
+      await ruta.fulfill({ status: 500, contentType: 'text/plain', body: 'demasiado grande' });
+    }
+  });
+
+  // La peticion que la pagina lanza al arrancar sigue en vuelo contra el
+  // endpoint real (bloqueado en esta red) y deja `refrescando` en true, que
+  // haria salir de inmediato a la de la prueba.
+  await pag.evaluate(() => { refrescando = false; });
+  await pag.evaluate(() => refrescarTablero(false));
+  await pag.waitForTimeout(900);
+  const dos = await pag.evaluate(() => ({
+    sello: document.getElementById('sello-datos').textContent,
+    clase: document.getElementById('sello-datos').className,
+    facultades: DATOS_FUENTE.facultades.length,
+    detalle: DATOS_FUENTE.registros.length
+  }));
+  ok('pide primero los agregados y luego el detalle',
+     JSON.stringify(pedidas) === JSON.stringify(['agregados','detalle']), pedidas);
+  ok('los agregados llegan aunque el detalle falle',
+     dos.facultades === 20 && /Actualizado/.test(dos.sello), dos);
+  ok('y se avisa de que falta el detalle, en vez de callarlo',
+     /sin detalle/.test(dos.sello) && /amber/.test(dos.clase), dos.sello);
+  ok('el detalle que ya habia no se borra', dos.detalle > 0, dos.detalle);
+
+  // Ahora falla tambien la primera: el aviso debe verse SIN pulsar el boton.
+  await pag.unroute(/script\.google\.com/);
+  await pag.route(/script\.google\.com/, r => r.fulfill({ status: 503, body: 'caido' }));
+  await pag.evaluate(() => { refrescando = false; });
+  await pag.evaluate(() => refrescarTablero(false));
+  await pag.waitForTimeout(600);
+  const caido = await pag.evaluate(() => ({
+    sello: document.getElementById('sello-datos').textContent,
+    clase: document.getElementById('sello-datos').className }));
+  ok('un fallo en el refresco automatico tambien se avisa',
+     /Sin conexion/.test(caido.sello) && /red/.test(caido.clase), caido);
+  ok('  y dice el motivo, no solo que fallo', /503/.test(caido.sello), caido.sello);
+  await pag.unroute(/script\.google\.com/);
+
   console.log('\nResponsivo');
   const pantallas = [
     ['movil pequeno', 360, 740], ['movil', 414, 896], ['tableta vertical', 768, 1024],

@@ -2135,6 +2135,7 @@ const CADA = 120000;
 
 let refrescando = false;
 
+/** El rotulo de estado de la cabecera: cuando se actualizo, o que fallo. */
 function sello(texto, color) {
     const el = document.getElementById('sello-datos');
     if (!el) return;
@@ -2148,42 +2149,78 @@ function horaCorta(iso) {
         { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
+/** Una peticion al endpoint, con la accion y las opciones que se le pasen. */
+function pedirAlServidor(cuerpo) {
+    return fetch(GXP_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ accion: 'tablero' }, cuerpo)),
+        redirect: 'follow'
+    }).then(r => {
+        if (!r.ok) throw new Error('el servidor respondio ' + r.status);
+        return r.json();
+    });
+}
+
+/** Mezcla lo que llegue sobre la fuente actual y repinta. */
+function aplicarDatos(d) {
+    if (!d || !d.ok || !Array.isArray(d.facultades) || !d.facultades.length) {
+        throw new Error((d && d.error) || 'respuesta sin datos');
+    }
+    // El detalle se conserva si la respuesta no lo trae: la primera peticion
+    // es solo de agregados y no debe vaciar las tablas que ya estaban.
+    const detallePrevio = DATOS_FUENTE.registros;
+    DATOS_FUENTE = d;
+    if (d.soloAgregados) DATOS_FUENTE.registros = detallePrevio || [];
+    derivarDeLaFuente();
+    pintarTodo();
+}
+
 /**
- * Pide los datos y repinta. `manual` distingue el boton de la ronda
- * automatica: el boton avisa de lo que pasa, la ronda calla si falla,
- * porque un aviso rojo cada dos minutos por un corte de red seria ruido.
+ * Se pide en dos tiempos, y este es el punto del asunto:
+ *
+ *   1. Los AGREGADOS —facultades, totales, KPI, historial—. Son unos pocos
+ *      kilobytes y llenan las tarjetas, los rankings y los graficos.
+ *   2. El DETALLE, decenas de miles de filas, que solo necesitan las tablas.
+ *
+ * Antes iba todo en una peticion. Cuando esa respuesta se volvia demasiado
+ * grande fallaba ENTERA, y el tablero se quedaba con los datos incrustados sin
+ * decir nada: la pantalla parecia vacia y no habia forma de saber por que.
+ * Ahora lo de arriba llega siempre, y si el detalle no cabe se dice.
  */
 function refrescarTablero(manual) {
     if (!GXP_ENDPOINT) { sello('Datos incrustados'); return Promise.resolve(false); }
     if (refrescando) return Promise.resolve(false);
     refrescando = true;
-    if (manual) sello('Actualizando...');
+    if (manual) sello('Actualizando…');
 
-    return fetch(GXP_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ accion: 'tablero' }),
-        redirect: 'follow'
-    })
-    .then(r => r.json())
-    .then(d => {
-        // Una respuesta sin facultades no es una actualizacion: es una hoja
-        // que aun no se ha generado. Se conserva lo que ya habia.
-        if (!d || !d.ok || !Array.isArray(d.facultades) || !d.facultades.length) {
-            throw new Error((d && d.error) || 'Respuesta sin datos');
-        }
-        DATOS_FUENTE = d;
-        derivarDeLaFuente();
-        pintarTodo();
-        sello('Actualizado ' + horaCorta(d.generado));
-        return true;
-    })
-    .catch(e => {
-        console.warn('[Tablero] No se pudo actualizar:', e.message || e);
-        if (manual) sello('Sin conexion con la hoja', 'text-red-600');
-        return false;
-    })
-    .then(r => { refrescando = false; return r; });
+    return pedirAlServidor({ detalle: false })
+        .then(d => {
+            aplicarDatos(d);
+            sello('Actualizado ' + horaCorta(d.generado));
+            // El detalle va aparte y no bloquea: si falla, las cifras de
+            // arriba ya estan puestas y solo se quedan cortas las tablas.
+            return pedirAlServidor({}).then(det => {
+                aplicarDatos(det);
+                sello('Actualizado ' + horaCorta(det.generado));
+                return true;
+            }).catch(e => {
+                console.warn('[Tablero] El detalle no llego:', e.message || e);
+                sello('Actualizado ' + horaCorta(d.generado) + ' · sin detalle',
+                      'text-amber-600');
+                return true;
+            });
+        })
+        .catch(e => {
+            // Se avisa SIEMPRE, no solo cuando se pulsa el boton. Callarlo en
+            // el refresco automatico es lo que dejaba la pantalla con datos
+            // viejos y sin ninguna pista.
+            const motivo = String(e && e.message || e).slice(0, 60);
+            console.warn('[Tablero] No se pudo actualizar:', motivo);
+            sello('Sin conexion con la hoja · ' + motivo, 'text-red-600');
+            return false;
+        })
+        .then(r => { refrescando = false; return r; });
 }
 
 function arrancarTableroEnVivo() {

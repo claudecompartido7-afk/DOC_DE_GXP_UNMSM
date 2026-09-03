@@ -491,3 +491,27 @@ estados. Lo fija `RANKING[bloque].orden`.
 
 Si alguna de las dos hojas falta, las tarjetas salen en cero y el resto del
 tablero se pinta igual.
+
+### La respuesta va en dos tiempos
+
+`tablero({detalle: false})` devuelve **solo los agregados** —facultades,
+totales, KPI e historial—: unos 16 KB, y es lo que llena las tarjetas, los
+rankings y los gráficos. El detalle —decenas de miles de filas entre productos,
+procesos, campos y códigos— viaja en una segunda petición y solo lo necesitan
+las tres tablas.
+
+Antes iba todo junto. Con el libro completo esa respuesta ronda los **2 MB** y
+puede fallar entera; cuando fallaba, el tablero caía a sus datos incrustados
+**sin decir nada**, y la pantalla parecía vacía sin ninguna pista de por qué.
+
+Ahora lo de arriba llega siempre. Si el detalle no cabe, la cabecera lo dice
+—«Actualizado … · sin detalle»— y las tablas se quedan cortas, pero las cifras
+están puestas.
+
+**Los fallos se avisan siempre**, también en el refresco automático, y con el
+motivo: «Sin conexión con la hoja · el servidor respondió 503». Callarlo salvo
+al pulsar el botón era lo que dejaba la pantalla con datos viejos y sin
+explicación.
+
+`probarTablero()` mide el tamaño de las dos partes y avisa si la respuesta se
+ha vuelto muy grande.
