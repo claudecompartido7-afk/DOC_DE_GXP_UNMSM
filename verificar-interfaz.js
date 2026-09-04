@@ -780,7 +780,7 @@ const RUTA = 'file://' + path.join(__dirname, 'Dashboard.html');
 
   console.log('\n  La tabla cambia con las tres tarjetas');
   for (const [bloque, titulo, hoja, col] of [
-      ['fichas', 'Detalle de Fichas', 'RESUMEN_FICHAS_A3', 'NOMBRE FICHA'],
+      ['fichas', 'Detalle de Fichas', 'RESUMEN_FICHAS_A3', '% DE AVANCE'],
       ['campos', 'Detalle de Campos', 'DETALLE_REVISION_A3', 'CAMPO REVISADO'],
       ['codigos', 'Detalle de Denominación', 'REGISTRO_MAESTRO_CODIGOS_A3', 'DENOMINACION']]) {
     await pag.evaluate(b => filterByStatusA3(b, 'CONFORME'), bloque);

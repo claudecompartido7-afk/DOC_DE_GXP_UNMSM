@@ -1667,15 +1667,16 @@ const ORIGEN_TABLA_A3 = {
 
 // Cabeceras propias de cada origen: las dos hojas no tienen las mismas
 // columnas, y dejar la de fichas para los codigos rotularia mal cada dato.
+// Las cabeceras siguen a las columnas REALES de cada hoja, en el orden en que
+// `Tablero.gs` las coloca en cada registro.
 const COLUMNAS_A3 = {
     fichas:  ['FACULTAD', '', 'N° FICHA / PROCESO', 'CODIGO', 'NOMBRE FICHA',
-              'CLASIFICACION', 'ESTADO', '% DE AVANCE', 'HALLAZGOS CRITICOS',
+              '', 'ESTADO', '% DE AVANCE', 'CAMPOS / CELDAS FALTANTES',
               'OBSERVACIONES Y CORRECCIONES'],
-    campos:  ['FACULTAD', 'N° DE FILA', 'N° FICHA / PROCESO', 'CODIGO ENCONTRADO',
-              'CAMPO REVISADO', 'SECCION', 'ESTADO', '¿CAMPO COMPLETO?', 'CELDA',
-              'OBSERVACION ESPECIFICA'],
-    codigos: ['FACULTAD', '', 'FICHAS EN QUE APARECE', 'CODIGO', 'DENOMINACION',
-              'TIPO', 'ESTADO', '¿DENOMINACION CONSISTENTE?', '', 'OBSERVACION']
+    campos:  ['FACULTAD', '', 'N° FICHA / PROCESO', 'N° FICHA', 'CAMPO REVISADO',
+              'SECCION', 'ESTADO', '', 'CELDA', 'OBSERVACION ESPECIFICA'],
+    codigos: ['FACULTAD', '', 'TIPO', 'CODIGO', 'DENOMINACION',
+              'TIPO', 'ESTADO', '', '', 'OBSERVACION']
 };
 
 let a3EntityFilter = 'fichas';

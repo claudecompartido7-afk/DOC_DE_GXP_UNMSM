@@ -33,13 +33,6 @@ const resA3 = FAC.map(([s]) => [s,'FACULTAD '+s, 16,16, 2, 12, 2, 1,'obs','En pr
 const productos = [['FM',7,'PE.01 GESTIÓN ESTRATÉGICA','PE.01.01.01_F01','PLAN ESTRATÉGICO','Final / Salida','CONFORME','100%','8/8','Cumple los 8 criterios.']];
 const procesos  = [['FM','PE.01','GESTIÓN ESTRATÉGICA','Nivel 0','Obligatorio',6,'CONFORME','100%','5/5',''],
                    ['FM','PE.01.01','PLANEAMIENTO','Subproceso','Obligatorio',7,'OBSERVADO','60%','3/5','Falta código']];
-// RESUMEN_FICHAS_A3: su columna 10 (CLASIFICACION) lleva los mismos rotulos
-// que el detalle, asi que la ficha se clasifica igual que el campo.
-const fichas = [
-  ['FM','FACULTAD DE MEDICINA','1. GESTION','PE.01_F01','SI',0.95,'2','','','0','Correcto','ok'],
-  ['FM','FACULTAD DE MEDICINA','2. CALIDAD','PE.02_F01','NO',0.45,'2','campo X','err','3','Crítico','Faltan campos'],
-  ['FM','FACULTAD DE MEDICINA','3. INVEST.','PM.02_F01','NO',0.60,'1','','','1','Observación','revisar'],
-  ['FDCP','FACULTAD DE DERECHO','1. GESTION','PE.01_F02','NO',0.30,'0','','','2','Incompleto','falta']];
 const indic     = [['IND-01','Cobertura','Aprobado'],['IND-02','Plazos','Pendiente'],['IND-03','Calidad','Conforme']];
 const hist      = [[new Date('2026-08-20T10:00:00Z'),'Anexo 1',78.2],
                    [new Date('2026-08-20T10:00:00Z'),'Anexo 3',55.0],
@@ -54,23 +47,37 @@ const catalogo = [['N°','FACULTAD','SIGLA','CODIGO']].concat(
   FAC.map(([s,c],i) => [i+1, 'FACULTAD '+s, s, c]));
 
 // DETALLE_REVISION_A3: los cinco rotulos que escribe el auditor, incluido
-// «Opcional», que no debe contar ni como acierto ni como fallo.
-const camposA3 = [['FACULTAD','NOMBRE','N° FICHA / PROCESO','SECCION','CAMPO REVISADO',
-                   'N° DE FILA','CELDA','CODIGO ENCONTRADO','¿CAMPO COMPLETO?',
-                   'CLASIFICACION','OBSERVACION ESPECIFICA']];
-[['FM','Correcto'], ['FM','Correcto'], ['FM','Observación'], ['FM','Incompleto'],
- ['FM','Crítico'], ['FM','Opcional'], ['FDCP','Correcto'], ['FDCP','Crítico']
-].forEach(([sig, clas], i) => camposA3.push(
-  [sig, 'FACULTAD ' + sig, '1. GESTION', 'Seccion A', 'Campo ' + i, 10 + i, 'B' + i,
-   'PE.01_F01', clas === 'Correcto' ? 'Sí' : 'No', clas, 'obs ' + i]));
 
-// REGISTRO_MAESTRO_CODIGOS_A3
-const codigosA3 = [['FACULTAD','NOMBRE','TIPO','CODIGO','DENOMINACION',
-                    'FICHAS EN QUE APARECE','¿DENOMINACION CONSISTENTE?','OBSERVACION']];
-[['FM','Sí'], ['FM','Sí'], ['FM','No'], ['FDCP','Sí'], ['FDCP','No'], ['FDCP','']
-].forEach(([sig, cons], i) => codigosA3.push(
-  [sig, 'FACULTAD ' + sig, 'Proceso', 'PE.0' + i + '_F01', 'DENOM ' + i,
-   '2 fichas', cons, 'obs ' + i]));
+// Las tres hojas del Anexo 3 con su ESTRUCTURA REAL: traen una columna ESTADO
+// ya calculada (CONFORME / OBSERVADO / SIN REGISTRAR / CRITICO), no los rotulos
+// «Correcto / Incompleto / Observación» que escribe el auditor en su version
+// antigua. Leerlas con el formato viejo dejaba las tres tarjetas en cero.
+
+// RESUMEN_FICHAS_A3: 0 FACULTAD, 1 N°FICHA, 2 CODIGO, 3 %AVANCE,
+// 4 PRODUCTOS FINALES, 5 CAMPOS FALTANTES, 6 ERRORES COD, 7 ESTADO, 8 OBS
+const fichas = [
+  ['FM','1. GESTION','PE.01_F01',0.95,'2','','','CONFORME','ok'],
+  ['FM','2. CALIDAD','PE.02_F01',0.45,'2','campo X','err','CRITICO','Faltan campos'],
+  ['FM','3. INVEST.','PM.02_F01',0.60,'1','','','OBSERVADO','revisar'],
+  ['FDCP','1. GESTION','PE.01_F02',0.30,'0','','','SIN REGISTRAR','falta']];
+
+// DETALLE_REVISION_A3: 0 FACULTAD, 1 N°FICHA, 2 SECCION, 3 CAMPO REVISADO,
+// 4 CELDA, 5 INFORMACION, 6 ESTADO, 7 OBSERVACION
+const camposA3 = [['FACULTAD','N° FICHA / PROCESO','SECCION','CAMPO REVISADO',
+                   'CELDA','INFORMACION','ESTADO','OBSERVACION ESPECIFICA']];
+[['FM','CONFORME'], ['FM','CONFORME'], ['FM','OBSERVADO'], ['FM','SIN REGISTRAR'],
+ ['FM','CRITICO'], ['FM',''], ['FDCP','CONFORME'], ['FDCP','CRITICO']
+].forEach(([sig, est], i) => camposA3.push(
+  [sig, '1. GESTION', 'Seccion A', 'Campo ' + i, 'B' + i, 'texto', est, 'obs ' + i]));
+
+// REGISTRO_MAESTRO_CODIGOS_A3: 0 FACULTAD, 1 TIPO, 2 CODIGO, 3 DENOMINACION,
+// 4 FICHAS EN QUE APARECE, 5 ESTADO, 6 OBSERVACION
+const codigosA3 = [['FACULTAD','TIPO','CODIGO','DENOMINACION',
+                    'FICHAS EN QUE APARECE','ESTADO','OBSERVACION']];
+[['FM','CONFORME'], ['FM','CONFORME'], ['FM','OBSERVADO'], ['FDCP','CONFORME'],
+ ['FDCP','OBSERVADO'], ['FDCP','']
+].forEach(([sig, est], i) => codigosA3.push(
+  [sig, 'Proceso', 'PE.0' + i + '_F01', 'DENOM ' + i, '2 fichas', est, 'obs ' + i]));
 
 const HOJAS_OK = {
   'RESUMEN_GENERAL': [['SIGLA']].concat(general),
@@ -169,14 +176,16 @@ ok('los id no se repiten', new Set(d.registros.map(r=>r.id)).size===d.registros.
 ok('la ficha marcada Crítico llega a la tabla como CRITICO',
    d.registros.some(r => r.entity === 'Ficha' && r.status === 'CRITICO'),
    d.registros.filter(r => r.entity === 'Ficha').map(r => r.status));
-// Sin esa columna se recae en el Si/No, que solo da dos estados.
-const sinClas = fichas.map(f => f.slice(0, 10).concat(['', f[11]]));
-const dSinClas = correr(Object.assign({}, HOJAS_OK,
-  { 'RESUMEN_FICHAS_A3': [['FACULTAD']].concat(sinClas) }));
-ok('sin CLASIFICACION recae en el «¿COMPLETA?» de toda la vida',
-   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado.conformes === 1 &&
-   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado.observados === 2,
-   dSinClas.facultades.find(f => f.sigla === 'FM').fichasEstado);
+// La columna ESTADO ya viene calculada en la hoja. Una celda vacia o con algo
+// que no se reconozca no se cuenta: ni acierto ni fallo, como el «Opcional».
+const sinEstado = fichas.map(f => f.slice(0, 7).concat(['', f[8]]));
+const dSinEstado = correr(Object.assign({}, HOJAS_OK,
+  { 'RESUMEN_FICHAS_A3': [['FACULTAD']].concat(sinEstado) }));
+ok('una ficha sin ESTADO reconocible no se cuenta',
+   dSinEstado.facultades.find(f => f.sigla === 'FM').fichasEstado.total === 0,
+   dSinEstado.facultades.find(f => f.sigla === 'FM').fichasEstado);
+ok('y no rompe el resto del tablero',
+   dSinEstado.facultades.length === 20 && dSinEstado.kpi.general > 0)
 
 console.log('\nAnexo 4 e historico');
 ok('cuenta 2 aprobados de 3 indicadores',
