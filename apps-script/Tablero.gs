@@ -797,6 +797,70 @@ function probarTablero() {
     ? 'no cabe (>100 KB), cada consulta relee el libro — es lo esperado con el detalle completo'
     : 'guardada ' + TABLERO.CACHE_SEG + ' s'));
   lineas.push('Cobertura: ' + JSON.stringify(d.cobertura));
+  // Las tres hojas del Anexo 3, volcadas: cuando una tarjeta sale en cero lo
+  // que hace falta es ver que pone la hoja y como se ha interpretado, no
+  // adivinarlo. Es lo mismo que resolvio lo de Fase 1 en el historial.
+  lineas.push('');
+  lineas.push('════════ ANEXO 3, HOJA POR HOJA ════════');
+  [
+    // Las columnas ESTADO reales de cada hoja.
+    { hoja: TABLERO.HOJAS.FICHAS,     rotulo: 'Fichas',       colEstado: 7, colFac: 0 },
+    { hoja: TABLERO.HOJAS.DETALLE_A3, rotulo: 'Campos',       colEstado: 6, colFac: 0 },
+    { hoja: TABLERO.HOJAS.MAESTRO_A3, rotulo: 'Denominación', colEstado: 5, colFac: 0 }
+  ].forEach(function (cfg) {
+    const hoja = buscarHoja_(libro, cfg.hoja);
+    lineas.push('');
+    lineas.push('── ' + cfg.rotulo + '  ←  ' + cfg.hoja);
+    if (!hoja) { lineas.push('   ✗ LA HOJA NO APARECE'); return; }
+
+    const filas = hoja.getDataRange().getValues();
+    lineas.push('   filas de datos: ' + (filas.length - 1));
+    lineas.push('   cabecera: ' + filas[0].slice(0, 12).join(' | '));
+
+    // Cuantas se clasifican y cuantas se caen, y por que.
+    let ok = 0, sinEstado = 0, sinFacultad = 0;
+    const estadosVistos = {}, siglasNoReconocidas = {};
+    for (let i = 1; i < filas.length; i++) {
+      const bruto = String(filas[i][cfg.colEstado] || '').trim();
+      const est = (cfg.rotulo === 'Denominación')
+        ? estadoDeCodigo_(filas[i][cfg.colEstado])
+        : normalizarEstado_(bruto);
+      const fac = codigoFacultad_(filas[i][cfg.colFac]);
+      estadosVistos[bruto || '(vacío)'] = (estadosVistos[bruto || '(vacío)'] || 0) + 1;
+      if (!est) { sinEstado++; continue; }
+      if (!fac) {
+        sinFacultad++;
+        siglasNoReconocidas[String(filas[i][cfg.colFac])] = true;
+        continue;
+      }
+      ok++;
+    }
+    lineas.push('   CLASIFICADAS: ' + ok +
+                '   ·  sin estado reconocible: ' + sinEstado +
+                '   ·  facultad no reconocida: ' + sinFacultad);
+    lineas.push('   Lo que pone la columna de estado, y cuantas veces:');
+    Object.keys(estadosVistos).slice(0, 12).forEach(function (k) {
+      lineas.push('      «' + k + '» × ' + estadosVistos[k]);
+    });
+    const malas = Object.keys(siglasNoReconocidas).slice(0, 6);
+    if (malas.length) {
+      lineas.push('   Siglas que no cuadran con el catálogo: ' +
+                  malas.map(function (m) { return '«' + m + '»'; }).join(', '));
+    }
+    if (filas.length > 1) {
+      lineas.push('   primera fila: ' + filas[1].slice(0, 12).join(' | '));
+    }
+  });
+
+  lineas.push('');
+  lineas.push('Recuento que llega al tablero:');
+  lineas.push('   Fichas       ' + d.totales.fichConf + ' / ' + d.totales.fichObs + ' / ' +
+              d.totales.fichSinReg + ' / ' + d.totales.fichCrit + '  (conf/obs/sin/crít)');
+  lineas.push('   Campos       ' + d.totales.campConf + ' / ' + d.totales.campObs + ' / ' +
+              d.totales.campSin + ' / ' + d.totales.campCrit);
+  lineas.push('   Denominación ' + d.totales.codConf + ' / ' + d.totales.codObs);
+  lineas.push('════════════════════════════════════════');
+
   lineas.push('');
   lineas.push('HISTORIAL_REVISIONES, fila por fila (columnas A, B y C):');
   const hojaHist = buscarHoja_(libro, TABLERO.HOJAS.HISTORIAL);

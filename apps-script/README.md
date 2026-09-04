@@ -468,21 +468,26 @@ El desglose por estado va en `fichasEstado`, aparte del `fichas`
 —completas/incompletas/sin producto de `RESUMEN_EJECUTIVO_A3`— del que sale el
 KPI del Anexo 3, para no tocar esa aritmética.
 
-**Cómo se traduce la clasificación.** El auditor del Anexo 3 escribe cinco
-rótulos en la columna `CLASIFICACIÓN` y la tarjeta pide cuatro estados, así que
-la correspondencia hay que decidirla y dejarla escrita:
+**Las tres hojas traen su columna `ESTADO` ya calculada** —CONFORME,
+OBSERVADO, SIN REGISTRAR, CRÍTICO—, así que no hay nada que traducir:
+`normalizarEstado_()` solo tolera tildes y mayúsculas.
 
-| Rótulo del auditor | Estado de la tarjeta | Por qué |
-|---|---|---|
-| `Correcto` | Conforme | el campo está y está bien |
-| `Observación` | Observado | está, pero hay algo que corregir |
-| `Incompleto` | Sin Registrar | la columna es «¿CAMPO COMPLETO?»: no está |
-| `Crítico` | Crítico | |
-| `Opcional` | **no cuenta** | no era exigible: ni acierto ni fallo |
+| Hoja | Columna ESTADO |
+|---|---|
+| `RESUMEN_FICHAS_A3` | H (índice 7) |
+| `DETALLE_REVISION_A3` | G (índice 6) |
+| `REGISTRO_MAESTRO_CODIGOS_A3` | F (índice 5) |
 
-En `REGISTRO_MAESTRO_CODIGOS_A3` manda la columna
-`¿DENOMINACIÓN CONSISTENTE?`: «Sí» es conforme, «No» observado, y una celda
-vacía no se cuenta.
+Una celda vacía, o con algo que no se reconozca, **no se cuenta**: ni acierto
+ni fallo.
+
+> Esto costó dos vueltas. El código leía la estructura que escribe
+> `Anexo3_Revision_v3.gs` —con rótulos «Correcto / Incompleto / Observación» y
+> otras posiciones de columna—, que **no es la que tiene el libro**. Con las
+> columnas equivocadas las tres tarjetas salían en cero, en silencio. Si alguna
+> vuelve a vaciarse, `probarTablero()` vuelca ahora las tres hojas fila a fila
+> con lo que dice cada columna y cuántas filas se clasifican, se caen por
+> estado, o se caen por facultad.
 
 **El orden de los rankings es distinto aquí.** En el Anexo 1, Observados y Sin
 Registrar ordenan de menor a mayor porque 0 es lo ideal. En el Anexo 3 se pidió
